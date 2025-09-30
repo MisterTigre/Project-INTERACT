@@ -26,6 +26,19 @@
             "popup_text":""
         }
     ],
+    "circle_markers":[
+        {
+            "center":[47.4799,-0.5873],
+            "radius":10,
+            "style":{
+                "color":"pink",
+                "fillColor":"#20f",
+                "opacity":1,
+                "fillOpacity":0.5
+            },
+            "popup_text":"Zone du cercle marqueur"
+        }
+    ],
     "polygons":[
         {
             "points":[

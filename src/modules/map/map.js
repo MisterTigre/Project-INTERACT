@@ -52,6 +52,15 @@ async function createMap() {
         }
     })
 
+    // Add circle's markers to the map
+    json.circle_markers.forEach(cm => {
+        var new_circle_marker = L.circleMarker(cm.center, cm.style).addTo(map)
+
+        if (cm.popup_text != ""){
+            new_circle_marker.bindPopup(cm.popup_text)
+        }
+    })
+
 
     // Add polygons to the map
     json.polygons.forEach(p => {
