@@ -4,7 +4,7 @@ const ejs = require('ejs')
 const app = express()
 const port = 3000
 
-app.use(express.static('src/public'));
+app.use(express.static('src/public/'));
 
 app.get('/', async (req, res) => {
     // TODO: Fetch config file from Osint4Fun
@@ -43,9 +43,6 @@ app.get('/', async (req, res) => {
         const w = module.size[0]
         const h = module.size[1]
 
-        console.log(x, y, w, h)
-        console.log(`style="grid-column: ${x+1} / ${x+w+1}; grid-row: ${y+1} / ${y+h+1};"`)
-
         const module_html = await ejs.renderFile(`src/modules/${module.type}/${module.type}.ejs`)
         modules_html += await ejs.renderFile("src/modules/module_container.ejs", {
             module: module_html,
@@ -58,7 +55,8 @@ app.get('/', async (req, res) => {
         modules: modules_html,
         title: config.title,
         gridWidth: config.gridSize[0],
-        gridHeight: config.gridSize[1]
+        gridHeight: config.gridSize[1],
+        config: config
     })
 
     res.send(html)
