@@ -1,76 +1,13 @@
 class Chat {
     constructor(id) {
-        this.id = id;
         this.container = document.getElementById(this.id);
         this.currentContact = null;
-        this.contacts = new Map(); // Store contact data
-        
-        // Initialize with existing contacts from HTML
-        this.initializeExistingContacts();
-        this.initializeEventListeners();
+        this.contacts = new Map(); 
     }
 
-    initializeExistingContacts() {
-        // Initialize existing contacts from the HTML
-        const contactCards = this.container.querySelectorAll('.contact-card');
-        contactCards.forEach(card => {
-            const contactId = card.dataset.contact;
-            const name = card.querySelector('.contact-name').textContent;
-            const status = card.querySelector('.contact-status').textContent;
-            const avatar = card.querySelector('.contact-avatar img').src;
-            
-            this.contacts.set(contactId, {
-                id: contactId,
-                name: name,
-                status: status,
-                avatar: avatar,
-                unreadCount: 0
-            });
-        });
-    }
-
-    initializeEventListeners() {
-        // Contact selection listeners
-        const contactCards = this.container.querySelectorAll('.contact-card');
-        contactCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const contactId = card.dataset.contact;
-                this.openChat(contactId);
-            });
-        });
-
-        // Back button listener
-        const backBtn = this.container.querySelector('#back-btn');
-        if (backBtn) {
-            backBtn.addEventListener('click', () => {
-                this.showContactSelection();
-            });
-        }
-
-        // Send message listeners
-        const sendBtn = this.container.querySelector('#send-btn');
-        const messageInput = this.container.querySelector('#message-input');
-        
-        if (sendBtn) {
-            sendBtn.addEventListener('click', () => {
-                this.handleSendMessage();
-            });
-        }
-
-        if (messageInput) {
-            messageInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.handleSendMessage();
-                }
-            });
-        }
-    }
-
-    addContact(contactData) {
-        const { id, name, status = 'Offline', avatar = 'https://via.placeholder.com/80', unreadCount = 0 } = contactData;
-        
+    addContact(id, name, avatar = 'https://placehold.co/50x50', unreadCount = 0) {        
         // Add to contacts map
-        this.contacts.set(id, { id, name, status, avatar, unreadCount });
+        this.contacts.set(id, { id, name, avatar, unreadCount });
 
         // Create contact card element
         const contactCard = document.createElement('div');
@@ -83,7 +20,6 @@ class Chat {
             </div>
             <div class="contact-info">
                 <div class="contact-name">${name}</div>
-                <div class="contact-status">${status}</div>
             </div>
             ${unreadCount > 0 ? `<div class="unread-count">${unreadCount}</div>` : ''}
         `;
@@ -109,8 +45,7 @@ class Chat {
         if (!this.contacts.has(sender)) {
             this.addContact({
                 id: sender,
-                name: sender.charAt(0).toUpperCase() + sender.slice(1),
-                status: 'Online'
+                name: sender.charAt(0).toUpperCase() + sender.slice(1)
             });
         }
 
@@ -191,7 +126,6 @@ class Chat {
         // Update chat header
         this.container.querySelector('#current-avatar').src = contact.avatar;
         this.container.querySelector('#current-contact-name').textContent = contact.name;
-        this.container.querySelector('#current-contact-status').textContent = contact.status;
 
         // Show appropriate messages
         this.container.querySelectorAll('.messages').forEach(msgs => {
@@ -272,22 +206,5 @@ class Chat {
 
     getContact(contactId) {
         return this.contacts.get(contactId);
-    }
-
-    updateContactStatus(contactId, status) {
-        if (this.contacts.has(contactId)) {
-            this.contacts.get(contactId).status = status;
-            
-            // Update in contact list
-            const contactCard = this.container.querySelector(`[data-contact="${contactId}"]`);
-            if (contactCard) {
-                contactCard.querySelector('.contact-status').textContent = status;
-            }
-            
-            // Update in chat header if current contact
-            if (this.currentContact === contactId) {
-                this.container.querySelector('#current-contact-status').textContent = status;
-            }
-        }
     }
 }
