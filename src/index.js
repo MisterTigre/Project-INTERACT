@@ -1,21 +1,20 @@
-// Load HTTP module
-const http = require("http");
+const express = require('express');
 const ejs = require('ejs');
 
+const app = express();
 const hostname = "127.0.0.1";
 const port = 3000;
 
-// Create HTTP server and listen on port 3000 for requests
-const server = http.createServer((req, res) => {
-    // Set the response HTTP header with HTTP status and Content type
-    let people = ['nolann', 'remi', 'matthias'];
-    let html = ejs.render('<%= people.join(", "); %>', { people: people });
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain");
-    res.end(html);
+// Set EJS as the view engine
+app.set('view engine', 'ejs');
+app.set('views', __dirname); // Assumes chat.ejs is in 'src/views'
+app.use(express.static('src/public'));
+
+// Route to render chat.ejs
+app.get('/', (req, res) => {
+    res.render('routes/index');
 });
 
-// Listen for request on port 3000, and as a callback function have the port listened on logged
-server.listen(port, hostname, () => {
+app.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
 });

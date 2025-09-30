@@ -1,0 +1,44 @@
+<link rel="stylesheet" href="/css/chat.css">
+
+<!-- Contact Selection Page -->
+<div id="contact-selection" class="page active">
+    <div class="contact-selection-container">
+        <div class="contact-selection-header">
+            <h2>Choose a contact to chat with</h2>
+        </div>        <div class="contact-selection-list">
+            <!-- Contacts will be dynamically added here via JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Chat Page -->
+<div id="chat-page" class="page">
+    <div class="chat-container">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <button class="back-btn" id="back-btn">← Back</button>
+            <div class="chat-contact-info">
+                <div class="chat-avatar">
+                    <img id="current-avatar" src="" alt="">
+                </div>
+                <div class="chat-contact-details">
+                    <div class="chat-contact-name" id="current-contact-name"></div>
+                    <div class="chat-contact-status" id="current-contact-status"></div>
+                </div>
+            </div>
+        </div>        <!-- Messages Container -->
+        <div class="messages-container" id="messages-container">
+            <!-- Messages will be dynamically added here via JavaScript -->
+        </div>
+
+        <!-- Message Input -->
+        <div class="message-input-container">
+            <div class="message-input">
+                <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
+                <button class="send-btn" id="send-btn">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/chat/chat.js"></script>

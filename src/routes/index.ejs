@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Chat Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="myfirstchat">
+        <%- include('../modules/chat/chat') %>
+    </div>
+    <!-- <div id="mysecondchat">
+        <%- include('../modules/chat/chat') %>
+    </div> -->
+
+<script src="js/chat/chat.js" ></script>
+<script>
+    // Initialize the first chat
+    const chat1 = new Chat("myfirstchat");
+    
+    // Example: Simulate receiving messages
+    setTimeout(() => {
+        chat1.receiveMessage("alice", "Hey! I just got back from the meeting.");
+    }, 2000);
+    
+    setTimeout(() => {
+        chat1.receiveMessage("bob", "Don't forget about our project deadline!");
+    }, 4000);
+    
+    // Example: Add a new contact dynamically
+    setTimeout(() => {
+        chat1.addContact({
+            id: "charlie",
+            name: "Charlie",
+            status: "Online",
+            avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face"
+        });
+        
+        // Send a message from the new contact
+        chat1.receiveMessage("charlie", "Hi! I'm new here!");
+    }, 6000);
+    
+    // Example: Update contact status
+    setTimeout(() => {
+        chat1.updateContactStatus("alice", "Away");
+    }, 8000);
+    
+    // Uncomment to create a second chat instance
+    // const chat2 = new Chat("mysecondchat");
+</script>
+</body>
+</html>
