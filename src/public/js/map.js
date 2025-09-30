@@ -189,13 +189,3 @@ class Map {
             .openOn(this.#map)
     }
 }
-
-
-async function test(){
-    const response = await fetch('map.json')
-    const json = await response.json()
-    const data = undefined
-    let mymap = new Map("map1", data)
-}
-
-test()

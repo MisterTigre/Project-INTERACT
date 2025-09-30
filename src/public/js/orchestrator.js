@@ -2,6 +2,8 @@ function create_module(type, id, data) {
     switch (type) {
         case "test":
             return new Test(id, data)
+        case "map":
+            return new Map(id, data)
     
         default:
             throw `Invalid module type "${type}"`
