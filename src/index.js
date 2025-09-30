@@ -4,7 +4,7 @@ const ejs = require('ejs')
 const app = express()
 const port = 3000
 
-app.use(express.static('src/public'));
+app.use(express.static('src/public/'));
 
 app.get('/', async (req, res) => {
     // TODO: Fetch config file from Osint4Fun
@@ -58,7 +58,8 @@ app.get('/', async (req, res) => {
         modules: modules_html,
         title: config.title,
         gridWidth: config.gridSize[0],
-        gridHeight: config.gridSize[1]
+        gridHeight: config.gridSize[1],
+        config: config
     })
 
     res.send(html)
