@@ -11,12 +11,12 @@ app.get('/', async (req, res) => {
 
     config = {
         title: "Main page",
-        gridSize: [5, 5],
+        gridSize: [7, 7],
         modules: [
             {
-                type: "test",
-                id: "test3",
-                position: [0, 0],
+                type: "map",
+                id: "map1",
+                position: [1, 1],
                 size: [5, 5]
             },
             {
