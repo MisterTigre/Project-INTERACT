@@ -1,32 +1,51 @@
 class Chat {
-    constructor(id) {
-        this.container = document.getElementById(this.id);
+    constructor(id, data=null) {
+        this.container = document.getElementById(id);
         this.currentContact = null;
         this.contacts = new Map(); 
+        this.data = data; // Store the data parameter
     }
 
-    addContact(id, name, avatar = 'https://placehold.co/50x50', unreadCount = 0) {        
+    addContact(name, avatar = 'https://placehold.co/50x50', unreadCount = 0) {        
         // Add to contacts map
-        this.contacts.set(id, { id, name, avatar, unreadCount });
+        this.contacts.set(name, {avatar, unreadCount });
 
         // Create contact card element
         const contactCard = document.createElement('div');
         contactCard.className = 'contact-card';
-        contactCard.dataset.contact = id;
+        contactCard.dataset.contact = name;
         
-        contactCard.innerHTML = `
-            <div class="contact-avatar">
-                <img src="${avatar}" alt="${name}">
-            </div>
-            <div class="contact-info">
-                <div class="contact-name">${name}</div>
-            </div>
-            ${unreadCount > 0 ? `<div class="unread-count">${unreadCount}</div>` : ''}
-        `;
+        // Create avatar element
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = 'contact-avatar';
+        const avatarImg = document.createElement('img');
+        avatarImg.src = avatar;
+        avatarImg.alt = name;
+        avatarDiv.appendChild(avatarImg);
+
+        // Create info element
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'contact-info';
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'contact-name';
+        nameDiv.textContent = name;
+        infoDiv.appendChild(nameDiv);
+
+        // Append avatar and info to contact card
+        contactCard.appendChild(avatarDiv);
+        contactCard.appendChild(infoDiv);
+
+        // Add unread count if needed
+        if (unreadCount > 0) {
+            const unreadDiv = document.createElement('div');
+            unreadDiv.className = 'unread-count';
+            unreadDiv.textContent = unreadCount;
+            contactCard.appendChild(unreadDiv);
+        }
 
         // Add click listener
         contactCard.addEventListener('click', () => {
-            this.openChat(id);
+            this.openChat(name);
         });
 
         // Add to contact list
@@ -36,24 +55,22 @@ class Chat {
         // Create messages container for this contact
         const messagesContainer = this.container.querySelector('#messages-container');
         const newMessagesDiv = document.createElement('div');
-        newMessagesDiv.className = `messages-${id} messages`;
+        newMessagesDiv.className = `messages`;
+        newMessagesDiv.dataset.contact = name;
         messagesContainer.appendChild(newMessagesDiv);
     }
 
-    receiveMessage(sender, message, timestamp = null) {
+    receiveMessage(sender, message) {
         // If sender doesn't exist, create them
         if (!this.contacts.has(sender)) {
-            this.addContact({
-                id: sender,
-                name: sender.charAt(0).toUpperCase() + sender.slice(1)
-            });
+            this.addContact(sender);
         }
 
         // Create message element
-        const messageElement = this.createMessageElement('received', message, timestamp, sender);
+        const messageElement = this.createMessageElement('received', message, sender);
         
         // Add to appropriate messages container
-        const messagesDiv = this.container.querySelector(`.messages-${sender}`);
+        const messagesDiv = this.container.querySelector(`.messages[data-contact="${sender}"]`);
         if (messagesDiv) {
             messagesDiv.appendChild(messageElement);
             
@@ -71,11 +88,11 @@ class Chat {
         }
     }
 
-    sendMessage(contactId, message, timestamp = null) {
+    sendMessage(contactId, message, ) {
         if (!contactId || !message.trim()) return;
 
         // Create message element
-        const messageElement = this.createMessageElement('sent', message, timestamp);
+        const messageElement = this.createMessageElement('sent', message);
         
         // Add to appropriate messages container
         const messagesDiv = this.container.querySelector(`.messages-${contactId}`);
@@ -85,39 +102,48 @@ class Chat {
         }
     }
 
-    createMessageElement(type, message, timestamp = null, sender = null) {
+    createMessageElement(type, message, sender = null) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type}`;
         
-        const time = timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
-        let avatarHTML = '';
         if (type === 'received' && sender) {
+            // Add avatar for received messages
             const contact = this.contacts.get(sender);
-            const avatarSrc = contact ? contact.avatar : 'https://via.placeholder.com/30';
-            avatarHTML = `
-                <div class="message-avatar">
-                    <img src="${avatarSrc}" alt="${sender}">
-                </div>
-            `;
+            const avatarSrc = contact.avatar;
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'message-avatar';
+            const avatarImg = document.createElement('img');
+            avatarImg.src = avatarSrc;
+            avatarImg.alt = sender;
+            avatarDiv.appendChild(avatarImg);
+            messageDiv.appendChild(avatarDiv);
         }
 
-        messageDiv.innerHTML = `
-            ${avatarHTML}
-            <div class="message-content">
-                <div class="message-text">${message}</div>
-                <div class="message-time">${time}</div>
-            </div>
-        `;
+        // Create message
+        const contentDiv = document.createElement('div'); // Container
+        contentDiv.className = 'message-content';
+        const textDiv = document.createElement('div'); // Text
+        textDiv.className = 'message-text';
+        textDiv.textContent = message;
+        const timeDiv = document.createElement('div'); // Time
+        timeDiv.className = 'message-time';
+        timeDiv.textContent = time;
+        contentDiv.appendChild(textDiv);
+        contentDiv.appendChild(timeDiv);
+
+        // Append content to messageDiv
+        messageDiv.appendChild(contentDiv);
 
         return messageDiv;
     }
 
-    openChat(contactId) {
-        if (!this.contacts.has(contactId)) return;
+    openChat(name) {
+        if (!this.contacts.has(name)) return;
 
-        this.currentContact = contactId;
-        const contact = this.contacts.get(contactId);
+        this.currentContact = name;
+        const contact = this.contacts.get(name);
 
         // Hide contact selection, show chat
         this.container.querySelector('#contact-selection').classList.remove('active');
@@ -125,21 +151,21 @@ class Chat {
 
         // Update chat header
         this.container.querySelector('#current-avatar').src = contact.avatar;
-        this.container.querySelector('#current-contact-name').textContent = contact.name;
+        this.container.querySelector('#current-contact-name').textContent = name;
 
         // Show appropriate messages
         this.container.querySelectorAll('.messages').forEach(msgs => {
             msgs.classList.remove('active');
         });
         
-        const currentMessages = this.container.querySelector(`.messages-${contactId}`);
+        const currentMessages = this.container.querySelector(`.messages[data-contact="${name}"]`);
         if (currentMessages) {
             currentMessages.classList.add('active');
         }
 
         // Clear unread count
         contact.unreadCount = 0;
-        this.updateContactUnreadCount(contactId, 0);
+        this.updateContactUnreadCount(name, 0);
 
         // Focus on input
         const messageInput = this.container.querySelector('#message-input');

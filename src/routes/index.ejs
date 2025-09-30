@@ -40,7 +40,7 @@
     
     // Example: Simulate receiving messages
     setTimeout(() => {
-        chat1.receiveMessage("alice", "Hey! I just got back from the meeting.");
+        chat1.receiveMessage("49Alice été 85", "Hey! I just got back from the meeting.");
     }, 2000);
     
     setTimeout(() => {
@@ -48,25 +48,17 @@
     }, 4000);
     
     // Example: Add a new contact dynamically
-    setTimeout(() => {
-        chat1.addContact({
-            id: "charlie",
-            name: "Charlie",
-            status: "Online",
-            avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face"
-        });
+    // setTimeout(() => {
+    //     chat1.addContact({
+    //         id: "charlie",
+    //         name: "Charlie"
+    //     });
         
-        // Send a message from the new contact
-        chat1.receiveMessage("charlie", "Hi! I'm new here!");
-    }, 6000);
+    //     // Send a message from the new contact
+    //     chat1.receiveMessage("charlie", "Hi! I'm new here!");
+    // }, 6000);
+
     
-    // Example: Update contact status
-    setTimeout(() => {
-        chat1.updateContactStatus("alice", "Away");
-    }, 8000);
-    
-    // Uncomment to create a second chat instance
-    // const chat2 = new Chat("mysecondchat");
 </script>
 </body>
 </html>
