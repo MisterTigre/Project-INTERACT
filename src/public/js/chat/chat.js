@@ -4,6 +4,65 @@ class Chat {
         this.currentContact = null;
         this.contacts = new Map(); 
         this.data = data; // Store the data parameter
+        
+        // Set up event listeners
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        // Back button event listener
+        const backBtn = this.container.querySelector('#back-btn');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                this.showContactSelection();
+            });
+        }
+
+        // Send button event listener
+        const sendBtn = this.container.querySelector('#send-btn');
+        if (sendBtn) {
+            sendBtn.addEventListener('click', () => {
+                this.handleSendMessage();
+            });
+        }
+
+        // Enter key on message input
+        const messageInput = this.container.querySelector('#message-input');
+        if (messageInput) {
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.handleSendMessage();
+                }
+            });
+        }
+    }
+
+    receiveMessage(sender, message) {
+        // If sender doesn't exist, create them
+        if (!this.contacts.has(sender)) {
+            this.addContact(sender);
+        }
+
+        // Create message element
+        const messageElement = this.createMessageElement('received', message, sender);
+        
+        // Add to appropriate messages container
+        const messagesDiv = this.container.querySelector(`.messages[data-contact="${sender}"]`);
+        if (messagesDiv) {
+            messagesDiv.appendChild(messageElement);
+            
+            // Scroll to bottom if this is the current chat
+            if (this.currentContact === sender) {
+                this.scrollToBottom();
+            }
+        }
+
+        // Update unread count if not current chat
+        if (this.currentContact !== sender) {
+            const contact = this.contacts.get(sender);
+            contact.unreadCount++;
+            this.updateContactUnreadCount(sender, contact.unreadCount);
+        }
     }
 
     addContact(name, avatar = 'https://placehold.co/50x50', unreadCount = 0) {        
@@ -60,34 +119,6 @@ class Chat {
         messagesContainer.appendChild(newMessagesDiv);
     }
 
-    receiveMessage(sender, message) {
-        // If sender doesn't exist, create them
-        if (!this.contacts.has(sender)) {
-            this.addContact(sender);
-        }
-
-        // Create message element
-        const messageElement = this.createMessageElement('received', message, sender);
-        
-        // Add to appropriate messages container
-        const messagesDiv = this.container.querySelector(`.messages[data-contact="${sender}"]`);
-        if (messagesDiv) {
-            messagesDiv.appendChild(messageElement);
-            
-            // Scroll to bottom if this is the current chat
-            if (this.currentContact === sender) {
-                this.scrollToBottom();
-            }
-        }
-
-        // Update unread count if not current chat
-        if (this.currentContact !== sender) {
-            const contact = this.contacts.get(sender);
-            contact.unreadCount++;
-            this.updateContactUnreadCount(sender, contact.unreadCount);
-        }
-    }
-
     sendMessage(contactId, message, ) {
         if (!contactId || !message.trim()) return;
 
@@ -95,7 +126,7 @@ class Chat {
         const messageElement = this.createMessageElement('sent', message);
         
         // Add to appropriate messages container
-        const messagesDiv = this.container.querySelector(`.messages-${contactId}`);
+        const messagesDiv = this.container.querySelector(`.messages[data-contact="${contactId}"]`);
         if (messagesDiv) {
             messagesDiv.appendChild(messageElement);
             this.scrollToBottom();
