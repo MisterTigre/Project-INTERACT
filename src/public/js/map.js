@@ -32,7 +32,7 @@ class Map {
 
         this.popup = L.popup()
         if (this.#json.clickable){
-            this.#map.on('click', this.onMapClick.bind(this))
+            this.#map.on('click', this.#onMapClick.bind(this))
         }
     }
 
@@ -177,25 +177,15 @@ class Map {
             }
         }
     }
-
+    
     get_id(){
         return this.#id
     }
 
-    onMapClick(e) {
+    #onMapClick(e) {
         this.popup
             .setLatLng(e.latlng)
             .setContent("You clicked the map at " + e.latlng.toString())
             .openOn(this.#map)
     }
 }
-
-
-async function test(){
-    const response = await fetch('map.json')
-    const json = await response.json()
-    const data = undefined
-    let mymap = new Map("map1", data)
-}
-
-test()
