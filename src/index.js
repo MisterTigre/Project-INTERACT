@@ -1,21 +1,69 @@
-// Load HTTP module
-const http = require("http");
-const ejs = require('ejs');
+const express = require('express')
+const ejs = require('ejs')
 
-const hostname = "127.0.0.1";
-const port = 3000;
+const app = express()
+const port = 3000
 
-// Create HTTP server and listen on port 3000 for requests
-const server = http.createServer((req, res) => {
-    // Set the response HTTP header with HTTP status and Content type
-    let people = ['nolann', 'remi', 'matthias'];
-    let html = ejs.render('<%= people.join(", "); %>', { people: people });
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain");
-    res.end(html);
-});
+app.use(express.static('src/public'));
 
-// Listen for request on port 3000, and as a callback function have the port listened on logged
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
-});
+app.get('/', async (req, res) => {
+    // TODO: Fetch config file from Osint4Fun
+
+    config = {
+        gridSize: [5, 5],
+        modules: [
+            {
+                type: "test",
+                id: "test3",
+                position: [0, 0],
+                size: [5, 5]
+            },
+            {
+                type: "test",
+                id: "test1",
+                position: [0, 0],
+                size: [1, 1]
+            },
+            {
+                type: "test",
+                id: "test2",
+                position: [1, 0],
+                size: [1, 2]
+            }
+        ]
+    }
+
+    let modules_html = ""
+    for (module of config.modules)
+    {
+        // Compute module position and size
+        const x = module.position[0]
+        const y = module.position[1]
+
+        const w = module.size[0]
+        const h = module.size[1]
+
+        console.log(x, y, w, h)
+        console.log(`style="grid-column: ${x+1} / ${x+w+1}; grid-row: ${y+1} / ${y+h+1};"`)
+
+        const module_html = await ejs.renderFile(`src/modules/${module.type}/${module.type}.ejs`)
+        modules_html += await ejs.renderFile("src/modules/module_container.ejs", {
+            module: module_html,
+            id: module.id,
+            style: `grid-column: ${x+1} / ${x+w+1}; grid-row: ${y+1} / ${y+h+1};`
+        })
+    }
+
+    const html = await ejs.renderFile("src/routes/home.ejs", {
+        modules: modules_html,
+        title: "Test page",
+        gridWidth: config.gridSize[0],
+        gridHeight: config.gridSize[1]
+    })
+
+    res.send(html)
+})
+
+app.listen(port, () => {
+    console.log(`App listening on port ${port}`)
+})
