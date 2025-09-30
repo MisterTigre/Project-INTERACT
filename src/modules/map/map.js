@@ -55,12 +55,7 @@ async function createMap() {
 
     // Add polygons to the map
     json.polygons.forEach(p => {
-        var new_polygon = L.polygon(p.points, {
-            color: p.color,
-            fillColor: p.fillColor,
-            opacity: p.opacity,        // contour invisible par défaut
-            fillOpacity: p.fillOpacity     // remplissage invisible par défaut
-        }).addTo(map);
+        var new_polygon = L.polygon(p.points, p.style).addTo(map);
 
         if (p.popup_text != "") {
             new_polygon.bindPopup(p.popup_text)
@@ -68,8 +63,15 @@ async function createMap() {
 
         if (p.hover_view){
             new_polygon.setStyle({ opacity: 0, fillOpacity: 0 })
+
+            if (!("opacity" in p.style)){
+                p.style.opacity = 1
+            }if (!("fillOpacity" in p.style)){
+                p.style.fillOpacity = 0.5
+            }
+
             new_polygon.on('mouseover', function () {
-                this.setStyle({ opacity: p.opacity, fillOpacity: p.fillOpacity })
+                this.setStyle({ opacity: p.style.opacity, fillOpacity: p.style.fillOpacity })
             });
 
             new_polygon.on('mouseout', function () {

@@ -34,10 +34,10 @@
                 [47.47943, -0.587276],
                 [47.479544, -0.587715]
             ],
-            "color":"red",
-            "fillColor":"#f03",
-            "fillOpacity":0.5,
-            "opacity":1,
+            "style":{
+                "color":"red",
+                "fillColor":"#f03"
+            },
             "popup_text":"Zone de polygone",
             "hover_view":true
         }
