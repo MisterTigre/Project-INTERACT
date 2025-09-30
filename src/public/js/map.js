@@ -24,11 +24,11 @@ class Map {
             this.desactivate_movement()
         }
 
-        this.create_custom_icons(this.#json.custom_icons)
-        this.create_markers(this.#json.markers)
-        this.create_circle_markers(this.#json.circle_markers)
-        this.create_polygons(this.#json.polygons)
-        this.create_circles(this.#json.circles)
+        this.#create_custom_icons(this.#json.custom_icons)
+        this.#create_markers(this.#json.markers)
+        this.#create_circle_markers(this.#json.circle_markers)
+        this.#create_polygons(this.#json.polygons)
+        this.#create_circles(this.#json.circles)
 
         this.popup = L.popup()
         if (this.#json.clickable){
@@ -46,7 +46,7 @@ class Map {
     }
 
     // Desactive all movements if you want it
-    desactivate_movement(){
+    #desactivate_movement(){
         this.#map.removeControl(this.#map.zoomControl)
         this.#map.dragging.disable()
         this.#map.touchZoom.disable()
@@ -58,7 +58,7 @@ class Map {
 
 
     // create custom icons
-    create_custom_icons(icons){
+    #create_custom_icons(icons){
         icons.forEach(ci => {
             this.#custom_icons[ci.name] = L.icon({
                 iconUrl: ci.iconUrl,  
@@ -70,7 +70,7 @@ class Map {
     }
 
     // Add markers to the map
-    create_markers(markers){
+    #create_markers(markers){
         markers.forEach(m => {
             var icon = L.Icon.Default.prototype
             if (m.icon in this.#custom_icons){
@@ -79,33 +79,33 @@ class Map {
                 console.error(`The icon "${m.icon}" has not been declared`)
             }
             var new_marker = L.marker([m.latitude, m.longitude], {icon: icon}).addTo(this.#map)
-            if (m.popup_text != ""){
+            if ("popup_text" in m){
                 new_marker.bindPopup(m.popup_text)
             }
         })
     }
 
     // Add circle's markers to the map
-    create_circle_markers(circle_markers){
+    #create_circle_markers(circle_markers){
         circle_markers.forEach(cm => {
             var new_circle_marker = L.circleMarker(cm.center, cm.style).addTo(this.#map)
 
-            if (cm.popup_text != ""){
+            if ("popup_text" in cm){
                 new_circle_marker.bindPopup(cm.popup_text)
             }
         })
     }
 
     // Add polygons to the map
-    create_polygons(polygons){
+    #create_polygons(polygons){
         polygons.forEach(p => {
             var new_polygon = L.polygon(p.points, p.style).addTo(this.#map)
 
-            if (p.popup_text != "") {
+            if ("popup_text" in p) {
                 new_polygon.bindPopup(p.popup_text)
             }
 
-            if (p.hover_view){
+            if ("hover_view" in p && p.hover_view){
                 new_polygon.setStyle({ opacity: 0, fillOpacity: 0 })
 
                 if (!("opacity" in p.style)){
@@ -128,15 +128,15 @@ class Map {
 
 
     // Add cicrcles to the map
-    create_circles(circles){
+    #create_circles(circles){
         circles.forEach(c => {
             var new_circle = L.circle(c.center,c.style).addTo(this.#map)
 
-            if (c.popup_text != "") {
+            if ("popup_text" in c) {
                 new_circle.bindPopup(c.popup_text)
             }
 
-            if (c.hover_view){
+            if ("hover_view" in c && c.hover_view){
                 new_circle.setStyle({ opacity: 0, fillOpacity: 0 })
 
                 if (!("opacity" in c.style)){
@@ -177,15 +177,40 @@ class Map {
             }
         }
     }
-    
+
     get_id(){
         return this.#id
     }
+    
 
     #onMapClick(e) {
+        if (authorize)
         this.popup
             .setLatLng(e.latlng)
             .setContent("You clicked the map at " + e.latlng.toString())
             .openOn(this.#map)
+    }
+
+    notify(msg, payload) {
+        switch (msg) {
+            case "add_custom_icon":
+                this.#create_custom_icons([payload])
+                break
+            case "add_marker":
+                this.#create_markers([payload])
+                break
+            case "add_circle_marker":
+                this.#create_circle_markers([payload])
+                break
+            case "add_polygon":
+                this.#create_polygons([payload])
+                break
+            case "add_circle":
+                this.#create_circles([payload])
+                break
+            case "authorize_click":
+                
+                break
+        }
     }
 }
