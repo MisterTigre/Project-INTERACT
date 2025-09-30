@@ -10,6 +10,9 @@ app.set('view engine', 'ejs');
 app.set('views', __dirname); // Assumes chat.ejs is in 'src/views'
 app.use(express.static('src/public'));
 
+// Serve Bootstrap CSS and JS from node_modules
+app.use('/bootstrap', express.static('node_modules/bootstrap/dist'));
+
 // Route to render chat.ejs
 app.get('/', (req, res) => {
     res.render('routes/index');

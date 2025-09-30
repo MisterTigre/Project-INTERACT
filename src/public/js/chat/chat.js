@@ -3,14 +3,12 @@ class Chat {
         this.container = document.getElementById(containerId);
         this.currentContactName = null;
         this.contacts = new Map(); 
-        this.data = data; // Store the data parameter
+        this.data = data;
         
-        // Set up event listeners
         this.setupEventListeners();
     }
 
     setupEventListeners() {
-        // Back button event listener
         const backBtn = this.container.querySelector('#back-btn');
         if (backBtn) {
             backBtn.addEventListener('click', () => {
@@ -18,7 +16,6 @@ class Chat {
             });
         }
 
-        // Send button event listener
         const sendBtn = this.container.querySelector('#send-btn');
         if (sendBtn) {
             sendBtn.addEventListener('click', () => {
@@ -26,7 +23,6 @@ class Chat {
             });
         }
 
-        // Enter key on message input
         const messageInput = this.container.querySelector('#message-input');
         if (messageInput) {
             messageInput.addEventListener('keypress', (e) => {
@@ -35,140 +31,161 @@ class Chat {
                 }
             });
         }
-    }    receiveMessage(senderName, messageText) {
-        // If sender doesn't exist, create them
+    }
+
+    receiveMessage(senderName, messageText) {
         if (!this.contacts.has(senderName)) {
             this.addContact(senderName);
         }
 
-        // Create message element
         const messageElement = this.createMessageElement('received', messageText, senderName);
         
-        // Add to appropriate messages container
         const messagesContainer = this.container.querySelector(`.messages[data-contact="${senderName}"]`);
         if (messagesContainer) {
             messagesContainer.appendChild(messageElement);
             
-            // Scroll to bottom if this is the current chat
             if (this.currentContactName === senderName) {
                 this.scrollToBottom();
             }
         }
 
-        // Update unread count if not current chat
         if (this.currentContactName !== senderName) {
             const contact = this.contacts.get(senderName);
             contact.unreadCount++;
             this.updateContactUnreadCount(senderName, contact.unreadCount);
         }
-    }    addContact(contactName, avatarUrl = 'https://placehold.co/50x50', unreadCount = 0) {        
-        // Add to contacts map
+    }
+
+    addContact(contactName, avatarUrl = 'https://placehold.co/50x50', unreadCount = 0) {        
         this.contacts.set(contactName, {avatar: avatarUrl, unreadCount});
 
-        // Create contact card element
+        // Create contact card using Bootstrap classes
         const contactCard = document.createElement('div');
-        contactCard.className = 'contact-card';
+        contactCard.className = 'card mb-3 shadow-sm';
         contactCard.dataset.contact = contactName;
+        contactCard.style.cursor = 'pointer';
         
-        // Create avatar element
-        const avatarContainer = document.createElement('div');
-        avatarContainer.className = 'contact-avatar';
-        const avatarImage = document.createElement('img');
-        avatarImage.src = avatarUrl;
-        avatarImage.alt = contactName;
-        avatarContainer.appendChild(avatarImage);
+        const cardBody = document.createElement('div');
+        cardBody.className = 'card-body p-3';
+        
+        const row = document.createElement('div');
+        row.className = 'd-flex align-items-center';
 
-        // Create info element
+        // Avatar
+        const avatarImg = document.createElement('img');
+        avatarImg.src = avatarUrl;
+        avatarImg.alt = contactName;
+        avatarImg.className = 'rounded-circle me-3';
+        avatarImg.width = 60;
+        avatarImg.height = 60;
+
+        // Contact info
         const contactInfo = document.createElement('div');
-        contactInfo.className = 'contact-info';
-        const contactNameElement = document.createElement('div');
-        contactNameElement.className = 'contact-name';
+        contactInfo.className = 'flex-grow-1';
+        
+        const contactNameElement = document.createElement('h6');
+        contactNameElement.className = 'mb-1 fw-bold';
         contactNameElement.textContent = contactName;
+
         contactInfo.appendChild(contactNameElement);
 
-        // Append avatar and info to contact card
-        contactCard.appendChild(avatarContainer);
-        contactCard.appendChild(contactInfo);
+        row.appendChild(avatarImg);
+        row.appendChild(contactInfo);
 
-        // Add unread count if needed
+        // Unread count badge
         if (unreadCount > 0) {
-            const unreadCountElement = document.createElement('div');
-            unreadCountElement.className = 'unread-count';
-            unreadCountElement.textContent = unreadCount;
-            contactCard.appendChild(unreadCountElement);
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-danger rounded-pill unread-count';
+            badge.textContent = unreadCount;
+            row.appendChild(badge);
         }
 
-        // Add click listener
+        cardBody.appendChild(row);
+        contactCard.appendChild(cardBody);
+
+        // Hover effects
+        contactCard.addEventListener('mouseenter', () => {
+            contactCard.classList.add('shadow');
+        });
+        contactCard.addEventListener('mouseleave', () => {
+            contactCard.classList.remove('shadow');
+        });
+
         contactCard.addEventListener('click', () => {
             this.openChat(contactName);
         });
 
-        // Add to contact list
         const contactSelectionList = this.container.querySelector('.contact-selection-list');
         contactSelectionList.appendChild(contactCard);
 
-        // Create messages container for this contact
+        // Create messages container
         const messagesContainer = this.container.querySelector('#messages-container');
         const contactMessagesContainer = document.createElement('div');
-        contactMessagesContainer.className = `messages`;
+        contactMessagesContainer.className = 'messages p-3';
         contactMessagesContainer.dataset.contact = contactName;
+        contactMessagesContainer.style.display = 'none';
         messagesContainer.appendChild(contactMessagesContainer);
-    }    sendMessage(contactName, messageText) {
+    }
+
+    sendMessage(contactName, messageText) {
         if (!contactName || !messageText.trim()) return;
 
-        // Create message element
         const messageElement = this.createMessageElement('sent', messageText);
         
-        // Add to appropriate messages container
         const messagesContainer = this.container.querySelector(`.messages[data-contact="${contactName}"]`);
         if (messagesContainer) {
             messagesContainer.appendChild(messageElement);
             this.scrollToBottom();
         }
-    }    createMessageElement(type, messageText, senderName = null) {
+    }
+
+    createMessageElement(type, messageText, senderName = null) {
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${type}`;
+        messageDiv.className = `d-flex mb-3 ${type === 'sent' ? 'justify-content-end' : 'justify-content-start'}`;
         
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
         if (type === 'received' && senderName) {
-            // Add avatar for received messages
+            // Avatar for received messages
             const contact = this.contacts.get(senderName);
-            const avatarSrc = contact.avatar;
-            const avatarDiv = document.createElement('div');
-            avatarDiv.className = 'message-avatar';
             const avatarImg = document.createElement('img');
-            avatarImg.src = avatarSrc;
+            avatarImg.src = contact.avatar;
             avatarImg.alt = senderName;
-            avatarDiv.appendChild(avatarImg);
-            messageDiv.appendChild(avatarDiv);
+            avatarImg.className = 'rounded-circle me-2';
+            avatarImg.width = 30;
+            avatarImg.height = 30;
+            messageDiv.appendChild(avatarImg);
         }
 
-        // Create message
-        const contentDiv = document.createElement('div'); // Container
-        contentDiv.className = 'message-content';
-        const textDiv = document.createElement('div'); // Text
-        textDiv.className = 'message-text';
-        textDiv.textContent = messageText;
-        const timeDiv = document.createElement('div'); // Time
-        timeDiv.className = 'message-time';
-        timeDiv.textContent = time;
-        contentDiv.appendChild(textDiv);
-        contentDiv.appendChild(timeDiv);
+        // Message content
+        const messageContent = document.createElement('div');
+        messageContent.className = type === 'sent' ? 'text-end' : 'text-start';
+        messageContent.style.maxWidth = '70%';
 
-        // Append content to messageDiv
-        messageDiv.appendChild(contentDiv);
+        const messageText1 = document.createElement('div');
+        messageText1.className = `p-2 rounded ${type === 'sent' ? 'bg-primary text-white' : 'bg-white border'}`;
+        messageText1.textContent = messageText;
+
+        const timeElement = document.createElement('small');
+        timeElement.className = 'text-muted d-block mt-1';
+        timeElement.textContent = time;
+
+        messageContent.appendChild(messageText1);
+        messageContent.appendChild(timeElement);
+        messageDiv.appendChild(messageContent);
 
         return messageDiv;
-    }    openChat(contactName) {
+    }
+
+    openChat(contactName) {
         if (!this.contacts.has(contactName)) return;
 
         this.currentContactName = contactName;
         const contact = this.contacts.get(contactName);
 
-        // Hide contact selection, show chat
-        this.container.querySelector('#contact-selection').classList.remove('active');
-        this.container.querySelector('#chat-page').classList.add('active');
+        // Show/hide pages
+        this.container.querySelector('#contact-selection').classList.replace('d-block', 'd-none');
+        this.container.querySelector('#chat-page').classList.replace('d-none', 'd-block');
 
         // Update chat header
         this.container.querySelector('#current-avatar').src = contact.avatar;
@@ -176,36 +193,38 @@ class Chat {
 
         // Show appropriate messages
         this.container.querySelectorAll('.messages').forEach(messagesContainer => {
-            messagesContainer.classList.remove('active');
+            messagesContainer.style.display = 'none';
         });
         
         const currentMessages = this.container.querySelector(`.messages[data-contact="${contactName}"]`);
         if (currentMessages) {
-            currentMessages.classList.add('active');
+            currentMessages.style.display = 'block';
         }
 
         // Clear unread count
         contact.unreadCount = 0;
         this.updateContactUnreadCount(contactName, 0);
 
-        // Focus on input
         const messageInput = this.container.querySelector('#message-input');
         if (messageInput) {
             messageInput.focus();
         }
 
         this.scrollToBottom();
-    }    showContactSelection() {
+    }
+
+    showContactSelection() {
         this.currentContactName = null;
-        this.container.querySelector('#chat-page').classList.remove('active');
-        this.container.querySelector('#contact-selection').classList.add('active');
+        this.container.querySelector('#chat-page').classList.replace('d-block', 'd-none');
+        this.container.querySelector('#contact-selection').classList.replace('d-none', 'd-block');
         
-        // Clear input
         const messageInput = this.container.querySelector('#message-input');
         if (messageInput) {
             messageInput.value = '';
         }
-    }    handleSendMessage() {
+    }
+
+    handleSendMessage() {
         const messageInput = this.container.querySelector('#message-input');
         const messageText = messageInput.value.trim();
         
@@ -213,7 +232,9 @@ class Chat {
             this.sendMessage(this.currentContactName, messageText);
             messageInput.value = '';
         }
-    }    updateContactUnreadCount(contactName, count) {
+    }
+
+    updateContactUnreadCount(contactName, count) {
         const contactCard = this.container.querySelector(`[data-contact="${contactName}"]`);
         if (!contactCard) return;
 
@@ -221,9 +242,10 @@ class Chat {
         
         if (count > 0) {
             if (!unreadElement) {
-                unreadElement = document.createElement('div');
-                unreadElement.className = 'unread-count';
-                contactCard.appendChild(unreadElement);
+                unreadElement = document.createElement('span');
+                unreadElement.className = 'badge bg-danger rounded-pill unread-count';
+                const row = contactCard.querySelector('.d-flex');
+                row.appendChild(unreadElement);
             }
             unreadElement.textContent = count;
         } else if (unreadElement) {
@@ -240,10 +262,11 @@ class Chat {
         }
     }
 
-    // Utility methods for external use
     getContacts() {
         return Array.from(this.contacts.values());
-    }    getContact(contactName) {
+    }
+
+    getContact(contactName) {
         return this.contacts.get(contactName);
     }
 }

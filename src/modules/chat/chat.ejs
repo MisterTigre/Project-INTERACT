@@ -1,40 +1,50 @@
-<link rel="stylesheet" href="/css/chat.css">
-
 <!-- Contact Selection Page -->
-<div id="contact-selection" class="page active">
-    <div class="contact-selection-container">
-        <div class="contact-selection-header">
-            <h2>Choose a contact to chat with</h2>
-        </div>        <div class="contact-selection-list">
-            <!-- Contacts will be dynamically added here via JavaScript -->
+<div id="contact-selection" class="page d-block h-100">
+    <div class="h-100 d-flex align-items-center justify-content-center">
+        <div class="card shadow-lg w-100 h-100 ">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h2 class="card-title h4 text-muted">Choose a contact to chat with</h2>
+                </div>
+                <div class="contact-selection-list">
+                    <!-- Contacts will be dynamically added here via JavaScript -->
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Chat Page -->
-<div id="chat-page" class="page">
-    <div class="chat-container">
-        <!-- Chat Header -->
-        <div class="chat-header">
-            <button class="back-btn" id="back-btn">← Back</button>
-            <div class="chat-contact-info">
-                <div class="chat-avatar">
-                    <img id="current-avatar" src="" alt="">
-                </div>
-                <div class="chat-contact-details">
-                    <div class="chat-contact-name" id="current-contact-name"></div>
+<div id="chat-page" class="page d-none h-100">
+    <div class="h-100 d-flex align-items-center justify-content-center">
+        <div class="card shadow-lg w-100 h-100">
+            <!-- Chat Header -->
+            <div class="card-header bg-dark text-white p-3">
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-outline-light btn-sm me-3" id="back-btn">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </button>
+                    <div class="d-flex align-items-center">
+                        <img id="current-avatar" src="" alt="" class="rounded-circle me-3" width="50" height="50">
+                        <div>
+                            <div class="fw-bold" id="current-contact-name"></div>
+                            <small class="text-light opacity-75">Online</small>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>        <!-- Messages Container -->
-        <div class="messages-container" id="messages-container">
-            <!-- Messages will be dynamically added here via JavaScript -->
-        </div>
 
-        <!-- Message Input -->
-        <div class="message-input-container">
-            <div class="message-input">
-                <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off">
-                <button class="send-btn" id="send-btn">Send</button>
+            <!-- Messages Container -->
+            <div class="card-body p-0 bg-light overflow-auto flex-grow-1" id="messages-container">
+                <!-- Messages will be dynamically added here via JavaScript -->
+            </div>
+
+            <!-- Message Input -->
+            <div class="card-footer bg-white p-3">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="message-input" placeholder="Type a message..." autocomplete="off">
+                    <button class="btn btn-primary" id="send-btn">Send</button>
+                </div>
             </div>
         </div>
     </div>
