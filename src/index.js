@@ -37,7 +37,6 @@ app.get('/', async (req, res) => {
     let modules_html = ""
     for (module of config.modules)
     {
-        // Compute module position and size
         const x = module.position[0]
         const y = module.position[1]
 
