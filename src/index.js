@@ -31,6 +31,18 @@ app.get('/', async (req, res) => {
                 position: [1, 0],
                 size: [1, 2]
             }
+        ],
+        story: [
+            {
+                id: "map1",
+                msg: "add_marker",
+                payload: {}
+            },
+            {
+                id: "map1",
+                msg: "add_marker",
+                payload: {}
+            }
         ]
     }
 

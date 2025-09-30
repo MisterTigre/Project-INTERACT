@@ -20,6 +20,16 @@ class Orchestrator {
         {
             this.modules[module.id] = create_module(module.type, module.id, module.data)
         }
+
+        this.story = config.story
+        this.storyIndex = 0
+    }
+
+    storyNext()
+    {
+        let storyEvent = this.story[this.storyIndex]
+        this.modules[storyEvent.id].notify(storyEvent.msg, storyEvent.payload)
+        this.storyIndex++
     }
 }
 
