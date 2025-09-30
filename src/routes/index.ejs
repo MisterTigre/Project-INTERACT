@@ -29,9 +29,9 @@
     <div id="myfirstchat">
         <%- include('../modules/chat/chat') %>
     </div>
-    <!-- <div id="mysecondchat">
+    <div id="mysecondchat">
         <%- include('../modules/chat/chat') %>
-    </div> -->
+    </div>
 
 <script src="js/chat/chat.js" ></script>
 <script>
@@ -46,19 +46,17 @@
     setTimeout(() => {
         chat1.receiveMessage("bob", "Don't forget about our project deadline!");
     }, 4000);
+    // Initialize the second chat
+    const chat2 = new Chat("mysecondchat");
     
-    // Example: Add a new contact dynamically
-    // setTimeout(() => {
-    //     chat1.addContact({
-    //         id: "charlie",
-    //         name: "Charlie"
-    //     });
-        
-    //     // Send a message from the new contact
-    //     chat1.receiveMessage("charlie", "Hi! I'm new here!");
-    // }, 6000);
-
+    // Example: Simulate receiving messages
+    setTimeout(() => {
+        chat2.receiveMessage("Rémi", "Salut Nolann c'est Rémi.");
+    }, 2000);
     
+    setTimeout(() => {
+        chat2.receiveMessage("Matthias", "Coucou, ça va ?");
+    }, 4000);    
 </script>
 </body>
 </html>

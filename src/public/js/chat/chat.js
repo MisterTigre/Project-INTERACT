@@ -1,7 +1,7 @@
 class Chat {
-    constructor(id, data=null) {
-        this.container = document.getElementById(id);
-        this.currentContact = null;
+    constructor(containerId, data = null) {
+        this.container = document.getElementById(containerId);
+        this.currentContactName = null;
         this.contacts = new Map(); 
         this.data = data; // Store the data parameter
         
@@ -35,119 +35,111 @@ class Chat {
                 }
             });
         }
-    }
-
-    receiveMessage(sender, message) {
+    }    receiveMessage(senderName, messageText) {
         // If sender doesn't exist, create them
-        if (!this.contacts.has(sender)) {
-            this.addContact(sender);
+        if (!this.contacts.has(senderName)) {
+            this.addContact(senderName);
         }
 
         // Create message element
-        const messageElement = this.createMessageElement('received', message, sender);
+        const messageElement = this.createMessageElement('received', messageText, senderName);
         
         // Add to appropriate messages container
-        const messagesDiv = this.container.querySelector(`.messages[data-contact="${sender}"]`);
-        if (messagesDiv) {
-            messagesDiv.appendChild(messageElement);
+        const messagesContainer = this.container.querySelector(`.messages[data-contact="${senderName}"]`);
+        if (messagesContainer) {
+            messagesContainer.appendChild(messageElement);
             
             // Scroll to bottom if this is the current chat
-            if (this.currentContact === sender) {
+            if (this.currentContactName === senderName) {
                 this.scrollToBottom();
             }
         }
 
         // Update unread count if not current chat
-        if (this.currentContact !== sender) {
-            const contact = this.contacts.get(sender);
+        if (this.currentContactName !== senderName) {
+            const contact = this.contacts.get(senderName);
             contact.unreadCount++;
-            this.updateContactUnreadCount(sender, contact.unreadCount);
+            this.updateContactUnreadCount(senderName, contact.unreadCount);
         }
-    }
-
-    addContact(name, avatar = 'https://placehold.co/50x50', unreadCount = 0) {        
+    }    addContact(contactName, avatarUrl = 'https://placehold.co/50x50', unreadCount = 0) {        
         // Add to contacts map
-        this.contacts.set(name, {avatar, unreadCount });
+        this.contacts.set(contactName, {avatar: avatarUrl, unreadCount});
 
         // Create contact card element
         const contactCard = document.createElement('div');
         contactCard.className = 'contact-card';
-        contactCard.dataset.contact = name;
+        contactCard.dataset.contact = contactName;
         
         // Create avatar element
-        const avatarDiv = document.createElement('div');
-        avatarDiv.className = 'contact-avatar';
-        const avatarImg = document.createElement('img');
-        avatarImg.src = avatar;
-        avatarImg.alt = name;
-        avatarDiv.appendChild(avatarImg);
+        const avatarContainer = document.createElement('div');
+        avatarContainer.className = 'contact-avatar';
+        const avatarImage = document.createElement('img');
+        avatarImage.src = avatarUrl;
+        avatarImage.alt = contactName;
+        avatarContainer.appendChild(avatarImage);
 
         // Create info element
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'contact-info';
-        const nameDiv = document.createElement('div');
-        nameDiv.className = 'contact-name';
-        nameDiv.textContent = name;
-        infoDiv.appendChild(nameDiv);
+        const contactInfo = document.createElement('div');
+        contactInfo.className = 'contact-info';
+        const contactNameElement = document.createElement('div');
+        contactNameElement.className = 'contact-name';
+        contactNameElement.textContent = contactName;
+        contactInfo.appendChild(contactNameElement);
 
         // Append avatar and info to contact card
-        contactCard.appendChild(avatarDiv);
-        contactCard.appendChild(infoDiv);
+        contactCard.appendChild(avatarContainer);
+        contactCard.appendChild(contactInfo);
 
         // Add unread count if needed
         if (unreadCount > 0) {
-            const unreadDiv = document.createElement('div');
-            unreadDiv.className = 'unread-count';
-            unreadDiv.textContent = unreadCount;
-            contactCard.appendChild(unreadDiv);
+            const unreadCountElement = document.createElement('div');
+            unreadCountElement.className = 'unread-count';
+            unreadCountElement.textContent = unreadCount;
+            contactCard.appendChild(unreadCountElement);
         }
 
         // Add click listener
         contactCard.addEventListener('click', () => {
-            this.openChat(name);
+            this.openChat(contactName);
         });
 
         // Add to contact list
-        const contactList = this.container.querySelector('.contact-selection-list');
-        contactList.appendChild(contactCard);
+        const contactSelectionList = this.container.querySelector('.contact-selection-list');
+        contactSelectionList.appendChild(contactCard);
 
         // Create messages container for this contact
         const messagesContainer = this.container.querySelector('#messages-container');
-        const newMessagesDiv = document.createElement('div');
-        newMessagesDiv.className = `messages`;
-        newMessagesDiv.dataset.contact = name;
-        messagesContainer.appendChild(newMessagesDiv);
-    }
-
-    sendMessage(contactId, message, ) {
-        if (!contactId || !message.trim()) return;
+        const contactMessagesContainer = document.createElement('div');
+        contactMessagesContainer.className = `messages`;
+        contactMessagesContainer.dataset.contact = contactName;
+        messagesContainer.appendChild(contactMessagesContainer);
+    }    sendMessage(contactName, messageText) {
+        if (!contactName || !messageText.trim()) return;
 
         // Create message element
-        const messageElement = this.createMessageElement('sent', message);
+        const messageElement = this.createMessageElement('sent', messageText);
         
         // Add to appropriate messages container
-        const messagesDiv = this.container.querySelector(`.messages[data-contact="${contactId}"]`);
-        if (messagesDiv) {
-            messagesDiv.appendChild(messageElement);
+        const messagesContainer = this.container.querySelector(`.messages[data-contact="${contactName}"]`);
+        if (messagesContainer) {
+            messagesContainer.appendChild(messageElement);
             this.scrollToBottom();
         }
-    }
-
-    createMessageElement(type, message, sender = null) {
+    }    createMessageElement(type, messageText, senderName = null) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${type}`;
         
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         
-        if (type === 'received' && sender) {
+        if (type === 'received' && senderName) {
             // Add avatar for received messages
-            const contact = this.contacts.get(sender);
+            const contact = this.contacts.get(senderName);
             const avatarSrc = contact.avatar;
             const avatarDiv = document.createElement('div');
             avatarDiv.className = 'message-avatar';
             const avatarImg = document.createElement('img');
             avatarImg.src = avatarSrc;
-            avatarImg.alt = sender;
+            avatarImg.alt = senderName;
             avatarDiv.appendChild(avatarImg);
             messageDiv.appendChild(avatarDiv);
         }
@@ -157,7 +149,7 @@ class Chat {
         contentDiv.className = 'message-content';
         const textDiv = document.createElement('div'); // Text
         textDiv.className = 'message-text';
-        textDiv.textContent = message;
+        textDiv.textContent = messageText;
         const timeDiv = document.createElement('div'); // Time
         timeDiv.className = 'message-time';
         timeDiv.textContent = time;
@@ -168,13 +160,11 @@ class Chat {
         messageDiv.appendChild(contentDiv);
 
         return messageDiv;
-    }
+    }    openChat(contactName) {
+        if (!this.contacts.has(contactName)) return;
 
-    openChat(name) {
-        if (!this.contacts.has(name)) return;
-
-        this.currentContact = name;
-        const contact = this.contacts.get(name);
+        this.currentContactName = contactName;
+        const contact = this.contacts.get(contactName);
 
         // Hide contact selection, show chat
         this.container.querySelector('#contact-selection').classList.remove('active');
@@ -182,21 +172,21 @@ class Chat {
 
         // Update chat header
         this.container.querySelector('#current-avatar').src = contact.avatar;
-        this.container.querySelector('#current-contact-name').textContent = name;
+        this.container.querySelector('#current-contact-name').textContent = contactName;
 
         // Show appropriate messages
-        this.container.querySelectorAll('.messages').forEach(msgs => {
-            msgs.classList.remove('active');
+        this.container.querySelectorAll('.messages').forEach(messagesContainer => {
+            messagesContainer.classList.remove('active');
         });
         
-        const currentMessages = this.container.querySelector(`.messages[data-contact="${name}"]`);
+        const currentMessages = this.container.querySelector(`.messages[data-contact="${contactName}"]`);
         if (currentMessages) {
             currentMessages.classList.add('active');
         }
 
         // Clear unread count
         contact.unreadCount = 0;
-        this.updateContactUnreadCount(name, 0);
+        this.updateContactUnreadCount(contactName, 0);
 
         // Focus on input
         const messageInput = this.container.querySelector('#message-input');
@@ -205,10 +195,8 @@ class Chat {
         }
 
         this.scrollToBottom();
-    }
-
-    showContactSelection() {
-        this.currentContact = null;
+    }    showContactSelection() {
+        this.currentContactName = null;
         this.container.querySelector('#chat-page').classList.remove('active');
         this.container.querySelector('#contact-selection').classList.add('active');
         
@@ -217,20 +205,16 @@ class Chat {
         if (messageInput) {
             messageInput.value = '';
         }
-    }
-
-    handleSendMessage() {
+    }    handleSendMessage() {
         const messageInput = this.container.querySelector('#message-input');
-        const message = messageInput.value.trim();
+        const messageText = messageInput.value.trim();
         
-        if (message && this.currentContact) {
-            this.sendMessage(this.currentContact, message);
+        if (messageText && this.currentContactName) {
+            this.sendMessage(this.currentContactName, messageText);
             messageInput.value = '';
         }
-    }
-
-    updateContactUnreadCount(contactId, count) {
-        const contactCard = this.container.querySelector(`[data-contact="${contactId}"]`);
+    }    updateContactUnreadCount(contactName, count) {
+        const contactCard = this.container.querySelector(`[data-contact="${contactName}"]`);
         if (!contactCard) return;
 
         let unreadElement = contactCard.querySelector('.unread-count');
@@ -259,9 +243,7 @@ class Chat {
     // Utility methods for external use
     getContacts() {
         return Array.from(this.contacts.values());
-    }
-
-    getContact(contactId) {
-        return this.contacts.get(contactId);
+    }    getContact(contactName) {
+        return this.contacts.get(contactName);
     }
 }
