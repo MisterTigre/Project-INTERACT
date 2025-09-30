@@ -36,9 +36,25 @@
             ],
             "style":{
                 "color":"red",
-                "fillColor":"#f03"
+                "fillColor":"#f03",
+                "opacity":1,
+                "fillOpacity":0.5
             },
             "popup_text":"Zone de polygone",
+            "hover_view":true
+        }
+    ],
+    "circles":[
+        {
+            "center":[47.4796,-0.5873],
+            "radius":10,
+            "style":{
+                "color":"blue",
+                "fillColor":"#20f",
+                "opacity":1,
+                "fillOpacity":0.5
+            },
+            "popup_text":"Zone du cercle",
             "hover_view":true
         }
     ]

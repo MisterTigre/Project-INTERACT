@@ -4,8 +4,8 @@ var custom_icons = {}
 
 
 async function createMap() {
-    const response = await fetch('map.json');
-    const json = await response.json();
+    const response = await fetch('map.json')
+    const json = await response.json()
     console.log(json)
 
     // Create the base map
@@ -18,13 +18,13 @@ async function createMap() {
 
     // Desactive all movements if you want it
     if (json.dragable != true){
-        map.removeControl(map.zoomControl);
-        map.dragging.disable();
-        map.touchZoom.disable();
-        map.doubleClickZoom.disable();
-        map.scrollWheelZoom.disable();
-        map.boxZoom.disable();
-        map.keyboard.disable();
+        map.removeControl(map.zoomControl)
+        map.dragging.disable()
+        map.touchZoom.disable()
+        map.doubleClickZoom.disable()
+        map.scrollWheelZoom.disable()
+        map.boxZoom.disable()
+        map.keyboard.disable()
     }
 
     // create custom icons
@@ -55,7 +55,7 @@ async function createMap() {
 
     // Add polygons to the map
     json.polygons.forEach(p => {
-        var new_polygon = L.polygon(p.points, p.style).addTo(map);
+        var new_polygon = L.polygon(p.points, p.style).addTo(map)
 
         if (p.popup_text != "") {
             new_polygon.bindPopup(p.popup_text)
@@ -72,13 +72,44 @@ async function createMap() {
 
             new_polygon.on('mouseover', function () {
                 this.setStyle({ opacity: p.style.opacity, fillOpacity: p.style.fillOpacity })
-            });
+            })
 
             new_polygon.on('mouseout', function () {
                 this.setStyle({ opacity: 0, fillOpacity: 0 })
-            });
+                this.closePopup()
+            })
         }
-    });
+    })
+
+
+
+    // Add cicrcles to the map
+    json.circles.forEach(c => {
+        var new_circle = L.circle(c.center,c.style).addTo(map)
+
+        if (c.popup_text != "") {
+            new_circle.bindPopup(c.popup_text)
+        }
+
+        if (c.hover_view){
+            new_circle.setStyle({ opacity: 0, fillOpacity: 0 })
+
+            if (!("opacity" in c.style)){
+                c.style.opacity = 1
+            }if (!("fillOpacity" in c.style)){
+                c.style.fillOpacity = 0.5
+            }
+
+            new_circle.on('mouseover', function () {
+                this.setStyle({ opacity: c.style.opacity, fillOpacity: c.style.fillOpacity })
+            })
+
+            new_circle.on('mouseout', function () {
+                this.setStyle({ opacity: 0, fillOpacity: 0 })
+                this.closePopup()
+            })
+        }
+    })
 }
 
 
