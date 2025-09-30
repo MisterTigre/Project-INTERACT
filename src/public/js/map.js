@@ -5,6 +5,8 @@ class Map {
     #custom_icons
     #map
     #orchest_map_callback
+    #orchest_item_callback
+    #wanted_item
 
 
     constructor(id, data){
@@ -17,7 +19,6 @@ class Map {
         this.#json = data
         this.#custom_icons = {}
         this.#popup
-        this.orchest_item_callback = null
 
         this.#put_default()
 
@@ -34,9 +35,7 @@ class Map {
         this.#create_circles(this.#json.circles)
 
         this.#popup = L.popup()
-        if (this.#json.clickable){
-            this.#map.on('click', this.#onMapClick.bind(this))
-        }
+        this.#map.on('click', this.#onMapClick.bind(this))
     }
 
     // Create the base map
@@ -210,16 +209,28 @@ class Map {
     
 
     #onMapClick(e) {
+        // Use mouse'coords if you click on the map and want coords
         if (this.#orchest_map_callback){
             this.#orchest_map_callback(e.latlng)
             this.#orchest_map_callback = null
         }
+        // Use "" in the callback if uou click on the map and want an item
+        if (this.#orchest_item_callback){
+            this.#orchest_item_callback(0)
+            this.#orchest_item_callback = null
+        }
     }
 
     #onItemClick(e){
-        if (this.orchest_item_callback){
-            this.orchest_item_callback(e.target.options.name)
-            this.orchest_item_callback = null
+        // Use the name of the item if you click on an item and want an item
+        if (this.#orchest_item_callback){
+            this.#orchest_item_callback(+(e.target.options.name === this.#wanted_item))
+            this.#orchest_item_callback = null
+        }
+        // Use mouse'coords if you click on an item and want coords
+        if (this.#orchest_map_callback){
+            this.#orchest_map_callback(this.#map.mouseEventToLatLng(e.originalEvent))
+            this.#orchest_map_callback = null
         }
     }
 
@@ -245,7 +256,8 @@ class Map {
                 this.#orchest_map_callback = payload
                 break
             case "authorize_item_click":
-                this.orchest_item_callback = payload
+                this.#orchest_item_callback = payload.callback
+                this.#wanted_item = payload.wanted_item
                 break
             default:
                 console.error("Unknown message : " + msg)
