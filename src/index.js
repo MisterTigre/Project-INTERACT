@@ -10,6 +10,7 @@ app.get('/', async (req, res) => {
     // TODO: Fetch config file from Osint4Fun
 
     config = {
+        title: "Main page",
         gridSize: [5, 5],
         modules: [
             {
@@ -56,7 +57,7 @@ app.get('/', async (req, res) => {
 
     const html = await ejs.renderFile("src/routes/home.ejs", {
         modules: modules_html,
-        title: "Test page",
+        title: config.title,
         gridWidth: config.gridSize[0],
         gridHeight: config.gridSize[1]
     })
