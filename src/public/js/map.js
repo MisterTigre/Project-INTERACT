@@ -38,7 +38,7 @@ class Map {
 
     // Create the base map
     #create_base_map(){
-        this.#map = L.map('map').setView([this.#json.latitude, this.#json.longitude], this.#json.zoom)
+        this.#map = L.map(this.#id).setView([this.#json.latitude, this.#json.longitude], this.#json.zoom)
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: this.#json.max_zoom,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -195,7 +195,7 @@ async function test(){
     const response = await fetch('map.json')
     const json = await response.json()
     const data = undefined
-    let mymap = new Map(1234, data)
+    let mymap = new Map("map1", data)
 }
 
 test()
