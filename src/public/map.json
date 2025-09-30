@@ -55,7 +55,8 @@
                 "fillOpacity":0.5
             },
             "popup_text":"Zone de polygone",
-            "hover_view":true
+            "hover_view":true,
+            "name":"Polytech"
         }
     ],
     "circles":[

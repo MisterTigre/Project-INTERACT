@@ -4,6 +4,8 @@ class Map {
     #popup
     #custom_icons
     #map
+    #orchest_map_callback
+
 
     constructor(id, data){
 
@@ -15,13 +17,14 @@ class Map {
         this.#json = data
         this.#custom_icons = {}
         this.#popup
+        this.orchest_item_callback = null
 
         this.#put_default()
 
         this.#create_base_map()
 
         if (this.#json.dragable != true){
-            this.desactivate_movement()
+            this.#desactivate_movement()
         }
 
         this.#create_custom_icons(this.#json.custom_icons)
@@ -30,7 +33,7 @@ class Map {
         this.#create_polygons(this.#json.polygons)
         this.#create_circles(this.#json.circles)
 
-        this.popup = L.popup()
+        this.#popup = L.popup()
         if (this.#json.clickable){
             this.#map.on('click', this.#onMapClick.bind(this))
         }
@@ -72,33 +75,49 @@ class Map {
     // Add markers to the map
     #create_markers(markers){
         markers.forEach(m => {
-            var icon = L.Icon.Default.prototype
-            if (m.icon in this.#custom_icons){
-                icon = this.#custom_icons[m.icon]
-            }else if (m.icon != "default"){
-                console.error(`The icon "${m.icon}" has not been declared`)
+            var addon = {}
+            if ("icon" in m){
+                if (m.icon in this.#custom_icons){
+                    addon['icon'] = this.#custom_icons[m.icon]
+                }else if (m.icon != "default"){
+                    console.error(`The icon "${m.icon}" has not been declared`)
+                }
             }
-            var new_marker = L.marker([m.latitude, m.longitude], {icon: icon}).addTo(this.#map)
+            if ('name' in m){
+                addon['name'] = m.name
+            }
+            
+            var new_marker = L.marker([m.latitude, m.longitude], addon).addTo(this.#map)
             if ("popup_text" in m){
                 new_marker.bindPopup(m.popup_text)
             }
+
+            new_marker.on('click', this.#onItemClick.bind(this))
         })
     }
 
     // Add circle's markers to the map
     #create_circle_markers(circle_markers){
         circle_markers.forEach(cm => {
+            if ('name' in cm){
+                cm.style['name'] = cm.name
+            }
             var new_circle_marker = L.circleMarker(cm.center, cm.style).addTo(this.#map)
 
             if ("popup_text" in cm){
                 new_circle_marker.bindPopup(cm.popup_text)
             }
+
+            new_circle_marker.on('click', this.#onItemClick.bind(this))
         })
     }
 
     // Add polygons to the map
     #create_polygons(polygons){
         polygons.forEach(p => {
+            if ('name' in p){
+                p.style['name'] = p.name
+            }
             var new_polygon = L.polygon(p.points, p.style).addTo(this.#map)
 
             if ("popup_text" in p) {
@@ -123,6 +142,8 @@ class Map {
                     this.closePopup()
                 })
             }
+
+            new_polygon.on('click', this.#onItemClick.bind(this))
         })
     }
 
@@ -130,6 +151,9 @@ class Map {
     // Add cicrcles to the map
     #create_circles(circles){
         circles.forEach(c => {
+            if ('name' in c){
+                c.style['name'] = c.name
+            }
             var new_circle = L.circle(c.center,c.style).addTo(this.#map)
 
             if ("popup_text" in c) {
@@ -154,6 +178,8 @@ class Map {
                     this.closePopup()
                 })
             }
+
+            new_circle.on('click', this.#onItemClick.bind(this))
         })
     }
 
@@ -184,12 +210,19 @@ class Map {
     
 
     #onMapClick(e) {
-        if (authorize)
-        this.popup
-            .setLatLng(e.latlng)
-            .setContent("You clicked the map at " + e.latlng.toString())
-            .openOn(this.#map)
+        if (this.#orchest_map_callback){
+            this.#orchest_map_callback(e.latlng)
+            this.#orchest_map_callback = null
+        }
     }
+
+    #onItemClick(e){
+        if (this.orchest_item_callback){
+            this.orchest_item_callback(e.target.options.name)
+            this.orchest_item_callback = null
+        }
+    }
+
 
     notify(msg, payload) {
         switch (msg) {
@@ -208,9 +241,15 @@ class Map {
             case "add_circle":
                 this.#create_circles([payload])
                 break
-            case "authorize_click":
-                
+            case "authorize_map_click":
+                this.#orchest_map_callback = payload
                 break
+            case "authorize_item_click":
+                this.orchest_item_callback = payload
+                break
+            default:
+                console.error("Unknown message : " + msg)
+                return
         }
     }
 }
