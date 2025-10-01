@@ -9,9 +9,9 @@ class Map {
     #wanted_item
 
 
-    constructor(id, data){
+    constructor(id, data) {
 
-        if (typeof data !== "object"){
+        if (typeof data !== "object") {
             data = {}
         }
 
@@ -24,7 +24,7 @@ class Map {
 
         this.#create_base_map()
 
-        if (this.#json.dragable != true){
+        if (this.#json.dragable != true) {
             this.#desactivate_movement()
         }
 
@@ -39,7 +39,7 @@ class Map {
     }
 
     // Create the base map
-    #create_base_map(){
+    #create_base_map() {
         this.#map = L.map(this.#id).setView([this.#json.latitude, this.#json.longitude], this.#json.zoom)
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: this.#json.max_zoom,
@@ -48,7 +48,7 @@ class Map {
     }
 
     // Desactive all movements if you want it
-    #desactivate_movement(){
+    #desactivate_movement() {
         this.#map.removeControl(this.#map.zoomControl)
         this.#map.dragging.disable()
         this.#map.touchZoom.disable()
@@ -60,34 +60,34 @@ class Map {
 
 
     // create custom icons
-    #create_custom_icons(icons){
+    #create_custom_icons(icons) {
         icons.forEach(ci => {
             this.#custom_icons[ci.name] = L.icon({
-                iconUrl: ci.iconUrl,  
-                iconSize: ci.iconSize,              
-                iconAnchor: ci.iconAnchor,            
-                popupAnchor: ci.popupAnchor           
+                iconUrl: ci.iconUrl,
+                iconSize: ci.iconSize,
+                iconAnchor: ci.iconAnchor,
+                popupAnchor: ci.popupAnchor
             })
         })
     }
 
     // Add markers to the map
-    #create_markers(markers){
+    #create_markers(markers) {
         markers.forEach(m => {
             var addon = {}
-            if ("icon" in m){
-                if (m.icon in this.#custom_icons){
+            if ("icon" in m) {
+                if (m.icon in this.#custom_icons) {
                     addon['icon'] = this.#custom_icons[m.icon]
-                }else if (m.icon != "default"){
+                } else if (m.icon != "default") {
                     console.error(`The icon "${m.icon}" has not been declared`)
                 }
             }
-            if ('name' in m){
+            if ('name' in m) {
                 addon['name'] = m.name
             }
-            
+
             var new_marker = L.marker([m.latitude, m.longitude], addon).addTo(this.#map)
-            if ("popup_text" in m){
+            if ("popup_text" in m) {
                 new_marker.bindPopup(m.popup_text)
             }
 
@@ -96,14 +96,14 @@ class Map {
     }
 
     // Add circle's markers to the map
-    #create_circle_markers(circle_markers){
+    #create_circle_markers(circle_markers) {
         circle_markers.forEach(cm => {
-            if ('name' in cm){
+            if ('name' in cm) {
                 cm.style['name'] = cm.name
             }
             var new_circle_marker = L.circleMarker(cm.center, cm.style).addTo(this.#map)
 
-            if ("popup_text" in cm){
+            if ("popup_text" in cm) {
                 new_circle_marker.bindPopup(cm.popup_text)
             }
 
@@ -112,9 +112,9 @@ class Map {
     }
 
     // Add polygons to the map
-    #create_polygons(polygons){
+    #create_polygons(polygons) {
         polygons.forEach(p => {
-            if ('name' in p){
+            if ('name' in p) {
                 p.style['name'] = p.name
             }
             var new_polygon = L.polygon(p.points, p.style).addTo(this.#map)
@@ -123,12 +123,12 @@ class Map {
                 new_polygon.bindPopup(p.popup_text)
             }
 
-            if ("hover_view" in p && p.hover_view){
+            if ("hover_view" in p && p.hover_view) {
                 new_polygon.setStyle({ opacity: 0, fillOpacity: 0 })
 
-                if (!("opacity" in p.style)){
+                if (!("opacity" in p.style)) {
                     p.style.opacity = 1
-                }if (!("fillOpacity" in p.style)){
+                } if (!("fillOpacity" in p.style)) {
                     p.style.fillOpacity = 0.5
                 }
 
@@ -148,23 +148,23 @@ class Map {
 
 
     // Add cicrcles to the map
-    #create_circles(circles){
+    #create_circles(circles) {
         circles.forEach(c => {
-            if ('name' in c){
+            if ('name' in c) {
                 c.style['name'] = c.name
             }
-            var new_circle = L.circle(c.center,c.style).addTo(this.#map)
+            var new_circle = L.circle(c.center, c.style).addTo(this.#map)
 
             if ("popup_text" in c) {
                 new_circle.bindPopup(c.popup_text)
             }
 
-            if ("hover_view" in c && c.hover_view){
+            if ("hover_view" in c && c.hover_view) {
                 new_circle.setStyle({ opacity: 0, fillOpacity: 0 })
 
-                if (!("opacity" in c.style)){
+                if (!("opacity" in c.style)) {
                     c.style.opacity = 1
-                }if (!("fillOpacity" in c.style)){
+                } if (!("fillOpacity" in c.style)) {
                     c.style.fillOpacity = 0.5
                 }
 
@@ -182,52 +182,52 @@ class Map {
         })
     }
 
-    #put_default(){
+    #put_default() {
         const def = {
-            "latitude":47.46653288719405,
-            "longitude":-0.5565456868413388,
-            "zoom":12,
-            "max_zoom":20,
-            "dragable":true,
-            "custom_icons":[],
-            "markers":[],
-            "circle_markers":[],
-            "polygons":[],
-            "circles":[]
+            "latitude": 47.46653288719405,
+            "longitude": -0.5565456868413388,
+            "zoom": 12,
+            "max_zoom": 20,
+            "dragable": true,
+            "custom_icons": [],
+            "markers": [],
+            "circle_markers": [],
+            "polygons": [],
+            "circles": []
         }
-        for(const key in def){
-            if (!(key in this.#json)){
+        for (const key in def) {
+            if (!(key in this.#json)) {
                 this.#json[key] = def[key]
             }
         }
     }
 
-    get_id(){
+    get_id() {
         return this.#id
     }
-    
+
 
     #onMapClick(e) {
         // Use mouse'coords if you click on the map and want coords
-        if (this.#orchest_map_callback){
+        if (this.#orchest_map_callback) {
             this.#orchest_map_callback(e.latlng)
             this.#orchest_map_callback = null
         }
         // Use "" in the callback if uou click on the map and want an item
-        if (this.#orchest_item_callback){
+        if (this.#orchest_item_callback) {
             this.#orchest_item_callback(0)
             this.#orchest_item_callback = null
         }
     }
 
-    #onItemClick(e){
+    #onItemClick(e) {
         // Use the name of the item if you click on an item and want an item
-        if (this.#orchest_item_callback){
+        if (this.#orchest_item_callback) {
             this.#orchest_item_callback(+(e.target.options.name === this.#wanted_item))
             this.#orchest_item_callback = null
         }
         // Use mouse'coords if you click on an item and want coords
-        if (this.#orchest_map_callback){
+        if (this.#orchest_map_callback) {
             this.#orchest_map_callback(this.#map.mouseEventToLatLng(e.originalEvent))
             this.#orchest_map_callback = null
         }
@@ -262,8 +262,8 @@ class Map {
                 this.#map.flyTo(payload.coords, payload.zoom)
                 break
             case "remove":
-                this.#map.eachLayer(function(layer){
-                    if ("name" in layer.options && layer.options.name === payload.name){
+                this.#map.eachLayer(function (layer) {
+                    if ("name" in layer.options && layer.options.name === payload.name) {
                         this.#map.removeLayer(layer)
                     }
                 }.bind(this))
