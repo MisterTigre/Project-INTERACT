@@ -16,6 +16,7 @@ The story object is an array of events and specials instructions.
 {
     "id": "str", // Optional, an identifier to this event (can be used with goto)
     "moduleId": "str", // The identifier of a module
+    "delay": "number", // The time in miliseconds to wait before doing the action
     "msg": "str", // The message to send the module (see module messages)
     "payload": "object" // The payload of the message (see module messages)
 }

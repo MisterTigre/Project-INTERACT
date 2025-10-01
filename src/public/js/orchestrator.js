@@ -4,7 +4,6 @@ function create_module(type, id, data) {
             return new Test(id, data)
         case "map":
             return new Map(id, data)
-    
         default:
             throw `Invalid module type "${type}"`
     }
@@ -28,9 +27,27 @@ class Orchestrator {
     storyNext()
     {
         let storyEvent = this.story[this.storyIndex]
-        this.modules[storyEvent.id].notify(storyEvent.msg, storyEvent.payload)
+        if (!storyEvent)
+        {
+            // Story is over
+            return
+        }
+
+        if (storyEvent.delay) {
+            setTimeout(() => this.#doStoryNext(), storyEvent.delay);
+        } else {
+            this.#doStoryNext()
+        }
+    }
+
+    #doStoryNext()
+    {
+        let storyEvent = this.story[this.storyIndex]
+        this.modules[storyEvent.moduleId].notify(storyEvent.msg, storyEvent.payload)
         this.storyIndex++
+        this.storyNext()
     }
 }
 
 var orchestrator = new Orchestrator(modulesConfig)
+orchestrator.storyNext()

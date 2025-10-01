@@ -17,7 +17,12 @@ app.get('/', async (req, res) => {
                 type: "map",
                 id: "map1",
                 position: [1, 1],
-                size: [5, 5]
+                size: [5, 5],
+                data: {
+                    latitude: 47.47911839457999,
+                    longitude: -0.5872555540154729,
+                    zoom: 18
+                }
             },
             {
                 type: "test",
@@ -34,14 +39,36 @@ app.get('/', async (req, res) => {
         ],
         story: [
             {
-                id: "map1",
-                msg: "add_marker",
-                payload: {}
+                moduleId: "map1",
+                msg: "add_custom_icon",
+                payload: {
+                    "name": "frightfur",
+                    "iconUrl": "img/frightfur.jpg",
+                    "iconSize": [38, 38],
+                    "iconAnchor": [19, 38],
+                    "popupAnchor": [0, -38]
+                }
             },
             {
-                id: "map1",
+                moduleId: "map1",
+                delay: 1000,
                 msg: "add_marker",
-                payload: {}
+                payload: {
+                    "icon": "frightfur",
+                    "latitude": 47.47901916504906,
+                    "longitude": -0.5872019529342651,
+                    "popup_text": "Message de base"
+                }
+            },
+            {
+                moduleId: "map1",
+                delay: 5000,
+                msg: "add_marker",
+                payload: {
+                    "icon": "default",
+                    "latitude": 47.47943149670439,
+                    "longitude": -0.5875704044184071
+                }
             }
         ]
     }
