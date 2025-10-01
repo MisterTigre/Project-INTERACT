@@ -11,13 +11,18 @@ app.get('/', async (req, res) => {
 
     config = {
         title: "Main page",
-        gridSize: [7, 7],
+        gridSize: [2, 1],
         modules: [
             {
                 type: "map",
                 id: "map1",
-                position: [1, 1],
-                size: [5, 5]
+                position: [0, 0],
+                size: [2, 1],
+                data: {
+                    latitude: 47.47911839457999,
+                    longitude: -0.5872555540154729,
+                    zoom: 18
+                }
             },
             {
                 type: "test",
@@ -31,12 +36,76 @@ app.get('/', async (req, res) => {
                 position: [1, 0],
                 size: [1, 2]
             }
+        ],
+        story: [
+            {
+                type: "event",
+                moduleId: "map1",
+                msg: "add_custom_icon",
+                payload: {
+                    "name": "frightfur",
+                    "iconUrl": "img/frightfur.jpg",
+                    "iconSize": [38, 38],
+                    "iconAnchor": [19, 38],
+                    "popupAnchor": [0, -38]
+                }
+            },
+            {
+                type: "event",
+                moduleId: "map1",
+                msg: "add_marker",
+                payload: {
+                    latitude: 47.47943149670439,
+                    longitude: -0.5875704044184071,
+                    name: "markerA"
+                }
+            },
+            {
+                type: "choice",
+                id: "choice",
+                moduleId: "map1",
+                msg: "authorize_item_click",
+                payload: {
+                    wanted_item: "markerA"
+                },
+                choiceDestinations: [
+                    "choiceNOK",
+                    "choiceOK"
+                ]
+            },
+            {
+                type: "event",
+                id: "choiceOK",
+                moduleId: "map1",
+                msg: "add_marker",
+                payload: {
+                    latitude: 47.47951916504906,
+                    longitude: -0.5872019529342651,
+                }
+            },
+            {
+                type: "end",
+            },
+            {
+                type: "event",
+                id: "choiceNOK",
+                moduleId: "map1",
+                msg: "add_marker",
+                payload: {
+                    icon: "frightfur",
+                    latitude: 47.47901916504906,
+                    longitude: -0.5872019529342651,
+                }
+            },
+            {
+                type: "goto",
+                destination: "choice"
+            }
         ]
     }
 
     let modules_html = ""
-    for (module of config.modules)
-    {
+    for (module of config.modules) {
         const x = module.position[0]
         const y = module.position[1]
 
@@ -47,7 +116,7 @@ app.get('/', async (req, res) => {
         modules_html += await ejs.renderFile("src/modules/module_container.ejs", {
             module: module_html,
             id: module.id,
-            style: `grid-column: ${x+1} / ${x+w+1}; grid-row: ${y+1} / ${y+h+1};`
+            style: `grid-column: ${x + 1} / ${x + w + 1}; grid-row: ${y + 1} / ${y + h + 1};`
         })
     }
 
