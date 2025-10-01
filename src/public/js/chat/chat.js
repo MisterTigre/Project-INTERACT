@@ -1,170 +1,195 @@
 class Chat {
-    constructor(containerId, data = null) {
-        this.container = document.getElementById(containerId);
-        this.currentContactName = null;
-        this.contacts = new Map(); 
-        this.data = data;
-        
-        this.setupEventListeners();
+    constructor(id, data) {
+        this.container = document.getElementById(id)
+        this.discussions = new Map()
+        this.currentDiscussion = null
+        this.contacts = new Map()
+
+        this.#setupEventListeners()
     }
 
-    setupEventListeners() {
-        const backBtn = this.container.querySelector('#back-btn');
+    #setupEventListeners() {
+        const backBtn = this.container.querySelector('#back-btn')
         if (backBtn) {
             backBtn.addEventListener('click', () => {
-                this.showContactSelection();
-            });
+                this.#showDiscussionSelection()
+            })
         }
 
-        const sendBtn = this.container.querySelector('#send-btn');
+        const sendBtn = this.container.querySelector('#send-btn')
         if (sendBtn) {
             sendBtn.addEventListener('click', () => {
-                this.handleSendMessage();
-            });
+                this.#sendMessage()
+            })
         }
 
-        const messageInput = this.container.querySelector('#message-input');
+        const messageInput = this.container.querySelector('#message-input')
         if (messageInput) {
             messageInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
-                    this.handleSendMessage();
+                    this.#sendMessage()
                 }
-            });
+            })
         }
     }
 
-    receiveMessage(senderName, messageText) {
-        if (!this.contacts.has(senderName)) {
-            this.addContact(senderName);
+    #showDiscussionSelection() {
+        this.currentDiscussion = null
+        this.container.querySelector('#chat-page').classList.replace('d-block', 'd-none')
+        this.container.querySelector('#discussion-selection').classList.replace('d-none', 'd-block')
+
+        const messageInput = this.container.querySelector('#message-input')
+        if (messageInput) {
+            messageInput.value = ''
+        }
+    }
+
+    notify(msg, payload) {
+        switch (msg) {
+            case "addDiscussion":
+                this.#addDiscussion(payload)
+                break
+            case "addContact":
+                this.#addContact(payload)
+                break
+            case "receive":
+                if (!this.contacts.has(payload.contact.id)) {
+                    this.#addContact(payload.contact)
+                }
+                this.#receiveMessage(payload)
+                break
+            case "answer":
+                break
+            case "choice":
+                break
+            default:
+                return
+        }
+    }
+
+    #addDiscussion(discussion) {
+        this.discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0 })
+
+        const discussionCard = document.createElement('div')
+        discussionCard.className = 'card mb-3 shadow-sm'
+        discussionCard.id = discussion.id
+        discussionCard.style.cursor = 'pointer'
+
+        const cardBody = document.createElement('div')
+        cardBody.className = 'card-body p-3'
+
+        const row = document.createElement('div')
+        row.className = 'd-flex align-items-center'
+
+        // Avatar
+        const avatarImg = document.createElement('img')
+        avatarImg.src = discussion.icon
+        avatarImg.alt = discussion.name
+        avatarImg.className = 'rounded-circle me-3'
+        avatarImg.width = 50
+        avatarImg.height = 50
+
+        // discussion info
+        const discussionInfo = document.createElement('div')
+        discussionInfo.className = 'flex-grow-1'
+
+        const discussionNameElement = document.createElement('h6')
+        discussionNameElement.className = 'mb-1 fw-bold'
+        discussionNameElement.textContent = discussion.name
+
+        discussionInfo.appendChild(discussionNameElement)
+
+        row.appendChild(avatarImg)
+        row.appendChild(discussionInfo)
+
+        cardBody.appendChild(row)
+        discussionCard.appendChild(cardBody)
+
+        // Hover effects
+        discussionCard.addEventListener('mouseenter', () => {
+            discussionCard.classList.add('shadow')
+        })
+        discussionCard.addEventListener('mouseleave', () => {
+            discussionCard.classList.remove('shadow')
+        })
+
+        discussionCard.addEventListener('click', () => {
+            this.#openChat(discussion.id)
+        })
+
+        const discussionSelectionList = this.container.querySelector('.discussion-selection-list')
+        discussionSelectionList.appendChild(discussionCard)
+
+        // Create messages container
+        const messagesContainer = this.container.querySelector('#messages-container')
+        const discussionMessagesContainer = document.createElement('div')
+        discussionMessagesContainer.className = 'messages p-3'
+        discussionMessagesContainer.id = discussion.id
+        discussionMessagesContainer.style.display = 'none'
+        messagesContainer.appendChild(discussionMessagesContainer)
+    }
+
+    #addContact(contact) {
+        this.contacts.set(contact.id, { name: contact.name, icon: contact.icon })
+    }
+
+    #receiveMessage(message) {
+        if (!this.discussions.has(message.discussion.id)) {
+            this.#addDiscussion(message.discussion)
+        }
+        if (!this.contacts.has(message.contact.id)) {
+            this.#addContact(message.contact);
         }
 
-        const messageElement = this.createMessageElement('received', messageText, senderName);
-        
-        const messagesContainer = this.container.querySelector(`.messages[data-contact="${senderName}"]`);
+        const messageElement = this.#createMessageElement('received', message.content, message.contact.id);
+
+        const messagesContainer = this.container.querySelector(`.messages#${message.discussion.id}`);
+
         if (messagesContainer) {
             messagesContainer.appendChild(messageElement);
-            
-            if (this.currentContactName === senderName) {
-                this.scrollToBottom();
+
+            if (this.currentDiscussion === message.discussion.id) {
+                this.#scrollToBottom();
             }
         }
 
-        if (this.currentContactName !== senderName) {
-            const contact = this.contacts.get(senderName);
-            contact.unreadCount++;
-            this.updateContactUnreadCount(senderName, contact.unreadCount);
+        if (this.currentDiscussion !== message.discussion.id) {
+            const discussion = this.discussions.get(message.discussion.id);
+            discussion.unreadCount++;
+            this.#updateDiscussionUnreadCount(message.discussion.id, discussion.unreadCount);
         }
     }
 
-    addContact(contactName, avatarUrl = 'https://placehold.co/50x50', unreadCount = 0) {        
-        this.contacts.set(contactName, {avatar: avatarUrl, unreadCount});
-
-        // Create contact card using Bootstrap classes
-        const contactCard = document.createElement('div');
-        contactCard.className = 'card mb-3 shadow-sm';
-        contactCard.dataset.contact = contactName;
-        contactCard.style.cursor = 'pointer';
-        
-        const cardBody = document.createElement('div');
-        cardBody.className = 'card-body p-3';
-        
-        const row = document.createElement('div');
-        row.className = 'd-flex align-items-center';
-
-        // Avatar
-        const avatarImg = document.createElement('img');
-        avatarImg.src = avatarUrl;
-        avatarImg.alt = contactName;
-        avatarImg.className = 'rounded-circle me-3';
-        avatarImg.width = 60;
-        avatarImg.height = 60;
-
-        // Contact info
-        const contactInfo = document.createElement('div');
-        contactInfo.className = 'flex-grow-1';
-        
-        const contactNameElement = document.createElement('h6');
-        contactNameElement.className = 'mb-1 fw-bold';
-        contactNameElement.textContent = contactName;
-
-        contactInfo.appendChild(contactNameElement);
-
-        row.appendChild(avatarImg);
-        row.appendChild(contactInfo);
-
-        // Unread count badge
-        if (unreadCount > 0) {
-            const badge = document.createElement('span');
-            badge.className = 'badge bg-danger rounded-pill unread-count';
-            badge.textContent = unreadCount;
-            row.appendChild(badge);
-        }
-
-        cardBody.appendChild(row);
-        contactCard.appendChild(cardBody);
-
-        // Hover effects
-        contactCard.addEventListener('mouseenter', () => {
-            contactCard.classList.add('shadow');
-        });
-        contactCard.addEventListener('mouseleave', () => {
-            contactCard.classList.remove('shadow');
-        });
-
-        contactCard.addEventListener('click', () => {
-            this.openChat(contactName);
-        });
-
-        const contactSelectionList = this.container.querySelector('.contact-selection-list');
-        contactSelectionList.appendChild(contactCard);
-
-        // Create messages container
-        const messagesContainer = this.container.querySelector('#messages-container');
-        const contactMessagesContainer = document.createElement('div');
-        contactMessagesContainer.className = 'messages p-3';
-        contactMessagesContainer.dataset.contact = contactName;
-        contactMessagesContainer.style.display = 'none';
-        messagesContainer.appendChild(contactMessagesContainer);
-    }
-
-    sendMessage(contactName, messageText) {
-        if (!contactName || !messageText.trim()) return;
-
-        const messageElement = this.createMessageElement('sent', messageText);
-        
-        const messagesContainer = this.container.querySelector(`.messages[data-contact="${contactName}"]`);
-        if (messagesContainer) {
-            messagesContainer.appendChild(messageElement);
-            this.scrollToBottom();
-        }
-    }
-
-    createMessageElement(type, messageText, senderName = null) {
+    #createMessageElement(type, content, contactId = null) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `d-flex mb-3 ${type === 'sent' ? 'justify-content-end' : 'justify-content-start'}`;
-        
+
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        
-        if (type === 'received' && senderName) {
-            // Avatar for received messages
-            const contact = this.contacts.get(senderName);
-            const avatarImg = document.createElement('img');
-            avatarImg.src = contact.avatar;
-            avatarImg.alt = senderName;
-            avatarImg.className = 'rounded-circle me-2';
-            avatarImg.width = 30;
-            avatarImg.height = 30;
-            messageDiv.appendChild(avatarImg);
-        }
 
         // Message content
         const messageContent = document.createElement('div');
         messageContent.className = type === 'sent' ? 'text-end' : 'text-start';
         messageContent.style.maxWidth = '70%';
 
+        if (type === 'received' && contactId) {
+            // Avatar for received messages
+            const contact = this.contacts.get(contactId);
+            const iconImg = document.createElement('img');
+            iconImg.src = contact.icon;
+            iconImg.alt = contact.name;
+            iconImg.className = 'rounded-circle me-2';
+            iconImg.width = 30;
+            iconImg.height = 30;
+            messageDiv.appendChild(iconImg);
+            const nameElement = document.createElement('small');
+            nameElement.className = 'text-muted fw-bold d-block mb-1';
+            nameElement.textContent = contact.name;
+            messageContent.appendChild(nameElement);
+        }
+
         const messageText1 = document.createElement('div');
         messageText1.className = `p-2 rounded ${type === 'sent' ? 'bg-primary text-white' : 'bg-white border'}`;
-        messageText1.textContent = messageText;
+        messageText1.textContent = content.text ? content.text : "Contient une image";
 
         const timeElement = document.createElement('small');
         timeElement.className = 'text-muted d-block mt-1';
@@ -177,96 +202,78 @@ class Chat {
         return messageDiv;
     }
 
-    openChat(contactName) {
-        if (!this.contacts.has(contactName)) return;
+    #sendMessage() {
+        const messageInput = this.container.querySelector('#message-input');
+        const messageText = messageInput.value.trim();
 
-        this.currentContactName = contactName;
-        const contact = this.contacts.get(contactName);
+        if (!messageText || !this.currentDiscussion) return
+
+        const messageElement = this.#createMessageElement('sent', {text:messageText});
+
+        const messagesContainer = this.container.querySelector(`.messages#${this.currentDiscussion}`);
+        if (messagesContainer) {
+            messagesContainer.appendChild(messageElement);
+            this.#scrollToBottom();
+        }
+        messageInput.value = '';
+    }
+
+    #openChat(discussionId) {
+        if (!this.discussions.has(discussionId)) return
+
+        this.currentDiscussion = discussionId
+        const discussion = this.discussions.get(discussionId)
 
         // Show/hide pages
-        this.container.querySelector('#contact-selection').classList.replace('d-block', 'd-none');
-        this.container.querySelector('#chat-page').classList.replace('d-none', 'd-block');
+        this.container.querySelector('#discussion-selection').classList.replace('d-block', 'd-none')
+        this.container.querySelector('#chat-page').classList.replace('d-none', 'd-block')
 
         // Update chat header
-        this.container.querySelector('#current-avatar').src = contact.avatar;
-        this.container.querySelector('#current-contact-name').textContent = contactName;
+        this.container.querySelector('#current-avatar').src = discussion.icon
+        this.container.querySelector('#current-discussion-name').textContent = discussion.name
 
         // Show appropriate messages
         this.container.querySelectorAll('.messages').forEach(messagesContainer => {
-            messagesContainer.style.display = 'none';
-        });
-        
-        const currentMessages = this.container.querySelector(`.messages[data-contact="${contactName}"]`);
+            messagesContainer.style.display = 'none'
+        })
+
+        const currentMessages = this.container.querySelector(`.messages#${discussionId}`)
         if (currentMessages) {
-            currentMessages.style.display = 'block';
+            currentMessages.style.display = 'block'
         }
 
         // Clear unread count
-        contact.unreadCount = 0;
-        this.updateContactUnreadCount(contactName, 0);
+        discussion.unreadCount = 0
+        this.#updateDiscussionUnreadCount(discussionId, 0)
 
-        const messageInput = this.container.querySelector('#message-input');
-        if (messageInput) {
-            messageInput.focus();
-        }
-
-        this.scrollToBottom();
+        this.#scrollToBottom()
     }
 
-    showContactSelection() {
-        this.currentContactName = null;
-        this.container.querySelector('#chat-page').classList.replace('d-block', 'd-none');
-        this.container.querySelector('#contact-selection').classList.replace('d-none', 'd-block');
-        
-        const messageInput = this.container.querySelector('#message-input');
-        if (messageInput) {
-            messageInput.value = '';
-        }
-    }
+    #updateDiscussionUnreadCount(discussionId, count) {
+        const discussionCard = this.container.querySelector(`#${discussionId}`)
+        if (!discussionCard) return
 
-    handleSendMessage() {
-        const messageInput = this.container.querySelector('#message-input');
-        const messageText = messageInput.value.trim();
-        
-        if (messageText && this.currentContactName) {
-            this.sendMessage(this.currentContactName, messageText);
-            messageInput.value = '';
-        }
-    }
+        let unreadElement = discussionCard.querySelector('.unread-count')
 
-    updateContactUnreadCount(contactName, count) {
-        const contactCard = this.container.querySelector(`[data-contact="${contactName}"]`);
-        if (!contactCard) return;
-
-        let unreadElement = contactCard.querySelector('.unread-count');
-        
         if (count > 0) {
             if (!unreadElement) {
-                unreadElement = document.createElement('span');
-                unreadElement.className = 'badge bg-danger rounded-pill unread-count';
-                const row = contactCard.querySelector('.d-flex');
-                row.appendChild(unreadElement);
+                unreadElement = document.createElement('span')
+                unreadElement.className = 'badge bg-danger rounded-pill unread-count'
+                const row = discussionCard.querySelector('.d-flex')
+                row.appendChild(unreadElement)
             }
-            unreadElement.textContent = count;
+            unreadElement.textContent = count
         } else if (unreadElement) {
-            unreadElement.remove();
+            unreadElement.remove()
         }
     }
 
-    scrollToBottom() {
-        const messagesContainer = this.container.querySelector('#messages-container');
+    #scrollToBottom() {
+        const messagesContainer = this.container.querySelector('#messages-container')
         if (messagesContainer) {
             setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }, 100);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight
+            }, 100)
         }
-    }
-
-    getContacts() {
-        return Array.from(this.contacts.values());
-    }
-
-    getContact(contactName) {
-        return this.contacts.get(contactName);
     }
 }

@@ -1,0 +1,24 @@
+[
+    {   
+        "sender":"Rémi",
+        "content":"Coucou c'est Rémi !",
+        "avatar":"iconeRemi.png"
+    },
+    {
+        "sender":"Rémi",
+        "content":"Comment vas-tu ?",
+        "avatar":"iconeRemi.png"
+    }
+]
+
+{
+    "id":"123", // number
+    "name":"Bob's group", // str
+    "icon":"https://osint4fun.eu/img/BobsGroupIcon.png" // link
+}
+
+{
+    "id":"321", // number
+    "name":"Bob", // str
+    "icon":"https://osint4fun.eu/img/BobsIcon.png" // link
+}
