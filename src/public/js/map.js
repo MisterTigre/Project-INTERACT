@@ -189,7 +189,6 @@ class Map {
             "zoom": 12,
             "max_zoom": 20,
             "dragable": true,
-            "clickable": false,
             "custom_icons": [],
             "markers": [],
             "circle_markers": [],
@@ -253,11 +252,21 @@ class Map {
                 this.#create_circles([payload])
                 break
             case "authorize_map_click":
-                this.#orchest_map_callback = payload
+                this.#orchest_map_callback = payload.callback
                 break
             case "authorize_item_click":
                 this.#orchest_item_callback = payload.callback
                 this.#wanted_item = payload.wanted_item
+                break
+            case "go_to":
+                this.#map.flyTo(payload.coords, payload.zoom)
+                break
+            case "remove":
+                this.#map.eachLayer(function (layer) {
+                    if ("name" in layer.options && layer.options.name === payload.name) {
+                        this.#map.removeLayer(layer)
+                    }
+                }.bind(this))
                 break
             default:
                 console.error("Unknown message : " + msg)
