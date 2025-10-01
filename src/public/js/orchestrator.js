@@ -15,8 +15,7 @@ class Orchestrator {
 
         this.modules = {}
 
-        for (let module of config.modules)
-        {
+        for (const module of config.modules) {
             this.modules[module.id] = create_module(module.type, module.id, module.data)
         }
 
@@ -24,11 +23,9 @@ class Orchestrator {
         this.storyIndex = 0
     }
 
-    storyNext()
-    {
-        let storyEvent = this.story[this.storyIndex]
-        if (!storyEvent)
-        {
+    storyNext() {
+        const storyEvent = this.story[this.storyIndex]
+        if (!storyEvent) {
             // Story is over
             return
         }
@@ -40,11 +37,54 @@ class Orchestrator {
         }
     }
 
-    #doStoryNext()
-    {
-        let storyEvent = this.story[this.storyIndex]
+    #doStoryNext() {
+        const storyEvent = this.story[this.storyIndex]
+
+        const payload = storyEvent.payload
+        switch (storyEvent.type) {
+            case "event":
+                break
+            case "choice":
+                payload.callback = this.#callbackChoice.bind(this)
+                break
+            case "answer":
+                // TODO
+                break
+            default:
+                console.error(`Invalid event type: ${storyEvent.type}`)
+                return
+        }
+
         this.modules[storyEvent.moduleId].notify(storyEvent.msg, storyEvent.payload)
-        this.storyIndex++
+
+        if (storyEvent.type === "event") {
+            this.storyIndex++
+            this.storyNext()
+        }
+    }
+
+    jumpTo(storyEventId) {
+        console.log("Jump to " + storyEventId)
+        for (let i = 0; i < this.story.length; i++) {
+            const storyEvent = this.story[i];
+            if (storyEvent.id === storyEventId) {
+                this.storyIndex = i
+                return
+            }
+        }
+
+        console.error(`Story event ID not found: ${storyEventId}`)
+    }
+
+    #callbackChoice(choice) {
+        console.log(choice)
+        let storyEvent = this.story[this.storyIndex]
+        if (storyEvent.choiceDestinations === undefined) {
+            console.error("A story event with choices must define the attribute choiceDestinations")
+            return
+        }
+
+        this.jumpTo(storyEvent.choiceDestinations[choice])
         this.storyNext()
     }
 }
