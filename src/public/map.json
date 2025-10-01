@@ -24,8 +24,7 @@
         {
             "icon":"default",
             "latitude":47.47943149670439,
-            "longitude":-0.5875704044184071,
-            "popup_text":""
+            "longitude":-0.5875704044184071
         }
     ],
     "circle_markers":[
@@ -56,7 +55,8 @@
                 "fillOpacity":0.5
             },
             "popup_text":"Zone de polygone",
-            "hover_view":true
+            "hover_view":true,
+            "name":"Polytech"
         }
     ],
     "circles":[
