@@ -30,11 +30,8 @@ class Orchestrator {
             return
         }
 
-        if (storyEvent.delay) {
-            setTimeout(() => this.#doStoryNext(), storyEvent.delay);
-        } else {
-            this.#doStoryNext()
-        }
+        storyEvent.delay ??= 0
+        setTimeout(() => this.#doStoryNext(), storyEvent.delay);
     }
 
     #doStoryNext() {
@@ -73,6 +70,7 @@ class Orchestrator {
             const storyEvent = this.story[i];
             if (storyEvent.id === storyEventId) {
                 this.storyIndex = i
+                this.storyNext()
                 return
             }
         }
@@ -88,7 +86,6 @@ class Orchestrator {
         }
 
         this.jumpTo(storyEvent.choiceDestinations[choice])
-        this.storyNext()
     }
 }
 

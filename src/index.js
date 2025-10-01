@@ -62,6 +62,7 @@ app.get('/', async (req, res) => {
             },
             {
                 type: "choice",
+                id: "choice",
                 moduleId: "map1",
                 msg: "authorize_item_click",
                 payload: {
@@ -95,6 +96,10 @@ app.get('/', async (req, res) => {
                     latitude: 47.47901916504906,
                     longitude: -0.5872019529342651,
                 }
+            },
+            {
+                type: "goto",
+                destination: "choice"
             }
         ]
     }
