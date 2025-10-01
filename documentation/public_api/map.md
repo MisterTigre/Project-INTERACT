@@ -17,7 +17,8 @@
     "latitude":"float", // Latitude of the marker
     "longitude":"float", // Longitude of the marker
     "icon":"str", // Optional, name of the icon if you don't use the default's one
-    "popup_text":"str" // Optional, text of the popup if you want one
+    "popup_text":"str", // Optional, text of the popup if you want one
+    "name":"str" // Optional, name of the marker
 }
 ```
 
@@ -29,7 +30,8 @@
     "style":{
         ... // Optional, the Leaflet's options => https://leafletjs.com/reference.html#circle-option
     },
-    "popup_text":"str" // Optional, text of the popup if you want one
+    "popup_text":"str", // Optional, text of the popup if you want one
+    "name":"str" // Optional, name of the circle_marker
 }
 ```
 

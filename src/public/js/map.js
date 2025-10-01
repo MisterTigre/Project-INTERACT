@@ -258,6 +258,16 @@ class Map {
                 this.#orchest_item_callback = payload.callback
                 this.#wanted_item = payload.wanted_item
                 break
+            case "go_to":
+                this.#map.flyTo(payload.coords, payload.zoom)
+                break
+            case "remove":
+                this.#map.eachLayer(function(layer){
+                    if ("name" in layer.options && layer.options.name === payload){
+                        this.#map.removeLayer(layer)
+                    }
+                }.bind(this))
+                break
             default:
                 console.error("Unknown message : " + msg)
                 return
