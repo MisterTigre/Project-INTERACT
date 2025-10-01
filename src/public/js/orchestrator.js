@@ -50,6 +50,11 @@ class Orchestrator {
             case "answer":
                 // TODO
                 break
+            case "goto":
+                this.jumpTo(storyEvent.destination)
+                return
+            case "end":
+                return
             default:
                 console.error(`Invalid event type: ${storyEvent.type}`)
                 return
@@ -64,7 +69,6 @@ class Orchestrator {
     }
 
     jumpTo(storyEventId) {
-        console.log("Jump to " + storyEventId)
         for (let i = 0; i < this.story.length; i++) {
             const storyEvent = this.story[i];
             if (storyEvent.id === storyEventId) {
@@ -77,7 +81,6 @@ class Orchestrator {
     }
 
     #callbackChoice(choice) {
-        console.log(choice)
         let storyEvent = this.story[this.storyIndex]
         if (storyEvent.choiceDestinations === undefined) {
             console.error("A story event with choices must define the attribute choiceDestinations")

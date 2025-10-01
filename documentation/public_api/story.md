@@ -16,7 +16,13 @@ The story object is an array of events and specials instructions.
         "type": "answer",
         ...
     },
-    ["goto", ...] // Or a special instruction (see Special Instructions)
+    { // Or a stop
+        "type": "stop"
+    },
+    { // Or a goto
+        "type": "goto",
+        "destination": "eventId"
+    },
     ...
 ]
 ```
@@ -91,23 +97,3 @@ The syntax is the following:
 ```json
 [ "instruction", "parameter1", "parameter2", ...]
 ```
-
-### Special instruction list
-
-#### - `goto`
-Jumps to a position in the story.
-
-**Parameters**
-- eventId: `"str"`: The eventId where to go, the event will be played or replayed.
-
-#### - `end`
-Stops the story, without closing the window
-
-**Parameters**  
-This instruction does not have any parameters.
-
-#### - `close`
-Closes the app window
-
-**Parameters**  
-This instruction does not have any parameters.

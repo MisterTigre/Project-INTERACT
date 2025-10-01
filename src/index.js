@@ -83,6 +83,9 @@ app.get('/', async (req, res) => {
                 }
             },
             {
+                type: "end",
+            },
+            {
                 type: "event",
                 id: "choiceNOK",
                 moduleId: "map1",
