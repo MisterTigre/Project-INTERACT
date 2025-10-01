@@ -189,7 +189,6 @@ class Map {
             "zoom":12,
             "max_zoom":20,
             "dragable":true,
-            "clickable":false,
             "custom_icons":[],
             "markers":[],
             "circle_markers":[],
