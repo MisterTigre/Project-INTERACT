@@ -53,12 +53,10 @@ class Chat {
                 this.#addContact(payload)
                 break
             case "receive":
-                if (!this.contacts.has(payload.contact.id)) {
-                    this.#addContact(payload.contact)
-                }
                 this.#receiveMessage(payload)
                 break
             case "answer":
+                this.#toggleAnswer(payload.discussion.id)
                 break
             case "choice":
                 break
@@ -68,7 +66,7 @@ class Chat {
     }
 
     #addDiscussion(discussion) {
-        this.discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0 })
+        this.discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0, canAnswer: discussion.canAnswer ?? false })
 
         const discussionCard = document.createElement('div')
         discussionCard.className = 'card mb-3 shadow-sm'
@@ -212,10 +210,12 @@ class Chat {
 
         const messagesContainer = this.container.querySelector(`.messages#${this.currentDiscussion}`);
         if (messagesContainer) {
-            messagesContainer.appendChild(messageElement);
-            this.#scrollToBottom();
+            messagesContainer.appendChild(messageElement)
+            this.#scrollToBottom()
+            messageInput.value = ''
+            this.#toggleAnswer(this.currentDiscussion)
+            this.#updateInputGroupVisibility()
         }
-        messageInput.value = '';
     }
 
     #openChat(discussionId) {
@@ -242,11 +242,31 @@ class Chat {
             currentMessages.style.display = 'block'
         }
 
+        // Update input group visibility based on answer permission
+        this.#updateInputGroupVisibility()
+
         // Clear unread count
         discussion.unreadCount = 0
         this.#updateDiscussionUnreadCount(discussionId, 0)
 
         this.#scrollToBottom()
+    }
+
+    #toggleAnswer(discussionId) {
+        if (!this.discussions.has(discussionId)) return
+        this.discussions.get(discussionId).canAnswer = !this.discussions.get(discussionId).canAnswer
+        this.#updateInputGroupVisibility()
+    }
+
+    #updateInputGroupVisibility() {
+        const inputGroup = this.container.querySelector('.input-group')
+        if (!inputGroup) return
+        if(!this.currentDiscussion) return
+        if (this.discussions.get(this.currentDiscussion).canAnswer) {
+            inputGroup.classList.remove('d-none')
+        } else {
+            inputGroup.classList.add('d-none')
+        }
     }
 
     #updateDiscussionUnreadCount(discussionId, count) {

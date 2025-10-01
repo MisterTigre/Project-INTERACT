@@ -54,6 +54,8 @@
             content: {text:"C'était sûr en fait"}
         };
         chat1.notify('receive', messagePayload);
+
+        setTimeout(() => {chat1.notify("answer", {discussion : {id:"first-discussion"}})}, 2000)
     </script>
 </body>
 
