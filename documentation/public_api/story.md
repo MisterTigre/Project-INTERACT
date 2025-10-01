@@ -90,7 +90,7 @@ Goes to the latitude and the longitude given
 **Payload**
 ```json
 {
-    "coords":["float","flaot"] // Latitude and longitude of the target
+    "coords":["float","flaot"], // Latitude and longitude of the target
     "zoom":"int" // Zoom you want
 }
 ```
