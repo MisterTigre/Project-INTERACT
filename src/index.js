@@ -5,6 +5,7 @@ const app = express()
 const port = 3000
 
 app.use(express.static('src/public/'));
+app.use('/bootstrap', express.static('node_modules/bootstrap/dist'));
 
 app.get('/', async (req, res) => {
     // TODO: Fetch config file from Osint4Fun
