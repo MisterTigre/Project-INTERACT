@@ -84,6 +84,23 @@ Waits a click on an item. The callback gets 1 `(int)` as argument if the user cl
     "wanted_item":"str" // Name of the item where the user must click
 ```
 
+#### - `go_to`
+Goes to the latitude and the longitude given
+
+**Payload**
+```json
+    "coords":["float","flaot"] // Latitude and longitude of the target
+    "zoom":"int" // Zoom you want
+```
+
+
+#### - `remove`
+Removes an item from the map
+
+**Payload**
+```json
+    "str" // Name of the item ⚠️ you can't remove an item if you didn't give it a name
+```
 #### TODO
 
 ### Chat
