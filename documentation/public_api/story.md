@@ -71,8 +71,10 @@ Adds a circle's form to the map.
 Waits a click on the map. The callback gets the latitude and longitude (`["float","float"]`) as argument.
 
 **Payload**
-```js
-"callback" // callback that will be executed when the user clicks
+```json
+{
+    "callback":"callback" // callback that will be executed when the user clicks
+}
 ```
 
 #### - `authorize_item_click`
@@ -80,8 +82,10 @@ Waits a click on an item. The callback gets 1 `(int)` as argument if the user cl
 
 **Payload**
 ```json
-    "callback":"callback" // callback that will be executed when the user clicks
+{
+    "callback":"callback", // callback that will be executed when the user clicks
     "wanted_item":"str" // Name of the item where the user must click
+}
 ```
 
 #### - `go_to`
@@ -101,7 +105,9 @@ Removes an item from the map
 
 **Payload**
 ```json
-    "str" // Name of the item ⚠️ you can't remove an item if you didn't give it a name
+{
+    "name":"str" // Name of the item ⚠️ you can't remove an item if you didn't give it a name
+}
 ```
 #### TODO
 

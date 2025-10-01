@@ -252,7 +252,7 @@ class Map {
                 this.#create_circles([payload])
                 break
             case "authorize_map_click":
-                this.#orchest_map_callback = payload
+                this.#orchest_map_callback = payload.callback
                 break
             case "authorize_item_click":
                 this.#orchest_item_callback = payload.callback
@@ -263,7 +263,7 @@ class Map {
                 break
             case "remove":
                 this.#map.eachLayer(function(layer){
-                    if ("name" in layer.options && layer.options.name === payload){
+                    if ("name" in layer.options && layer.options.name === payload.name){
                         this.#map.removeLayer(layer)
                     }
                 }.bind(this))
