@@ -56,9 +56,10 @@ class Chat {
                 this.#receiveMessage(payload)
                 break
             case "answer":
-                this.#toggleAnswer(payload.discussion.id)
+                this.#enableAnswer(payload.discussion.id)
                 break
             case "choice":
+                this.#enableChoices(payload.discussion.id, payload.choices)
                 break
             default:
                 return
@@ -66,7 +67,7 @@ class Chat {
     }
 
     #addDiscussion(discussion) {
-        this.discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0, canAnswer: discussion.canAnswer ?? false })
+        this.discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0, state: discussion.state ?? "locked" })
 
         const discussionCard = document.createElement('div')
         discussionCard.className = 'card mb-3 shadow-sm'
@@ -80,12 +81,12 @@ class Chat {
         row.className = 'd-flex align-items-center'
 
         // Avatar
-        const avatarImg = document.createElement('img')
-        avatarImg.src = discussion.icon
-        avatarImg.alt = discussion.name
-        avatarImg.className = 'rounded-circle me-3'
-        avatarImg.width = 50
-        avatarImg.height = 50
+        const iconImg = document.createElement('img')
+        iconImg.src = discussion.icon
+        iconImg.alt = discussion.name
+        iconImg.className = 'rounded-circle me-3'
+        iconImg.width = 50
+        iconImg.height = 50
 
         // discussion info
         const discussionInfo = document.createElement('div')
@@ -97,7 +98,7 @@ class Chat {
 
         discussionInfo.appendChild(discussionNameElement)
 
-        row.appendChild(avatarImg)
+        row.appendChild(iconImg)
         row.appendChild(discussionInfo)
 
         cardBody.appendChild(row)
@@ -132,92 +133,49 @@ class Chat {
     }
 
     #receiveMessage(message) {
-        if (!this.discussions.has(message.discussion.id)) {
-            this.#addDiscussion(message.discussion)
-        }
-        if (!this.contacts.has(message.contact.id)) {
-            this.#addContact(message.contact);
-        }
+        if (!this.discussions.has(message.discussion.id) || !this.contacts.has(message.contact.id)) return
 
-        const messageElement = this.#createMessageElement('received', message.content, message.contact.id);
+        const messageElement = this.#createMessageElement('received', message.content, message.contact.id)
 
-        const messagesContainer = this.container.querySelector(`.messages#${message.discussion.id}`);
+        const messagesContainer = this.container.querySelector(`.messages#${message.discussion.id}`)
 
         if (messagesContainer) {
-            messagesContainer.appendChild(messageElement);
+            messagesContainer.appendChild(messageElement)
 
             if (this.currentDiscussion === message.discussion.id) {
-                this.#scrollToBottom();
+                this.#scrollToBottom()
             }
         }
 
         if (this.currentDiscussion !== message.discussion.id) {
-            const discussion = this.discussions.get(message.discussion.id);
-            discussion.unreadCount++;
-            this.#updateDiscussionUnreadCount(message.discussion.id, discussion.unreadCount);
+            const discussion = this.discussions.get(message.discussion.id)
+            discussion.unreadCount++
+            this.#updateDiscussionUnreadCount(message.discussion.id, discussion.unreadCount)
         }
     }
 
-    #createMessageElement(type, content, contactId = null) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `d-flex mb-3 ${type === 'sent' ? 'justify-content-end' : 'justify-content-start'}`;
-
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        // Message content
-        const messageContent = document.createElement('div');
-        messageContent.className = type === 'sent' ? 'text-end' : 'text-start';
-        messageContent.style.maxWidth = '70%';
-
-        if (type === 'received' && contactId) {
-            // Avatar for received messages
-            const contact = this.contacts.get(contactId);
-            const iconImg = document.createElement('img');
-            iconImg.src = contact.icon;
-            iconImg.alt = contact.name;
-            iconImg.className = 'rounded-circle me-2';
-            iconImg.width = 30;
-            iconImg.height = 30;
-            messageDiv.appendChild(iconImg);
-            const nameElement = document.createElement('small');
-            nameElement.className = 'text-muted fw-bold d-block mb-1';
-            nameElement.textContent = contact.name;
-            messageContent.appendChild(nameElement);
-        }
-
-        const messageText1 = document.createElement('div');
-        messageText1.className = `p-2 rounded ${type === 'sent' ? 'bg-primary text-white' : 'bg-white border'}`;
-        messageText1.textContent = content.text ? content.text : "Contient une image";
-
-        const timeElement = document.createElement('small');
-        timeElement.className = 'text-muted d-block mt-1';
-        timeElement.textContent = time;
-
-        messageContent.appendChild(messageText1);
-        messageContent.appendChild(timeElement);
-        messageDiv.appendChild(messageContent);
-
-        return messageDiv;
+    #enableLocked(discussionId) {
+        if (!this.discussions.has(discussionId)) return
+        this.discussions.get(discussionId).state = "locked"
+        if(discussionId !== this.currentDiscussion) return
+        this.#updateAnswerVisibility()
     }
 
-    #sendMessage() {
-        const messageInput = this.container.querySelector('#message-input');
-        const messageText = messageInput.value.trim();
-
-        if (!messageText || !this.currentDiscussion) return
-
-        const messageElement = this.#createMessageElement('sent', {text:messageText});
-
-        const messagesContainer = this.container.querySelector(`.messages#${this.currentDiscussion}`);
-        if (messagesContainer) {
-            messagesContainer.appendChild(messageElement)
-            this.#scrollToBottom()
-            messageInput.value = ''
-            this.#toggleAnswer(this.currentDiscussion)
-            this.#updateInputGroupVisibility()
-        }
+    #enableAnswer(discussionId) {
+        if (!this.discussions.has(discussionId)) return
+        this.discussions.get(discussionId).state = "canAnswer"
+        if(this.discussionId !== this.currentDiscussion) return
+        this.#updateAnswerVisibility()
     }
 
+    #enableChoices(discussionId, choices) {
+        if (!this.discussions.has(discussionId)) return
+        this.discussions.get(discussionId).state = "canChoose"
+        this.discussions.get(discussionId).choices = choices
+        if(this.discussionId !== this.currentDiscussion) return
+        this.#updateAnswerVisibility()
+    }
+    
     #openChat(discussionId) {
         if (!this.discussions.has(discussionId)) return
 
@@ -243,7 +201,7 @@ class Chat {
         }
 
         // Update input group visibility based on answer permission
-        this.#updateInputGroupVisibility()
+        this.#updateAnswerVisibility()
 
         // Clear unread count
         discussion.unreadCount = 0
@@ -252,20 +210,125 @@ class Chat {
         this.#scrollToBottom()
     }
 
-    #toggleAnswer(discussionId) {
-        if (!this.discussions.has(discussionId)) return
-        this.discussions.get(discussionId).canAnswer = !this.discussions.get(discussionId).canAnswer
-        this.#updateInputGroupVisibility()
+    #createMessageElement(type, content, contactId = null) {
+        const messageDiv = document.createElement('div')
+        messageDiv.className = `d-flex mb-3 ${type === 'sent' ? 'justify-content-end' : 'justify-content-start'}`
+
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+        // Message content
+        const messageContent = document.createElement('div')
+        messageContent.className = type === 'sent' ? 'text-end' : 'text-start'
+        messageContent.style.maxWidth = '70%'
+
+        if (type === 'received' && contactId) {
+            // Avatar for received messages
+            const contact = this.contacts.get(contactId)
+            const iconImg = document.createElement('img')
+            iconImg.src = contact.icon
+            iconImg.alt = contact.name
+            iconImg.className = 'rounded-circle me-2'
+            iconImg.width = 30
+            iconImg.height = 30
+            messageDiv.appendChild(iconImg)
+            const nameElement = document.createElement('small')
+            nameElement.className = 'text-muted fw-bold d-block mb-1'
+            nameElement.textContent = contact.name
+            messageContent.appendChild(nameElement)
+        }
+
+        const messageText1 = document.createElement('div')
+        messageText1.className = `p-2 rounded ${type === 'sent' ? 'bg-primary text-white' : 'bg-white border'}`
+        messageText1.textContent = content.text ? content.text : "Contient une image"
+
+        const timeElement = document.createElement('small')
+        timeElement.className = 'text-muted d-block mt-1'
+        timeElement.textContent = time
+
+        messageContent.appendChild(messageText1)
+        messageContent.appendChild(timeElement)
+        messageDiv.appendChild(messageContent)
+
+        return messageDiv
     }
 
-    #updateInputGroupVisibility() {
+    #createChoicesUI(choices) {
+        const cardFooter = this.container.querySelector('.card-footer')
+        if (!cardFooter) return
+
+        // Create choices container
+        const choicesContainer = document.createElement('div')
+        choicesContainer.id = 'choices-container'
+        choicesContainer.className = 'd-flex flex-column mb-3'
+
+        // Create buttons for each choice - stacked vertically
+        choices.forEach((choice, index) => {
+            const choiceButton = document.createElement('button')
+            choiceButton.className = 'btn btn-outline-primary w-100 mb-2'
+            choiceButton.textContent = choice.text || choice
+            choiceButton.addEventListener('click', () => {
+                this.#selectChoice(choice, index)
+            })
+            choicesContainer.appendChild(choiceButton)
+        })
+
+        // Insert choices container before the input group
+        const inputGroup = cardFooter.querySelector('.input-group')
+        cardFooter.insertBefore(choicesContainer, inputGroup)
+    }
+
+    #selectChoice(choice, index) {
+        if (!this.currentDiscussion) return
+
+        // Create and send the choice as a message
+        const choiceText = choice.text || choice
+        const messageElement = this.#createMessageElement('sent', { text: choiceText })
+
+        const messagesContainer = this.container.querySelector(`.messages#${this.currentDiscussion}`)
+        if (messagesContainer) {
+            messagesContainer.appendChild(messageElement)
+            this.#scrollToBottom()
+        }
+
+        // Update discussion state and remove choices
+        this.#enableLocked(this.currentDiscussion)
+        discussion.choices = null
+    }
+
+    #sendMessage() {
+        const messageInput = this.container.querySelector('#message-input')
+        const messageText = messageInput.value.trim()
+
+        if (!messageText || !this.currentDiscussion) return
+
+        const messageElement = this.#createMessageElement('sent', { text: messageText })
+
+        const messagesContainer = this.container.querySelector(`.messages#${this.currentDiscussion}`)
+        if (messagesContainer) {
+            messagesContainer.appendChild(messageElement)
+            this.#scrollToBottom()
+            messageInput.value = ''
+            this.#enableLocked(this.currentDiscussion)
+        }
+    }
+
+    #updateAnswerVisibility() {
+        if (!this.currentDiscussion) return
         const inputGroup = this.container.querySelector('.input-group')
+        const choicesContainer = this.container.querySelector('#choices-container')
+
         if (!inputGroup) return
-        if(!this.currentDiscussion) return
-        if (this.discussions.get(this.currentDiscussion).canAnswer) {
+        inputGroup.classList.add('d-none')
+        if (choicesContainer) {
+            choicesContainer.remove()
+        }
+
+        const discussion = this.discussions.get(this.currentDiscussion)
+
+        if (discussion.state === "canAnswer") {
             inputGroup.classList.remove('d-none')
-        } else {
-            inputGroup.classList.add('d-none')
+        } else if (discussion.state === "canChoose" && discussion.choices) {
+            this.#createChoicesUI(discussion.choices)
         }
     }
 

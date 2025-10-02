@@ -54,8 +54,17 @@
             content: {text:"C'était sûr en fait"}
         };
         chat1.notify('receive', messagePayload);
-
-        setTimeout(() => {chat1.notify("answer", {discussion : {id:"first-discussion"}})}, 2000)
+        
+        // Example of enabling choices after some time
+        const choices = [
+            { text: "Ça va bien, merci !" },
+            { text: "Pas terrible..." },
+            { text: "Et toi ?" }
+        ];
+        chat1.notify("choice", {
+            discussion: { id: "first-discussion" },
+            choices: choices
+        });
     </script>
 </body>
 
