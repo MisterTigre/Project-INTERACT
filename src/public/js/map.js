@@ -7,6 +7,9 @@ class MapModule {
     #orchest_map_callback
     #orchest_item_callback
     #wanted_item
+    #mouse_marker
+    #mouse_circle
+    #validate_btn
 
 
     constructor(id, data) {
@@ -150,7 +153,9 @@ class MapModule {
     // Add cicrcles to the map
     #create_circles(circles) {
         circles.forEach(c => {
-            if ('name' in c) {
+            c.style["radius"] = c.radius
+            if ('name' in c){
+
                 c.style['name'] = c.name
             }
             var new_circle = L.circle(c.center, c.style).addTo(this.#map)
@@ -201,6 +206,19 @@ class MapModule {
             }
         }
     }
+    
+    #remove_mouse_item(type){
+        if (this.#mouse_marker !== undefined && (type === "mouse" || type === "all")){
+            this.#map.removeLayer(this.#mouse_marker)
+        }
+        if (this.#mouse_circle !== undefined && (type === "mouse" || type === "all")){
+            this.#map.removeLayer(this.#mouse_circle)
+        }
+        if (this.#validate_btn !== undefined && (type === "btn" || type === "all")){
+            this.#map.removeControl(this.#validate_btn)
+            this.#validate_btn = undefined 
+        }
+    }
 
     get_id() {
         return this.#id
@@ -208,17 +226,18 @@ class MapModule {
 
 
     #onMapClick(e) {
-        // Use mouse'coords if you click on the map and want coords
-        if (this.#orchest_map_callback) {
-            this.#orchest_map_callback(e.latlng)
-            this.#orchest_map_callback = null
-        }
-        // Use "" in the callback if uou click on the map and want an item
-        if (this.#orchest_item_callback) {
+        // Use 0 in the callback if you click on the map but requested an item
+        if (this.#orchest_item_callback){
             this.#orchest_item_callback(0)
             this.#orchest_item_callback = null
         }
+        
+        // Only change the marker/circle of the mouse if a callback has been send
+        if (this.#orchest_map_callback){
+            this.#add_mouse_pointer(e)   
+        }
     }
+        
 
     #onItemClick(e) {
         // Use the name of the item if you click on an item and want an item
@@ -228,8 +247,56 @@ class MapModule {
         }
         // Use mouse'coords if you click on an item and want coords
         if (this.#orchest_map_callback) {
-            this.#orchest_map_callback(this.#map.mouseEventToLatLng(e.originalEvent))
-            this.#orchest_map_callback = null
+            //this.#orchest_map_callback(this.#map.mouseEventToLatLng(e.originalEvent))
+            //this.#orchest_map_callback = null
+            this.#add_mouse_pointer(e)
+        }
+    }
+
+    #add_mouse_pointer(e){
+        var addon = {}
+        if ("mouse_icon" in this.#custom_icons){
+            addon["icon"] = this.#custom_icons["mouse_icon"]
+        }
+        this.#remove_mouse_item("mouse")
+        if (this.#validate_btn === undefined){
+            // Création d'un contrôle personnalisé
+            this.#validate_btn = L.control({position: 'bottomright'});
+
+            this.#validate_btn.onAdd = (map) =>{
+                var div = L.DomUtil.create('div', '')
+                
+                let button = L.DomUtil.create('a', 'validate-btn', div)
+                button.innerHTML = 'Validate'
+                button.title = 'Validate'
+                button.href = '#'
+
+                L.DomEvent.disableClickPropagation(div);
+
+                button.onclick = (e) =>{
+                    // Use mouse'coords if you click on the map and want coords
+                    if (this.#orchest_map_callback){
+                        if (this.#mouse_marker){
+                            this.#orchest_map_callback(this.#mouse_marker.getLatLng())
+                        }else if (this.#mouse_circle){
+                            this.#orchest_map_callback(this.#mouse_circle.getLatLng())
+                        }
+                        this.#orchest_map_callback = null
+                    }
+                    this.#remove_mouse_item("btn")
+                }
+                return div;
+            }
+            // Ajout du contrôle à la carte
+            this.#validate_btn.addTo(this.#map)
+        }
+        if ("mouse_marker" in this.#json.mouse_pointer && this.#json.mouse_pointer.mouse_marker){
+            this.#mouse_marker = L.marker(e.latlng, addon)
+            this.#mouse_marker.addTo(this.#map)
+        }
+        if ("mouse_marker" in this.#json.mouse_pointer && this.#json.mouse_pointer.mouse_circle){
+            this.#mouse_circle = L.circle(e.latlng,this.#json.mouse_pointer.mouse_radius)
+            this.#mouse_circle.addTo(this.#map)
         }
     }
 
@@ -253,6 +320,8 @@ class MapModule {
                 break
             case "authorize_map_click":
                 this.#orchest_map_callback = payload.callback
+                this.#json["mouse_pointer"] = payload.mouse_pointer
+                this.#remove_mouse_item("all")
                 break
             case "authorize_item_click":
                 this.#orchest_item_callback = payload.callback
