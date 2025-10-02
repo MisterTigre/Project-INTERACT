@@ -80,7 +80,6 @@ class Chat {
         const row = document.createElement('div')
         row.className = 'd-flex align-items-center'
 
-        // Avatar
         const iconImg = document.createElement('img')
         iconImg.src = discussion.icon
         iconImg.alt = discussion.name
@@ -88,7 +87,6 @@ class Chat {
         iconImg.width = 50
         iconImg.height = 50
 
-        // discussion info
         const discussionInfo = document.createElement('div')
         discussionInfo.className = 'flex-grow-1'
 
@@ -104,7 +102,6 @@ class Chat {
         cardBody.appendChild(row)
         discussionCard.appendChild(cardBody)
 
-        // Hover effects
         discussionCard.addEventListener('mouseenter', () => {
             discussionCard.classList.add('shadow')
         })
@@ -119,7 +116,6 @@ class Chat {
         const discussionSelectionList = this.container.querySelector('.discussion-selection-list')
         discussionSelectionList.appendChild(discussionCard)
 
-        // Create messages container
         const messagesContainer = this.container.querySelector('#messages-container')
         const discussionMessagesContainer = document.createElement('div')
         discussionMessagesContainer.className = 'messages p-3'
@@ -150,7 +146,7 @@ class Chat {
         if (this.currentDiscussion !== message.discussion.id) {
             const discussion = this.discussions.get(message.discussion.id)
             discussion.unreadCount++
-            this.#updateDiscussionUnreadCount(message.discussion.id, discussion.unreadCount)
+            this.#updateDiscussionUnreadCount(message.discussion.id)
         }
     }
 
@@ -182,15 +178,12 @@ class Chat {
         this.currentDiscussion = discussionId
         const discussion = this.discussions.get(discussionId)
 
-        // Show/hide pages
         this.container.querySelector('#discussion-selection').classList.replace('d-block', 'd-none')
         this.container.querySelector('#chat-page').classList.replace('d-none', 'd-block')
 
-        // Update chat header
         this.container.querySelector('#current-avatar').src = discussion.icon
         this.container.querySelector('#current-discussion-name').textContent = discussion.name
 
-        // Show appropriate messages
         this.container.querySelectorAll('.messages').forEach(messagesContainer => {
             messagesContainer.style.display = 'none'
         })
@@ -200,12 +193,10 @@ class Chat {
             currentMessages.style.display = 'block'
         }
 
-        // Update input group visibility based on answer permission
         this.#updateAnswerVisibility()
 
-        // Clear unread count
         discussion.unreadCount = 0
-        this.#updateDiscussionUnreadCount(discussionId, 0)
+        this.#updateDiscussionUnreadCount(discussionId)
 
         this.#scrollToBottom()
     }
@@ -216,13 +207,11 @@ class Chat {
 
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
-        // Message content
         const messageContent = document.createElement('div')
         messageContent.className = type === 'sent' ? 'text-end' : 'text-start'
         messageContent.style.maxWidth = '70%'
 
         if (type === 'received' && contactId) {
-            // Avatar for received messages
             const contact = this.contacts.get(contactId)
             const iconImg = document.createElement('img')
             iconImg.src = contact.icon
@@ -256,31 +245,27 @@ class Chat {
         const cardFooter = this.container.querySelector('.card-footer')
         if (!cardFooter) return
 
-        // Create choices container
         const choicesContainer = document.createElement('div')
         choicesContainer.id = 'choices-container'
         choicesContainer.className = 'd-flex flex-column mb-3'
 
-        // Create buttons for each choice - stacked vertically
-        choices.forEach((choice, index) => {
+        choices.forEach((choice) => {
             const choiceButton = document.createElement('button')
             choiceButton.className = 'btn btn-outline-primary w-100 mb-2'
             choiceButton.textContent = choice.text || choice
             choiceButton.addEventListener('click', () => {
-                this.#selectChoice(choice, index)
+                this.#selectChoice(choice)
             })
             choicesContainer.appendChild(choiceButton)
         })
 
-        // Insert choices container before the input group
         const inputGroup = cardFooter.querySelector('.input-group')
         cardFooter.insertBefore(choicesContainer, inputGroup)
     }
 
-    #selectChoice(choice, index) {
+    #selectChoice(choice) {
         if (!this.currentDiscussion) return
 
-        // Create and send the choice as a message
         const choiceText = choice.text || choice
         const messageElement = this.#createMessageElement('sent', { text: choiceText })
 
@@ -290,9 +275,7 @@ class Chat {
             this.#scrollToBottom()
         }
 
-        // Update discussion state and remove choices
         this.#enableLocked(this.currentDiscussion)
-        discussion.choices = null
     }
 
     #sendMessage() {
@@ -332,10 +315,11 @@ class Chat {
         }
     }
 
-    #updateDiscussionUnreadCount(discussionId, count) {
+    #updateDiscussionUnreadCount(discussionId) {
         const discussionCard = this.container.querySelector(`#${discussionId}`)
         if (!discussionCard) return
 
+        const count = this.discussions.get(discussionId).unreadCount
         let unreadElement = discussionCard.querySelector('.unread-count')
 
         if (count > 0) {
