@@ -1,0 +1,166 @@
+{
+    "title": "Main page",
+    "gridSize": [4, 3],
+    "modules": [
+        {
+            "type": "map",
+            "id": "map1",
+            "position": [0, 0],
+            "size": [4, 3],
+            "data": {
+                "latitude": 47.47911839457999,
+                "longitude": -0.5872555540154729,
+                "zoom": 18
+            }
+        },
+        {
+            "type": "chat",
+            "id": "chat1",
+            "position": [3, 0],
+            "size": [1, 2]
+        }
+    ],
+    "story": [
+        {
+            "type": "event",
+            "moduleId": "map1",
+            "msg": "add_custom_icon",
+            "payload": {
+                "name": "frightfur",
+                "iconUrl": "img/frightfur.jpg",
+                "iconSize": [38, 38],
+                "iconAnchor": [19, 38],
+                "popupAnchor": [0, -38]
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addDiscussion",
+            "payload": {
+                "id": "frightfur",
+                "icon": "img/frightfur.jpg",
+                "name": "MisterTigre"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "receive",
+            "delay": 2000,
+            "payload": {
+                "discussion": {
+                    "id": "frightfur"
+                },
+                "contact": {
+                    "id": "frightfur",
+                    "name": "MisterTigre",
+                    "icon": "img/frightfur.jpg"
+                },
+                "content": {
+                    "text": "J'ai ajouté un ping sur ta map!"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "map1",
+            "msg": "add_marker",
+            "payload": {
+                "latitude": 47.47943149670439,
+                "longitude": -0.5875704044184071,
+                "name": "markerA"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "receive",
+            "delay": 3000,
+            "payload": {
+                "discussion": {
+                    "id": "frightfur"
+                },
+                "contact": {
+                    "id": "frightfur"
+                },
+                "content": {
+                    "text": "Vas-y clique dessus"
+                }
+            }
+        },
+        {
+            "type": "choice",
+            "id": "choice",
+            "moduleId": "map1",
+            "msg": "authorize_item_click",
+            "payload": {
+                "wanted_item": "markerA"
+            },
+            "choiceDestinations": [
+                "choiceNOK",
+                "choiceOK"
+            ]
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "id": "choiceOK",
+            "msg": "receive",
+            "delay": 1000,
+            "payload": {
+                "discussion": {
+                    "id": "frightfur"
+                },
+                "contact": {
+                    "id": "frightfur"
+                },
+                "content": {
+                    "text": "Bien joué, c'est fini!"
+                }
+            }
+        },
+        {
+            "type": "end"
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "id": "choiceNOK",
+            "msg": "receive",
+            "delay": 1000,
+            "payload": {
+                "discussion": {
+                    "id": "frightfur"
+                },
+                "contact": {
+                    "id": "frightfur"
+                },
+                "content": {
+                    "text": "..."
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "receive",
+            "delay": 3000,
+            "payload": {
+                "discussion": {
+                    "id": "frightfur"
+                },
+                "contact": {
+                    "id": "frightfur"
+                },
+                "content": {
+                    "text": "T'as cliqué à coté, réessaie"
+                }
+            }
+        },
+        {
+            "type": "goto",
+            "destination": "choice"
+        }
+    ]
+}

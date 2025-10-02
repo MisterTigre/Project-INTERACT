@@ -1,4 +1,4 @@
-class Map {
+class MapModule {
     #id
     #json
     #popup

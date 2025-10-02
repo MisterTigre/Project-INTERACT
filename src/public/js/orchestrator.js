@@ -1,9 +1,11 @@
 function create_module(type, id, data) {
     switch (type) {
         case "test":
-            return new Test(id, data)
+            return new TestModule(id, data)
         case "map":
-            return new Map(id, data)
+            return new MapModule(id, data)
+        case "chat":
+            return new ChatModule(id, data)
         default:
             throw `Invalid module type "${type}"`
     }
