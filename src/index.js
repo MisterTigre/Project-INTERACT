@@ -18,7 +18,7 @@ app.get('/', async (req, res) => {
                 type: "map",
                 id: "map1",
                 position: [0, 0],
-                size: [2, 1],
+                size: [1, 1],
                 data: {
                     latitude: 47.47911839457999,
                     longitude: -0.5872555540154729,
@@ -26,16 +26,10 @@ app.get('/', async (req, res) => {
                 }
             },
             {
-                type: "test",
-                id: "test1",
-                position: [0, 0],
-                size: [1, 1]
-            },
-            {
-                type: "test",
-                id: "test2",
+                type: "chat",
+                id: "chat1",
                 position: [1, 0],
-                size: [1, 2]
+                size: [1, 1]
             }
         ],
         story: [

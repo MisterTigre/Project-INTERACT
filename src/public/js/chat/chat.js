@@ -1,4 +1,4 @@
-class Chat {
+class ChatModule {
     constructor(id, data) {
         this.container = document.getElementById(id)
         this.discussions = new Map()
