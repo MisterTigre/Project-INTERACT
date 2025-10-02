@@ -35,12 +35,12 @@ data:
     "latitude":"float", // Latitude of the center of the map
     "longitude":"float", // Longitude of the center of the map
     "zoom":"int", // Default zoom value
-    "max_zoom":"int", // The maxed value the user can get zoom
+    "max_zoom":"int", // The maxed value the user can zoom in
     "dragable":"bool", // Optional, if you want to be able to move on the map
     "custom_icons":["custom_icon",...], // Optional, icons if you don't want to use the default one
     "matkers":["marker",...], // Optional, markers to put on the map
     "circle_markers":["circle_marker",...], // Optional, markers in form of a dot
-    "polygons":["polygon",...], // Optional, draw a polygon on the map
-    "circles":["circle",...], // Optional, draw a circle on the map
+    "polygons":["polygon",...], // Optional, draws a polygon on the map
+    "circles":["circle",...], // Optional, draws a circle on the map
 }
 ```
