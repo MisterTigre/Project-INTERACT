@@ -13,6 +13,7 @@ app.get('/', async (req, res) => {
     config = await (await fetch("http://localhost:3000/challenges/example.json")).json()
 
     let modules_html = ""
+    let z = 0
     for (module of config.modules) {
         const x = module.position[0]
         const y = module.position[1]
@@ -24,8 +25,9 @@ app.get('/', async (req, res) => {
         modules_html += await ejs.renderFile("src/modules/module_container.ejs", {
             module: module_html,
             id: module.id,
-            style: `grid-column: ${x + 1} / ${x + w + 1}; grid-row: ${y + 1} / ${y + h + 1};`
+            style: `grid-column: ${x + 1} / ${x + w + 1}; grid-row: ${y + 1} / ${y + h + 1}; z-index: ${z * 100}`
         })
+        z++
     }
 
     const html = await ejs.renderFile("src/routes/home.ejs", {
