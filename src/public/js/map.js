@@ -1,13 +1,20 @@
-class Map {
+class MapModule {
     #id
     #json
     #popup
     #custom_icons
     #map
+    #orchest_map_callback
+    #orchest_item_callback
+    #wanted_item
+    #mouse_marker
+    #mouse_circle
+    #validate_btn
 
-    constructor(id, data){
 
-        if (typeof data !== "object"){
+    constructor(id, data) {
+
+        if (typeof data !== "object") {
             data = {}
         }
 
@@ -20,24 +27,22 @@ class Map {
 
         this.#create_base_map()
 
-        if (this.#json.dragable != true){
-            this.desactivate_movement()
+        if (this.#json.dragable != true) {
+            this.#desactivate_movement()
         }
 
-        this.create_custom_icons(this.#json.custom_icons)
-        this.create_markers(this.#json.markers)
-        this.create_circle_markers(this.#json.circle_markers)
-        this.create_polygons(this.#json.polygons)
-        this.create_circles(this.#json.circles)
+        this.#create_custom_icons(this.#json.custom_icons)
+        this.#create_markers(this.#json.markers)
+        this.#create_circle_markers(this.#json.circle_markers)
+        this.#create_polygons(this.#json.polygons)
+        this.#create_circles(this.#json.circles)
 
-        this.popup = L.popup()
-        if (this.#json.clickable){
-            this.#map.on('click', this.onMapClick.bind(this))
-        }
+        this.#popup = L.popup()
+        this.#map.on('click', this.#onMapClick.bind(this))
     }
 
     // Create the base map
-    #create_base_map(){
+    #create_base_map() {
         this.#map = L.map(this.#id).setView([this.#json.latitude, this.#json.longitude], this.#json.zoom)
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: this.#json.max_zoom,
@@ -46,7 +51,7 @@ class Map {
     }
 
     // Desactive all movements if you want it
-    desactivate_movement(){
+    #desactivate_movement() {
         this.#map.removeControl(this.#map.zoomControl)
         this.#map.dragging.disable()
         this.#map.touchZoom.disable()
@@ -58,59 +63,75 @@ class Map {
 
 
     // create custom icons
-    create_custom_icons(icons){
+    #create_custom_icons(icons) {
         icons.forEach(ci => {
             this.#custom_icons[ci.name] = L.icon({
-                iconUrl: ci.iconUrl,  
-                iconSize: ci.iconSize,              
-                iconAnchor: ci.iconAnchor,            
-                popupAnchor: ci.popupAnchor           
+                iconUrl: ci.iconUrl,
+                iconSize: ci.iconSize,
+                iconAnchor: ci.iconAnchor,
+                popupAnchor: ci.popupAnchor
             })
         })
     }
 
     // Add markers to the map
-    create_markers(markers){
+    #create_markers(markers) {
         markers.forEach(m => {
-            var icon = L.Icon.Default.prototype
-            if (m.icon in this.#custom_icons){
-                icon = this.#custom_icons[m.icon]
-            }else if (m.icon != "default"){
-                console.error(`The icon "${m.icon}" has not been declared`)
+            var addon = {}
+            if ("icon" in m) {
+                if (m.icon in this.#custom_icons) {
+                    addon['icon'] = this.#custom_icons[m.icon]
+                } else if (m.icon != "default") {
+                    console.error(`The icon "${m.icon}" has not been declared`)
+                }
             }
-            var new_marker = L.marker([m.latitude, m.longitude], {icon: icon}).addTo(this.#map)
-            if (m.popup_text != ""){
+            if ('name' in m) {
+                addon['name'] = m.name
+            }
+
+            var new_marker = L.marker([m.latitude, m.longitude], addon).addTo(this.#map)
+            if ("popup_text" in m) {
                 new_marker.bindPopup(m.popup_text)
             }
+
+            new_marker.on('click', this.#onItemClick.bind(this))
         })
     }
 
     // Add circle's markers to the map
-    create_circle_markers(circle_markers){
+    #create_circle_markers(circle_markers) {
         circle_markers.forEach(cm => {
+            if ('name' in cm) {
+                cm.style['name'] = cm.name
+            }
             var new_circle_marker = L.circleMarker(cm.center, cm.style).addTo(this.#map)
 
-            if (cm.popup_text != ""){
+            if ("popup_text" in cm) {
                 new_circle_marker.bindPopup(cm.popup_text)
             }
+
+            new_circle_marker.on('click', this.#onItemClick.bind(this))
         })
     }
 
     // Add polygons to the map
-    create_polygons(polygons){
+    #create_polygons(polygons) {
         polygons.forEach(p => {
+            if ('name' in p) {
+                p.style['name'] = p.name
+            }
             var new_polygon = L.polygon(p.points, p.style).addTo(this.#map)
 
-            if (p.popup_text != "") {
+            if ("popup_text" in p) {
                 new_polygon.bindPopup(p.popup_text)
             }
 
-            if (p.hover_view){
+            if ("hover_view" in p && p.hover_view) {
                 new_polygon.setStyle({ opacity: 0, fillOpacity: 0 })
 
-                if (!("opacity" in p.style)){
+                if (!("opacity" in p.style)) {
                     p.style.opacity = 1
-                }if (!("fillOpacity" in p.style)){
+                } if (!("fillOpacity" in p.style)) {
                     p.style.fillOpacity = 0.5
                 }
 
@@ -123,25 +144,32 @@ class Map {
                     this.closePopup()
                 })
             }
+
+            new_polygon.on('click', this.#onItemClick.bind(this))
         })
     }
 
 
     // Add cicrcles to the map
-    create_circles(circles){
+    #create_circles(circles) {
         circles.forEach(c => {
-            var new_circle = L.circle(c.center,c.style).addTo(this.#map)
+            c.style["radius"] = c.radius
+            if ('name' in c){
 
-            if (c.popup_text != "") {
+                c.style['name'] = c.name
+            }
+            var new_circle = L.circle(c.center, c.style).addTo(this.#map)
+
+            if ("popup_text" in c) {
                 new_circle.bindPopup(c.popup_text)
             }
 
-            if (c.hover_view){
+            if ("hover_view" in c && c.hover_view) {
                 new_circle.setStyle({ opacity: 0, fillOpacity: 0 })
 
-                if (!("opacity" in c.style)){
+                if (!("opacity" in c.style)) {
                     c.style.opacity = 1
-                }if (!("fillOpacity" in c.style)){
+                } if (!("fillOpacity" in c.style)) {
                     c.style.fillOpacity = 0.5
                 }
 
@@ -154,38 +182,164 @@ class Map {
                     this.closePopup()
                 })
             }
+
+            new_circle.on('click', this.#onItemClick.bind(this))
         })
     }
 
-    #put_default(){
+    #put_default() {
         const def = {
-            "latitude":47.46653288719405,
-            "longitude":-0.5565456868413388,
-            "zoom":12,
-            "max_zoom":20,
-            "dragable":true,
-            "clickable":false,
-            "custom_icons":[],
-            "markers":[],
-            "circle_markers":[],
-            "polygons":[],
-            "circles":[]
+            "latitude": 47.46653288719405,
+            "longitude": -0.5565456868413388,
+            "zoom": 12,
+            "max_zoom": 20,
+            "dragable": true,
+            "custom_icons": [],
+            "markers": [],
+            "circle_markers": [],
+            "polygons": [],
+            "circles": []
         }
-        for(const key in def){
-            if (!(key in this.#json)){
+        for (const key in def) {
+            if (!(key in this.#json)) {
                 this.#json[key] = def[key]
             }
         }
     }
+    
+    #remove_mouse_item(type){
+        if (this.#mouse_marker !== undefined && (type === "mouse" || type === "all")){
+            this.#map.removeLayer(this.#mouse_marker)
+        }
+        if (this.#mouse_circle !== undefined && (type === "mouse" || type === "all")){
+            this.#map.removeLayer(this.#mouse_circle)
+        }
+        if (this.#validate_btn !== undefined && (type === "btn" || type === "all")){
+            this.#map.removeControl(this.#validate_btn)
+            this.#validate_btn = undefined 
+        }
+    }
 
-    get_id(){
+    get_id() {
         return this.#id
     }
 
-    onMapClick(e) {
-        this.popup
-            .setLatLng(e.latlng)
-            .setContent("You clicked the map at " + e.latlng.toString())
-            .openOn(this.#map)
+
+    #onMapClick(e) {
+        // Use 0 in the callback if you click on the map but requested an item
+        if (this.#orchest_item_callback){
+            this.#orchest_item_callback(0)
+            this.#orchest_item_callback = null
+        }
+        
+        // Only change the marker/circle of the mouse if a callback has been send
+        if (this.#orchest_map_callback){
+            this.#add_mouse_pointer(e)   
+        }
+    }
+        
+
+    #onItemClick(e) {
+        // Use the name of the item if you click on an item and want an item
+        if (this.#orchest_item_callback) {
+            this.#orchest_item_callback(+(e.target.options.name === this.#wanted_item))
+            this.#orchest_item_callback = null
+        }
+        // Use mouse'coords if you click on an item and want coords
+        if (this.#orchest_map_callback) {
+            //this.#orchest_map_callback(this.#map.mouseEventToLatLng(e.originalEvent))
+            //this.#orchest_map_callback = null
+            this.#add_mouse_pointer(e)
+        }
+    }
+
+    #add_mouse_pointer(e){
+        var addon = {}
+        if ("mouse_icon" in this.#custom_icons){
+            addon["icon"] = this.#custom_icons["mouse_icon"]
+        }
+        this.#remove_mouse_item("mouse")
+        if (this.#validate_btn === undefined){
+            // Création d'un contrôle personnalisé
+            this.#validate_btn = L.control({position: 'bottomright'});
+
+            this.#validate_btn.onAdd = (map) =>{
+                var div = L.DomUtil.create('div', '')
+                
+                let button = L.DomUtil.create('a', 'validate-btn', div)
+                button.innerHTML = 'Validate'
+                button.title = 'Validate'
+                button.href = '#'
+
+                L.DomEvent.disableClickPropagation(div);
+
+                button.onclick = (e) =>{
+                    // Use mouse'coords if you click on the map and want coords
+                    if (this.#orchest_map_callback){
+                        if (this.#mouse_marker){
+                            this.#orchest_map_callback(this.#mouse_marker.getLatLng())
+                        }else if (this.#mouse_circle){
+                            this.#orchest_map_callback(this.#mouse_circle.getLatLng())
+                        }
+                        this.#orchest_map_callback = null
+                    }
+                    this.#remove_mouse_item("btn")
+                }
+                return div;
+            }
+            // Ajout du contrôle à la carte
+            this.#validate_btn.addTo(this.#map)
+        }
+        if ("mouse_marker" in this.#json.mouse_pointer && this.#json.mouse_pointer.mouse_marker){
+            this.#mouse_marker = L.marker(e.latlng, addon)
+            this.#mouse_marker.addTo(this.#map)
+        }
+        if ("mouse_marker" in this.#json.mouse_pointer && this.#json.mouse_pointer.mouse_circle){
+            this.#mouse_circle = L.circle(e.latlng,this.#json.mouse_pointer.mouse_radius)
+            this.#mouse_circle.addTo(this.#map)
+        }
+    }
+
+
+    notify(msg, payload) {
+        switch (msg) {
+            case "add_custom_icon":
+                this.#create_custom_icons([payload])
+                break
+            case "add_marker":
+                this.#create_markers([payload])
+                break
+            case "add_circle_marker":
+                this.#create_circle_markers([payload])
+                break
+            case "add_polygon":
+                this.#create_polygons([payload])
+                break
+            case "add_circle":
+                this.#create_circles([payload])
+                break
+            case "authorize_map_click":
+                this.#orchest_map_callback = payload.callback
+                this.#json["mouse_pointer"] = payload.mouse_pointer
+                this.#remove_mouse_item("all")
+                break
+            case "authorize_item_click":
+                this.#orchest_item_callback = payload.callback
+                this.#wanted_item = payload.wanted_item
+                break
+            case "go_to":
+                this.#map.flyTo(payload.coords, payload.zoom)
+                break
+            case "remove":
+                this.#map.eachLayer(function (layer) {
+                    if ("name" in layer.options && layer.options.name === payload.name) {
+                        this.#map.removeLayer(layer)
+                    }
+                }.bind(this))
+                break
+            default:
+                console.error("Unknown message : " + msg)
+                return
+        }
     }
 }
