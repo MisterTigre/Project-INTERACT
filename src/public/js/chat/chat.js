@@ -52,7 +52,7 @@ class ChatModule {
             case "addContact":
                 this.#addContact(payload)
                 break
-            case "receive":
+            case "send":
                 this.#receiveMessage(payload)
                 break
             case "answer":
@@ -153,14 +153,14 @@ class ChatModule {
     #enableLocked(discussionId) {
         if (!this.discussions.has(discussionId)) return
         this.discussions.get(discussionId).state = "locked"
-        if(discussionId !== this.currentDiscussion) return
+        if (discussionId !== this.currentDiscussion) return
         this.#updateAnswerVisibility()
     }
 
     #enableAnswer(discussionId) {
         if (!this.discussions.has(discussionId)) return
         this.discussions.get(discussionId).state = "canAnswer"
-        if(this.discussionId !== this.currentDiscussion) return
+        if (this.discussionId !== this.currentDiscussion) return
         this.#updateAnswerVisibility()
     }
 
@@ -168,10 +168,10 @@ class ChatModule {
         if (!this.discussions.has(discussionId)) return
         this.discussions.get(discussionId).state = "canChoose"
         this.discussions.get(discussionId).choices = choices
-        if(this.discussionId !== this.currentDiscussion) return
+        if (this.discussionId !== this.currentDiscussion) return
         this.#updateAnswerVisibility()
     }
-    
+
     #openChat(discussionId) {
         if (!this.discussions.has(discussionId)) return
 

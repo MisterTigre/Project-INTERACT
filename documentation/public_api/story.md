@@ -168,25 +168,51 @@ Removes an item from the map
 
 ### Chat
 
-## Special Instructions
+Here are the different messages supported by the Chat module.
 
-Specials instructions are used to control the flow of the story.
+#### - `addDiscussion`
+Adds a discussion to the chat. It appears in the message feed and can be opened to chat with "people".
 
-The syntax is the following:
+**Payload**
 ```json
-[ "instruction", "parameter1", "parameter2", ...]
+"id" : "str" // Id of the discussion, unique to each
+"name" : "str" // Name that will appear in the message feed and at the top of the chat page
+"icon":"str" // Link to the icon source
 ```
 
-### Special instruction list
+#### - `addContact`
+Adds a contact to the Chat. There is no display for contacts. It is used when receiving messages to show the name and icon with the message.
 
-#### - `goto`
-Jumps to a position in the story.
+**Payload**
+```json
+"id": "str" // Id of the contact, unique to each
+"name": "str"
+"icon": "str" // Link to the icon source
+```
 
-**Parameters**
-- eventId: `"str"`: The eventId where to go, the event will be played or replayed.
+#### - `send`
+Sends a message from a contact in a discussion.
 
-#### - `close`
-Closes the app window
+**Payload**
+```json
+"id": "str" // Id of the contact, unique to each
+"name": "str" // Name to be displayed
+"icon": "str" // Link to the icon source
+```
 
-**Parameters**  
-This instruction does not have any parameters.
+#### - `answer`
+Allows the user to answer in a discussion.
+
+**Payload**
+```json
+"discussionId": "str" // Id of the discussion where the user can answer
+```
+
+#### - `choice`
+Allows the user to choose between answers in a discussion.
+
+**Payload**
+```json
+"discussionId": "str" // Id of the discussion where the user can choose
+"choices":["str"] // List of possible answers
+```

@@ -44,3 +44,10 @@ data:
     "circles":["circle",...], // Optional, draws a circle on the map
 }
 ```
+
+#### Chat
+
+type: `chat`
+
+data:
+There is no data.
