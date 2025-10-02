@@ -1,6 +1,10 @@
 class ChatModule {
     constructor(id, data) {
         this.container = document.getElementById(id)
+        if (!this.container) {
+            console.error(`ChatModule: Container with id '${id}' not found`)
+            return
+        }
         this.discussions = new Map()
         this.currentDiscussion = null
         this.contacts = new Map()
@@ -10,21 +14,27 @@ class ChatModule {
 
     #setupEventListeners() {
         const backBtn = this.container.querySelector('#back-btn')
-        if (backBtn) {
+        if (!backBtn) {
+            console.error('ChatModule: Back button not found')
+        } else {
             backBtn.addEventListener('click', () => {
                 this.#showDiscussionSelection()
             })
         }
 
         const sendBtn = this.container.querySelector('#send-btn')
-        if (sendBtn) {
+        if (!sendBtn) {
+            console.error('ChatModule: Send button not found')
+        } else {
             sendBtn.addEventListener('click', () => {
                 this.#sendMessage()
             })
         }
 
         const messageInput = this.container.querySelector('#message-input')
-        if (messageInput) {
+        if (!messageInput) {
+            console.error('ChatModule: Message input not found')
+        } else {
             messageInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     this.#sendMessage()
@@ -68,6 +78,10 @@ class ChatModule {
     }
 
     #addDiscussion(discussion) {
+        if (!discussion || !discussion.id || !discussion.name || !discussion.icon) {
+            console.error('ChatModule: Invalid discussion data')
+            return
+        }
         this.discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0, state: discussion.state ?? "locked" })
 
         const discussionCard = document.createElement('div')
@@ -126,14 +140,29 @@ class ChatModule {
     }
 
     #addContact(contact) {
+        if (!contact || !contact.id || !contact.name || !contact.icon) {
+            console.error('ChatModule: Invalid contact data')
+            return
+        }
         this.contacts.set(contact.id, { name: contact.name, icon: contact.icon })
     }
 
     #receiveMessage(message) {
-        if (!this.discussions.has(message.discussionId) || !this.contacts.has(message.contactId)) return
-
+        if (
+            !message ||
+            !this.discussions.has(message.discussionId) ||
+            !this.contacts.has(message.contactId) ||
+            !message.content
+        ) {
+            console.error('ChatModule: Invalid message data')
+            return
+        }
         const messageElement = this.#createMessageElement('received', message.content, message.contactId)
 
+        if (!messageElement) {
+            console.error('ChatModule: Failed to create message element')
+            return
+        }
         const messagesContainer = this.container.querySelector(`.messages#${message.discussionId}`)
 
         if (messagesContainer) {
@@ -151,21 +180,30 @@ class ChatModule {
     }
 
     #enableLocked(discussionId) {
-        if (!this.discussions.has(discussionId)) return
+        if (!this.discussions.has(discussionId)) {
+            console.error('ChatModule: Invalid discussion ID')
+            return
+        }
         this.discussions.get(discussionId).state = "locked"
         if (discussionId !== this.currentDiscussion) return
         this.#updateAnswerVisibility()
     }
 
     #enableAnswer(discussionId) {
-        if (!this.discussions.has(discussionId)) return
+        if (!this.discussions.has(discussionId)) {
+            console.error('ChatModule: Invalid discussion ID')
+            return
+        }
         this.discussions.get(discussionId).state = "canAnswer"
         if (this.discussionId !== this.currentDiscussion) return
         this.#updateAnswerVisibility()
     }
 
     #enableChoices(discussionId, choices) {
-        if (!this.discussions.has(discussionId)) return
+        if (!this.discussions.has(discussionId)) {
+            console.error('ChatModule: Invalid discussion ID')
+            return
+        }
         this.discussions.get(discussionId).state = "canChoose"
         this.discussions.get(discussionId).choices = choices
         if (this.discussionId !== this.currentDiscussion) return
@@ -173,7 +211,10 @@ class ChatModule {
     }
 
     #openChat(discussionId) {
-        if (!this.discussions.has(discussionId)) return
+        if (!this.discussions.has(discussionId)) {
+            console.error('ChatModule: Invalid discussion ID')
+            return
+        }
 
         this.currentDiscussion = discussionId
         const discussion = this.discussions.get(discussionId)
@@ -202,6 +243,18 @@ class ChatModule {
     }
 
     #createMessageElement(type, content, contactId = null) {
+        if (!content) {
+            console.error('ChatModule: Message content is missing')
+            return null
+        }
+        if (type !== 'sent' && type !== 'received') {
+            console.error(`ChatModule: Invalid message type '${type}'. Must be 'sent' or 'received'`)
+            return null
+        }
+        if (type === 'received' && (!contactId || !this.contacts.has(contactId))) {
+            console.error(`ChatModule: contactId '${contactId}' not found in contacts`)
+            return null
+        }
         const messageDiv = document.createElement('div')
         messageDiv.className = `d-flex mb-3 ${type === 'sent' ? 'justify-content-end' : 'justify-content-start'}`
 
@@ -211,8 +264,7 @@ class ChatModule {
         messageContent.className = type === 'sent' ? 'text-end' : 'text-start'
         messageContent.style.maxWidth = '70%'
 
-        if (type === 'received' && contactId) {
-            if (!this.contacts.has(contactId)) return
+        if (type === 'received') {
             const contact = this.contacts.get(contactId)
             const iconImg = document.createElement('img')
             iconImg.src = contact.icon
@@ -244,7 +296,10 @@ class ChatModule {
 
     #createChoicesUI(choices) {
         const cardFooter = this.container.querySelector('.card-footer')
-        if (!cardFooter) return
+        if (!cardFooter) {
+            console.error('ChatModule: Card footer not found')
+            return
+        }
 
         const choicesContainer = document.createElement('div')
         choicesContainer.id = 'choices-container'
@@ -261,54 +316,95 @@ class ChatModule {
         })
 
         const inputGroup = cardFooter.querySelector('.input-group')
+        if (!inputGroup) {
+            console.error('ChatModule: Input group not found in card footer')
+            return
+        }
         cardFooter.insertBefore(choicesContainer, inputGroup)
     }
 
     #selectChoice(choice) {
-        if (!this.currentDiscussion) return
+        if (!this.currentDiscussion) {
+            console.error('ChatModule: No discussion is currently open')
+            return
+        }
 
         const choiceText = choice.text || choice
         const messageElement = this.#createMessageElement('sent', { text: choiceText })
+        if (!messageElement) {
+            console.error('ChatModule: Failed to create message element for choice')
+            return
+        }
 
         const messagesContainer = this.container.querySelector(`.messages#${this.currentDiscussion}`)
-        if (messagesContainer) {
-            messagesContainer.appendChild(messageElement)
-            this.#scrollToBottom()
+        if (!messagesContainer) {
+            console.error('ChatModule: Messages container not found for current discussion')
+            return
         }
+        messagesContainer.appendChild(messageElement)
+        this.#scrollToBottom()
+        
 
         this.#enableLocked(this.currentDiscussion)
     }
 
     #sendMessage() {
         const messageInput = this.container.querySelector('#message-input')
+        if (!messageInput) {
+            console.error('ChatModule: Message input not found')
+            return
+        }
         const messageText = messageInput.value.trim()
 
-        if (!messageText || !this.currentDiscussion) return
+        if (!messageText) {
+            console.error('ChatModule: No message to send')
+            return
+        }
+        if (!this.currentDiscussion) {
+            console.error('ChatModule: No discussion is currently open')
+            return
+        }
 
         const messageElement = this.#createMessageElement('sent', { text: messageText })
+        if (!messageElement) {
+            console.error('ChatModule: Failed to create message element for sent message')
+            return
+        }
 
         const messagesContainer = this.container.querySelector(`.messages#${this.currentDiscussion}`)
-        if (messagesContainer) {
-            messagesContainer.appendChild(messageElement)
-            this.#scrollToBottom()
-            messageInput.value = ''
-            this.#enableLocked(this.currentDiscussion)
+        if (!messagesContainer) {
+            console.error('ChatModule: Messages container not found for current discussion')
+            return
         }
+        messagesContainer.appendChild(messageElement)
+        this.#scrollToBottom()
+        messageInput.value = ''
+        this.#enableLocked(this.currentDiscussion)
+        
     }
 
     #updateAnswerVisibility() {
-        if (!this.currentDiscussion) return
+        if (!this.currentDiscussion) {
+            console.error('ChatModule: No discussion is currently open')
+            return
+        }
         const inputGroup = this.container.querySelector('.input-group')
         const choicesContainer = this.container.querySelector('#choices-container')
 
-        if (!inputGroup) return
+        if (!inputGroup) {
+            console.error('ChatModule: Input group not found in card footer')
+            return
+        }
         inputGroup.classList.add('d-none')
         if (choicesContainer) {
             choicesContainer.remove()
         }
 
         const discussion = this.discussions.get(this.currentDiscussion)
-
+        if (!discussion || !discussion.state) {
+            console.error('ChatModule: Current discussion data not found')
+            return
+        }
         if (discussion.state === "canAnswer") {
             inputGroup.classList.remove('d-none')
         } else if (discussion.state === "canChoose" && discussion.choices) {
@@ -317,8 +413,15 @@ class ChatModule {
     }
 
     #updateDiscussionUnreadCount(discussionId) {
+        if (!this.discussions.has(discussionId)) {
+            console.error('ChatModule: Invalid discussion ID')
+            return
+        }
         const discussionCard = this.container.querySelector(`#${discussionId}`)
-        if (!discussionCard) return
+        if (!discussionCard) {
+            console.error('ChatModule: Discussion card not found in DOM')
+            return
+        }
 
         const count = this.discussions.get(discussionId).unreadCount
         let unreadElement = discussionCard.querySelector('.unread-count')
@@ -342,6 +445,9 @@ class ChatModule {
             setTimeout(() => {
                 messagesContainer.scrollTop = messagesContainer.scrollHeight
             }, 100)
+        } else {
+            console.error('ChatModule: Messages container not found for scrolling')
+            return
         }
     }
 }
