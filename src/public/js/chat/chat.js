@@ -56,12 +56,13 @@ class ChatModule {
                 this.#receiveMessage(payload)
                 break
             case "answer":
-                this.#enableAnswer(payload.discussion.id)
+                this.#enableAnswer(payload.discussionId)
                 break
             case "choice":
-                this.#enableChoices(payload.discussion.id, payload.choices)
+                this.#enableChoices(payload.discussionId, payload.choices)
                 break
             default:
+                console.error("Invalid message :" + msg)
                 return
         }
     }
@@ -129,24 +130,23 @@ class ChatModule {
     }
 
     #receiveMessage(message) {
-        if (!this.discussions.has(message.discussion.id) || !this.contacts.has(message.contact.id)) return
+        if (!this.discussions.has(message.discussionId) || !this.contacts.has(message.contactId)) return
 
-        const messageElement = this.#createMessageElement('received', message.content, message.contact.id)
+        const messageElement = this.#createMessageElement('received', message.content, message.contactId)
 
-        const messagesContainer = this.container.querySelector(`.messages#${message.discussion.id}`)
+        const messagesContainer = this.container.querySelector(`.messages#${message.discussionId}`)
 
         if (messagesContainer) {
             messagesContainer.appendChild(messageElement)
 
-            if (this.currentDiscussion === message.discussion.id) {
+            if (this.currentDiscussion === message.discussionId) {
                 this.#scrollToBottom()
             }
         }
 
-        if (this.currentDiscussion !== message.discussion.id) {
-            const discussion = this.discussions.get(message.discussion.id)
-            discussion.unreadCount++
-            this.#updateDiscussionUnreadCount(message.discussion.id)
+        if (this.currentDiscussion !== message.discussionId) {
+            this.discussions.get(message.discussionId).unreadCount++
+            this.#updateDiscussionUnreadCount(message.discussionId)
         }
     }
 
@@ -212,6 +212,7 @@ class ChatModule {
         messageContent.style.maxWidth = '70%'
 
         if (type === 'received' && contactId) {
+            if (!this.contacts.has(contactId)) return
             const contact = this.contacts.get(contactId)
             const iconImg = document.createElement('img')
             iconImg.src = contact.icon

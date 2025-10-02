@@ -43,20 +43,24 @@
                 "name": "MisterTigre"
             }
         },
+        {   
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addContact",
+            "payload": {
+                "id":"frightfur",
+                "name": "MisterTigre",
+                "icon": "img/frightfur.jpg"
+            }
+        },
         {
             "type": "event",
             "moduleId": "chat1",
             "msg": "receive",
             "delay": 2000,
             "payload": {
-                "discussion": {
-                    "id": "frightfur"
-                },
-                "contact": {
-                    "id": "frightfur",
-                    "name": "MisterTigre",
-                    "icon": "img/frightfur.jpg"
-                },
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "J'ai ajouté un ping sur ta map!"
                 }
@@ -78,12 +82,8 @@
             "msg": "receive",
             "delay": 3000,
             "payload": {
-                "discussion": {
-                    "id": "frightfur"
-                },
-                "contact": {
-                    "id": "frightfur"
-                },
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "Vas-y clique dessus"
                 }
@@ -109,12 +109,8 @@
             "msg": "receive",
             "delay": 1000,
             "payload": {
-                "discussion": {
-                    "id": "frightfur"
-                },
-                "contact": {
-                    "id": "frightfur"
-                },
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "Bien joué, c'est fini!"
                 }
@@ -130,12 +126,8 @@
             "msg": "receive",
             "delay": 1000,
             "payload": {
-                "discussion": {
-                    "id": "frightfur"
-                },
-                "contact": {
-                    "id": "frightfur"
-                },
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "..."
                 }
@@ -147,12 +139,8 @@
             "msg": "receive",
             "delay": 3000,
             "payload": {
-                "discussion": {
-                    "id": "frightfur"
-                },
-                "contact": {
-                    "id": "frightfur"
-                },
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "T'as cliqué à coté, réessaie"
                 }
