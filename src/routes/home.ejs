@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="css/home.css">
+    <link rel="stylesheet" href="css/map.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin="">
+    </script>
+</head>
+<body>
+    <div id="modules" style="grid-template-columns: repeat(<%= gridWidth %>, 1fr); grid-template-rows: repeat(<%= gridHeight %>, 1fr);">
+        <%- modules %>
+    </div>
+    <script>
+        var modulesConfig = <%- JSON.stringify(config) %>;
+    </script>
+    <script src="js/test/test.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/orchestrator.js"></script>
+</body>
+</html>
