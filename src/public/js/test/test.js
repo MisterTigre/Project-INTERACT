@@ -1,4 +1,4 @@
-class Test {
+class TestModule {
     constructor(id, data) {
 
     }

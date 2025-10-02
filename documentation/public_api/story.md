@@ -4,8 +4,25 @@ The story object is an array of events and specials instructions.
 
 ```json
 [
-    { ... }, // A story event (see Story Event)
-    ["goto", ...] // Or a special instruction (see Special Instructions)
+    {  // A story event (see Story Event)
+        "type": "event",
+        ...
+    },
+    { // Or a choice (see Story Choice)
+        "type": "choice",
+        ...
+    },
+    { // Or an answer (see Story Answer)
+        "type": "answer",
+        ...
+    },
+    { // Or a stop
+        "type": "stop"
+    },
+    { // Or a goto
+        "type": "goto",
+        "destination": "eventId"
+    },
     ...
 ]
 ```
@@ -14,10 +31,42 @@ The story object is an array of events and specials instructions.
 
 ```json
 {
+
+    "type": "event",
     "id": "str", // Optional, an identifier to this event (can be used with goto)
     "moduleId": "str", // The identifier of a module
+    "delay": "number", // The time in miliseconds to wait before doing the action
     "msg": "str", // The message to send the module (see module messages)
-    "payload": "object" // The payload of the message (see module messages)
+    "payload": "object", // The payload of the message (see module messages)
+    "choicesDestinations": ["str", ...] // Required if choice is true. A list of story event ids. The id of the event to jump to depending on the choice result
+}
+```
+
+## Story Choice
+
+```json
+{
+    "type": "choice",
+    "id": "str", // Optional, an identifier to this event (can be used with goto)
+    "moduleId": "str",
+    "delay": "number",
+    "msg": "str", // The message to send the module (see module messages)
+    "payload": "object", // The payload of the message (see module messages)
+    "choicesDestinations": ["str", ...] // A list of story event ids. The id of the event to jump to depending on the choice result
+}
+```
+
+## Story Answer
+
+```json
+{
+    "type": "answer",
+    "id": "str", // Optional, an identifier to this event (can be used with goto)
+    "moduleId": "str", // The identifier of a module
+    "delay": "number", // The time in miliseconds to wait before doing the action
+    "msg": "str", // The message to send the module (see module messages)
+    "payload": "object", // The payload of the message (see module messages)
+    "jumpOnIncorrect": "str" // The id of the event to jump to if the answer is incorrect
 }
 ```
 
@@ -114,6 +163,7 @@ Removes an item from the map
     "name":"str" // Name of the item ⚠️ you can't remove an item if you didn't give it a name
 }
 ```
+
 #### TODO
 
 ### Chat
