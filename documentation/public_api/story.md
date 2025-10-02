@@ -73,7 +73,12 @@ Waits a click on the map. The callback gets the latitude and longitude (`["float
 **Payload**
 ```json
 {
-    "callback":"callback" // callback that will be executed when the user clicks
+    "callback":"callback", // callback that will be executed when the user clicks
+    "mouse_pointer":{
+        "mouse_marker":"bool", // if an icon spawns where you click (take the custom icon 'mouse_icon' if it exists)
+        "mouse_circle":"bool", // if a circle spawns around where you click
+        "mouse_radius":"int" // Optional if 'mouse_circle' is false, radius of the circle, meter
+    },
 }
 ```
 
