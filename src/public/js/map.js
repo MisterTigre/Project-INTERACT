@@ -7,6 +7,8 @@ class Map {
     #orchest_map_callback
     #orchest_item_callback
     #wanted_item
+    #mouse_marker
+    #mouse_circle
 
 
     constructor(id, data){
@@ -150,6 +152,7 @@ class Map {
     // Add cicrcles to the map
     #create_circles(circles){
         circles.forEach(c => {
+            c.style["radius"] = c.radius
             if ('name' in c){
                 c.style['name'] = c.name
             }
@@ -189,6 +192,11 @@ class Map {
             "zoom":12,
             "max_zoom":20,
             "dragable":true,
+            "mouse_pointer": {
+                "mouse_marker":false,
+                "mouse_circle":true,
+                "mouse_radius":5
+            },
             "custom_icons":[],
             "markers":[],
             "circle_markers":[],
@@ -208,17 +216,57 @@ class Map {
     
 
     #onMapClick(e) {
-        // Use mouse'coords if you click on the map and want coords
-        if (this.#orchest_map_callback){
-            this.#orchest_map_callback(e.latlng)
-            this.#orchest_map_callback = null
+        var addon = {}
+        if ("mouse_icon" in this.#custom_icons){
+            addon["icon"] = this.#custom_icons["mouse_icon"]
         }
-        // Use "" in the callback if uou click on the map and want an item
-        if (this.#orchest_item_callback){
-            this.#orchest_item_callback(0)
-            this.#orchest_item_callback = null
+        if (this.#mouse_marker !== undefined){
+            this.#map.removeLayer(this.#mouse_marker)
+        }
+        if (this.#mouse_circle !== undefined){
+            this.#map.removeLayer(this.#mouse_circle)
+        }
+        if (this.#mouse_marker === undefined && this.#mouse_circle === undefined){
+            // Création d'un contrôle personnalisé
+            var validate_btn = L.control({position: 'bottomright'});
+
+            validate_btn.onAdd = (map) =>{
+                var div = L.DomUtil.create('div', '')
+                
+                let button = L.DomUtil.create('a', 'validate-btn', div)
+                button.innerHTML = 'Validate'
+                button.title = 'Validate'
+                button.href = '#'
+
+                L.DomEvent.disableClickPropagation(div);
+
+                button.onclick = (e) =>{
+                    // Use mouse'coords if you click on the map and want coords
+                    if (this.#orchest_map_callback){
+                        this.#orchest_map_callback(this.#mouse_marker.getLatLng())
+                        this.#orchest_map_callback = null
+                    }
+                    // Use "" in the callback if uou click on the map and want an item
+                    if (this.#orchest_item_callback){
+                        this.#orchest_item_callback(0)
+                        this.#orchest_item_callback = null
+                    }
+                }
+                return div;
+            }
+            // Ajout du contrôle à la carte
+            validate_btn.addTo(this.#map)
+        }
+        if ("mouse_marker" in this.#json.mouse_pointer && this.#json.mouse_pointer.mouse_marker){
+            this.#mouse_marker = L.marker(e.latlng, addon)
+            this.#mouse_marker.addTo(this.#map)
+        }
+        if ("mouse_marker" in this.#json.mouse_pointer && this.#json.mouse_pointer.mouse_circle){
+            this.#mouse_circle = L.circle(e.latlng,this.#json.mouse_pointer.mouse_radius)
+            this.#mouse_circle.addTo(this.#map)
         }
     }
+        
 
     #onItemClick(e){
         // Use the name of the item if you click on an item and want an item

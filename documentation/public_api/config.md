@@ -37,6 +37,11 @@ data:
     "zoom":"int", // Default zoom value
     "max_zoom":"int", // The maxed value the user can get zoom
     "dragable":"bool", // Optional, if you want to be able to move on the map
+    "mouse_pointer":{
+        "mouse_marker":"bool", // if an icon spawn where you click (take the custom icon 'mouse_icon' if it exists)
+        "mouse_circle":"bool", // if a circle spawn around where you click
+        "mouse_radius":"int" // Optional, radius of the circle, meter (default: 5m)
+    },
     "custom_icons":["custom_icon",...], // Optional, icons if you don't want to use the default one
     "matkers":["marker",...], // Optional, markers to put on the map
     "circle_markers":["circle_marker",...], // Optional, markers in form of a dot

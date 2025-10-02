@@ -13,3 +13,29 @@
 	left: 50%;
 	transform: translate(-50%, -50%);
 }
+
+.validate-btn {
+display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px !important;   /* largeur */
+  height: 40px !important;   /* hauteur */
+  font-size: 14px;
+  font-weight: bold;
+  color: white !important;
+  background: #4CAF50;       /* vert moderne */
+  border-radius: 6px;        /* coins arrondis */
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+
+.validate-btn:hover {
+  background: #43a047;       /* vert un peu plus foncé au hover */
+}
+
+
+.validate-btn:active {
+  background: #388e3c;       /* vert foncé quand cliqué */
+}
