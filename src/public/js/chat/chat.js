@@ -155,6 +155,116 @@ class ChatModule {
         this.#contacts.set(contact.id, { name: contact.name, icon: contact.icon })
     }
 
+    #createTypingIndicator(contactId) {
+        const messageDiv = document.createElement('div')
+        messageDiv.className = 'd-flex mb-3 justify-content-start typing-indicator'
+        messageDiv.id = 'typing-indicator'
+
+        const contact = this.#contacts.get(contactId)
+        const iconImg = document.createElement('img')
+        iconImg.src = contact.icon
+        iconImg.alt = contact.name
+        iconImg.className = 'rounded-circle me-2'
+        iconImg.width = 30
+        iconImg.height = 30
+        messageDiv.appendChild(iconImg)
+
+        const messageContent = document.createElement('div')
+        messageContent.className = 'text-start'
+        messageContent.style.maxWidth = '70%'
+
+        const nameElement = document.createElement('small')
+        nameElement.className = 'text-muted fw-bold d-block mb-1'
+        nameElement.textContent = contact.name
+        messageContent.appendChild(nameElement)
+
+        const typingBox = document.createElement('div')
+        typingBox.className = 'p-2 rounded bg-white border d-flex align-items-center'
+        typingBox.style.minWidth = '60px'
+
+        const dotsContainer = document.createElement('div')
+        dotsContainer.className = 'typing-dots'
+        dotsContainer.innerHTML = '<span></span><span></span><span></span>'
+        
+        // Add CSS for animation
+        const style = document.createElement('style')
+        style.textContent = `
+            .typing-dots {
+                display: flex;
+                gap: 4px;
+            }
+            .typing-dots span {
+                width: 6px;
+                height: 6px;
+                background-color: #6c757d;
+                border-radius: 50%;
+                animation: typing 1.4s infinite;
+            }
+            .typing-dots span:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+            .typing-dots span:nth-child(3) {
+                animation-delay: 0.4s;
+            }
+            @keyframes typing {
+                0%, 60%, 100% {
+                    transform: translateY(0);
+                    opacity: 0.4;
+                }
+                30% {
+                    transform: translateY(-10px);
+                    opacity: 1;
+                }
+            }
+        `
+        if (!document.head.querySelector('style[data-typing]')) {
+            style.setAttribute('data-typing', 'true')
+            document.head.appendChild(style)
+        }
+
+        typingBox.appendChild(dotsContainer)
+        messageContent.appendChild(typingBox)
+        messageDiv.appendChild(messageContent)
+
+        return messageDiv
+    }
+
+    #showTypingIndicator(contactId, duration) {
+        if (!this.#currentDiscussion) return
+
+        const messagesContainer = this.#container.querySelector(`.messages#${this.#currentDiscussion}`)
+        if (!messagesContainer) return
+
+        // Remove any existing typing indicator
+        const existingIndicator = messagesContainer.querySelector('#typing-indicator')
+        if (existingIndicator) {
+            existingIndicator.remove()
+        }
+
+        const typingIndicator = this.#createTypingIndicator(contactId)
+        messagesContainer.appendChild(typingIndicator)
+        this.#scrollToBottom()
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                const indicator = messagesContainer.querySelector('#typing-indicator')
+                if (indicator) {
+                    indicator.remove()
+                }
+                resolve()
+            }, duration)
+        })
+    }
+
+    #calculateTypingDuration(content) {
+        if (!content || !content.text) return 1000
+        
+        const messageLength = content.text.length
+        // Base duration of 1 second + 50ms per character, max 5 seconds
+        const duration = Math.min(1000 + (messageLength * 50), 5000)
+        return duration
+    }
+
     #receiveMessage(message) {
         if (
             !message ||
@@ -165,6 +275,21 @@ class ChatModule {
             console.error('ChatModule: Invalid message data')
             return
         }
+
+        const typingDuration = this.#calculateTypingDuration(message.content)
+        
+        // Show typing indicator if this is the current discussion
+        if (this.#currentDiscussion === message.discussionId) {
+            this.#showTypingIndicator(message.contactId, typingDuration).then(() => {
+                this.#displayActualMessage(message)
+            })
+        } else {
+            // If not current discussion, just display the message immediately
+            this.#displayActualMessage(message)
+        }
+    }
+
+    #displayActualMessage(message) {
         const messageElement = this.#createMessageElement('received', message.content, message.contactId)
 
         if (!messageElement) {
@@ -417,13 +542,21 @@ class ChatModule {
             console.error('ChatModule: No discussion is currently open')
             return
         }
+        const cardFooter = this.#container.querySelector('.card-footer')
         const inputGroup = this.#container.querySelector('.input-group')
         const choicesContainer = this.#container.querySelector('#choices-container')
 
+        if (!cardFooter) {
+            console.error('ChatModule: Card footer not found')
+            return
+        }
         if (!inputGroup) {
             console.error('ChatModule: Input group not found in card footer')
             return
         }
+
+        // Hide footer by default
+        cardFooter.classList.add('d-none')
         inputGroup.classList.add('d-none')
         if (choicesContainer) {
             choicesContainer.remove()
@@ -435,8 +568,10 @@ class ChatModule {
             return
         }
         if (discussion.state === "canAnswer") {
+            cardFooter.classList.remove('d-none')
             inputGroup.classList.remove('d-none')
         } else if (discussion.state === "canChoose" && discussion.choices) {
+            cardFooter.classList.remove('d-none')
             this.#createChoicesUI(discussion.choices)
         }
     }
@@ -466,14 +601,10 @@ class ChatModule {
         } else if (unreadElement) {
             unreadElement.remove()
         }
-    }
-
-    #scrollToBottom() {
+    }    #scrollToBottom() {
         const messagesContainer = this.#container.querySelector('#messages-container')
         if (messagesContainer) {
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight
-            }, 100)
+            messagesContainer.scrollTop = messagesContainer.scrollHeight
         } else {
             console.error('ChatModule: Messages container not found for scrolling')
             return
