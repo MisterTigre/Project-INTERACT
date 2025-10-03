@@ -1,4 +1,4 @@
-function create_module(type, id, data) {
+function createModule(type, id, data) {
     switch (type) {
         case "test":
             return new TestModule(id, data)
@@ -18,7 +18,7 @@ class Orchestrator {
         this.modules = {}
 
         for (const module of config.modules) {
-            this.modules[module.id] = create_module(module.type, module.id, module.data)
+            this.modules[module.id] = createModule(module.type, module.id, module.data)
         }
 
         this.story = config.story
@@ -33,13 +33,14 @@ class Orchestrator {
         }
 
         storyEvent.delay ??= 0
-        setTimeout(() => this.#doStoryNext(), storyEvent.delay);
+        setTimeout(() => this.#doStoryNext(), storyEvent.delay)
     }
 
     #doStoryNext() {
         const storyEvent = this.story[this.storyIndex]
 
         const payload = storyEvent.payload
+        console.log(storyEvent.type)
         switch (storyEvent.type) {
             case "event":
                 break
@@ -47,7 +48,7 @@ class Orchestrator {
                 payload.callback = this.#callbackChoice.bind(this)
                 break
             case "answer":
-                // TODO
+                payload.callback = this.#callbackAnswer.bind(this)
                 break
             case "goto":
                 this.jumpTo(storyEvent.destination)
@@ -81,13 +82,33 @@ class Orchestrator {
     }
 
     #callbackChoice(choice) {
-        let storyEvent = this.story[this.storyIndex]
+        const storyEvent = this.story[this.storyIndex]
         if (storyEvent.choiceDestinations === undefined) {
             console.error("A story event with choices must define the attribute choiceDestinations")
             return
         }
 
         this.jumpTo(storyEvent.choiceDestinations[choice])
+    }
+
+    #callbackAnswer(answer) {
+        const storyEvent = this.story[this.storyIndex]
+        console.log(`Answer: ${answer}`)
+
+        // TODO: Fetch Osint4Fun to check answer
+
+        const result = 0
+        const nextStory = []
+
+        if (result)
+        {
+            this.storyIndex = 0
+            this.story = nextStory
+        }
+        else
+        {
+            this.jumpTo(storyEvent.jumpOnIncorrect)
+        }
     }
 }
 

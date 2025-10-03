@@ -162,8 +162,6 @@ Removes an item from the map
 }
 ```
 
-#### TODO
-
 ### Chat
 
 Here are the different messages supported by the Chat module.
