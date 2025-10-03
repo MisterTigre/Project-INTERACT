@@ -4,21 +4,22 @@ class MapModule {
     #popup
     #custom_icons
     #map
-    #orchest_map_callback
-    #orchest_item_callback
     #wanted_item
     #mouse_marker
     #mouse_circle
     #validate_btn
+    #callback
+    #listening_to_item_click
+    #listening_to_map_click
 
-
-    constructor(id, data) {
+    constructor(id, data, callback) {
 
         if (typeof data !== "object") {
             data = {}
         }
 
         this.#id = id
+        this.#callback = callback
         this.#json = data
         this.#custom_icons = {}
         this.#popup
@@ -39,6 +40,9 @@ class MapModule {
 
         this.#popup = L.popup()
         this.#map.on('click', this.#onMapClick.bind(this))
+
+        this.#listening_to_item_click = false
+        this.#listening_to_map_click = false
     }
 
     // Create the base map
@@ -227,13 +231,13 @@ class MapModule {
 
     #onMapClick(e) {
         // Use 0 in the callback if you click on the map but requested an item
-        if (this.#orchest_item_callback){
-            this.#orchest_item_callback(0)
-            this.#orchest_item_callback = null
+        if (this.#listening_to_item_click){
+            this.#callback(0)
+            this.#listening_to_item_click = false
         }
         
         // Only change the marker/circle of the mouse if a callback has been send
-        if (this.#orchest_map_callback){
+        if (this.#listening_to_map_click){
             this.#add_mouse_pointer(e)   
         }
     }
@@ -241,14 +245,12 @@ class MapModule {
 
     #onItemClick(e) {
         // Use the name of the item if you click on an item and want an item
-        if (this.#orchest_item_callback) {
-            this.#orchest_item_callback(+(e.target.options.name === this.#wanted_item))
-            this.#orchest_item_callback = null
+        if (this.#listening_to_item_click) {
+            this.#callback(+(e.target.options.name === this.#wanted_item))
+            this.#listening_to_item_click = false
         }
         // Use mouse'coords if you click on an item and want coords
-        if (this.#orchest_map_callback) {
-            //this.#orchest_map_callback(this.#map.mouseEventToLatLng(e.originalEvent))
-            //this.#orchest_map_callback = null
+        if (this.#listening_to_map_click) {
             this.#add_mouse_pointer(e)
         }
     }
@@ -275,13 +277,13 @@ class MapModule {
 
                 button.onclick = (e) =>{
                     // Use mouse'coords if you click on the map and want coords
-                    if (this.#orchest_map_callback){
+                    if (this.#listening_to_map_click){
                         if (this.#mouse_marker){
-                            this.#orchest_map_callback(this.#mouse_marker.getLatLng())
+                            this.#callback(this.#mouse_marker.getLatLng())
                         }else if (this.#mouse_circle){
-                            this.#orchest_map_callback(this.#mouse_circle.getLatLng())
+                            this.#callback(this.#mouse_circle.getLatLng())
                         }
-                        this.#orchest_map_callback = null
+                        this.#listening_to_map_click = false
                     }
                     this.#remove_mouse_item("btn")
                 }
@@ -305,30 +307,36 @@ class MapModule {
         switch (msg) {
             case "add_custom_icon":
                 this.#create_custom_icons([payload])
+                this.#callback()
                 break
             case "add_marker":
                 this.#create_markers([payload])
+                this.#callback()
                 break
             case "add_circle_marker":
                 this.#create_circle_markers([payload])
+                this.#callback()
                 break
             case "add_polygon":
                 this.#create_polygons([payload])
+                this.#callback()
                 break
             case "add_circle":
                 this.#create_circles([payload])
+                this.#callback()
                 break
             case "authorize_map_click":
-                this.#orchest_map_callback = payload.callback
                 this.#json["mouse_pointer"] = payload.mouse_pointer
+                this.#listening_to_map_click = true
                 this.#remove_mouse_item("all")
                 break
             case "authorize_item_click":
-                this.#orchest_item_callback = payload.callback
                 this.#wanted_item = payload.wanted_item
+                this.#listening_to_item_click = true
                 break
             case "go_to":
                 this.#map.flyTo(payload.coords, payload.zoom)
+                this.#callback()
                 break
             case "remove":
                 this.#map.eachLayer(function (layer) {
@@ -336,6 +344,7 @@ class MapModule {
                         this.#map.removeLayer(layer)
                     }
                 }.bind(this))
+                this.#callback()
                 break
             default:
                 console.error("Unknown message : " + msg)
