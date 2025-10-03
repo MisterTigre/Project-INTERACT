@@ -16,8 +16,8 @@ The story object is an array of events and specials instructions.
         "type": "answer",
         ...
     },
-    { // Or a stop
-        "type": "stop"
+    { // Or the end of the story
+        "type": "end"
     },
     { // Or a goto
         "type": "goto",
