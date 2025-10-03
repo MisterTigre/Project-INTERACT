@@ -417,13 +417,21 @@ class ChatModule {
             console.error('ChatModule: No discussion is currently open')
             return
         }
+        const cardFooter = this.#container.querySelector('.card-footer')
         const inputGroup = this.#container.querySelector('.input-group')
         const choicesContainer = this.#container.querySelector('#choices-container')
 
+        if (!cardFooter) {
+            console.error('ChatModule: Card footer not found')
+            return
+        }
         if (!inputGroup) {
             console.error('ChatModule: Input group not found in card footer')
             return
         }
+
+        // Hide footer by default
+        cardFooter.classList.add('d-none')
         inputGroup.classList.add('d-none')
         if (choicesContainer) {
             choicesContainer.remove()
@@ -435,8 +443,10 @@ class ChatModule {
             return
         }
         if (discussion.state === "canAnswer") {
+            cardFooter.classList.remove('d-none')
             inputGroup.classList.remove('d-none')
         } else if (discussion.state === "canChoose" && discussion.choices) {
+            cardFooter.classList.remove('d-none')
             this.#createChoicesUI(discussion.choices)
         }
     }
