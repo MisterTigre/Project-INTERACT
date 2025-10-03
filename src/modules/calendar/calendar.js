@@ -22,10 +22,12 @@ class calendarModule {
     #callback
     #validateBtn
     #container
+    #listeningToClick
 
 
-    constructor(id, data){
+    constructor(id, data, callback){
         // Simple calendrier/agenda
+        this.#callback = callback
         this.#id = id
         this.#data = data
         this.#container = document.getElementById(this.#id)
@@ -223,7 +225,7 @@ class calendarModule {
 
         // add event
         this.#validateBtn.addEventListener('click', ()=>{
-            if (this.#callback){
+            if (this.#listeningToClick){
                 const s = this.#startDateInput.value 
                 const e = this.#endDateInput.value || s
                 if(!s){ 
@@ -241,7 +243,7 @@ class calendarModule {
                     allDay: this.#allDay.checked
                 }
                 this.#callback([ev.start, ev.end])
-                this.#callback = undefined
+                this.#listeningToClick = false
                 this.#validateBtn.classList.add('hidden')
                 this.#validateBtn.classList.remove('visible')
             }
@@ -295,10 +297,10 @@ class calendarModule {
         switch (msg) {
             case "addPeriode":
                 this.#saveEv(payload)
+                this.#callback()
                 break
             case "authorizeCallback":
-                this.#callback = payload
-                console.log(this.#validateBtn)
+                this.#listeningToClick = true
                 this.#validateBtn.classList.remove('hidden')
                 this.#validateBtn.classList.add('visible')
                 break
@@ -309,5 +311,5 @@ class calendarModule {
     }
 }
 
-let cal = new calendarModule("123456789",{size:"big"})
+let cal = new calendarModule("123456789",{size:"big"},(a) => console.log(a))
 
