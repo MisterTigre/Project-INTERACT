@@ -311,5 +311,5 @@ class calendarModule {
     }
 }
 
-let cal = new calendarModule("123456789",{size:"big"},(a) => console.log(a))
+let cal = new calendarModule("123456789",{size:"little"},(a) => console.log(a))
 
