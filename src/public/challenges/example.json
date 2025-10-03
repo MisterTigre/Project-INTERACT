@@ -1,12 +1,14 @@
 {
     "title": "Main page",
-    "gridSize": [4, 3],
+    "gridSize": [2, 2],
+    "columnWidths": ["75%", "25%"],
+    "rowHeights": ["66%", "34%"],
     "modules": [
         {
             "type": "map",
             "id": "map1",
             "position": [0, 0],
-            "size": [4, 3],
+            "size": [2, 2],
             "data": {
                 "zoom": 10
             }
@@ -14,8 +16,8 @@
         {
             "type": "chat",
             "id": "chat1",
-            "position": [3, 0],
-            "size": [1, 2]
+            "position": [1, 0],
+            "size": [1, 1]
         }
     ],
     "story": [
