@@ -117,12 +117,11 @@ Adds a circle's form to the map.
 ```
 
 #### - `authorize_map_click`
-Waits a click on the map. The callback gets the latitude and longitude (`["float","float"]`) as argument.
+Waits a click on the map.
 
 **Payload**
 ```json
 {
-    "callback":"callback", // callback that will be executed when the user clicks
     "mouse_pointer":{
         "mouse_marker":"bool", // if an icon spawns where you click (take the custom icon 'mouse_icon' if it exists)
         "mouse_circle":"bool", // if a circle spawns around where you click
@@ -132,12 +131,11 @@ Waits a click on the map. The callback gets the latitude and longitude (`["float
 ```
 
 #### - `authorize_item_click`
-Waits a click on an item. The callback gets 1 `(int)` as argument if the user clicks on the right item or 0 otherwise. 
+Waits a click on an item.
 
 **Payload**
 ```json
 {
-    "callback":"callback", // callback that will be executed when the user clicks
     "wanted_item":"str" // Name of the item where the user must click
 }
 ```
