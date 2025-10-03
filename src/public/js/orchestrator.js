@@ -16,7 +16,7 @@ class Orchestrator {
         this.modules = {}
 
         for (const module of config.modules) {
-            this.modules[module.id] = createModule(module.type, module.id, module.data, this.#callbackChoice.bind(this))
+            this.modules[module.id] = createModule(module.type, module.id, module.data, this.#callback.bind(this))
         }
 
         this.story = config.story
@@ -53,11 +53,6 @@ class Orchestrator {
         }
 
         this.modules[storyEvent.moduleId].notify(storyEvent.msg, storyEvent.payload)
-
-        if (storyEvent.type === "event") {
-            this.storyIndex++
-            this.storyNext()
-        }
     }
 
     jumpTo(storyEventId) {
@@ -73,13 +68,19 @@ class Orchestrator {
         console.error(`Story event ID not found: ${storyEventId}`)
     }
 
-    #callback({choice, answer}) {
-        if (answer) {
-            this.#callbackAnswer(answer)
+    #callback(params) {
+        if (params === undefined) {
+            this.storyIndex++
+            this.storyNext()
+            return
+        }
+        
+        if (params.answer) {
+            this.#callbackAnswer(params.answer)
             return
         }
 
-        this.#callbackChoice(choice ?? 0)
+        this.#callbackChoice(params.choice ?? 0)
     }
 
     #callbackChoice(choice) {
