@@ -1,7 +1,5 @@
 function createModule(type, id, data) {
     switch (type) {
-        case "test":
-            return new TestModule(id, data)
         case "map":
             return new MapModule(id, data)
         case "chat":
