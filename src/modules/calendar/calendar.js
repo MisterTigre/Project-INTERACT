@@ -14,36 +14,61 @@ class calendarModule {
     #allDay
     #evtTitle
     #evtDesc
-    #addEvt
     #clearForm
     #view
     #events
     #selectionStart
+    #data
+    #callback
+    #validateBtn
+    #container
 
 
     constructor(id, data){
         // Simple calendrier/agenda
         this.#id = id
-        this.#daysGrid = document.getElementById('daysGrid')
-        this.#monthTitle = document.getElementById('monthTitle')
-        this.#prevMonth = document.getElementById('prevMonth')
-        this.#nextMonth = document.getElementById('nextMonth')
-        this.#gotoDate = document.getElementById('gotoDate')
-        this.#todayBtn = document.getElementById('todayBtn')
+        this.#data = data
+        this.#container = document.getElementById(this.#id)
+        this.#daysGrid = this.#container.querySelector('.-daysGrid')
+        this.#monthTitle = this.#container.querySelector('.-monthTitle')
+        this.#prevMonth = this.#container.querySelector('.-prevMonth')
+        this.#nextMonth = this.#container.querySelector('.-nextMonth')
+        this.#gotoDate = this.#container.querySelector('.-gotoDate')
+        this.#todayBtn = this.#container.querySelector('.-todayBtn')
 
-        this.#startDateInput = document.getElementById('startDate')
-        this.#endDateInput = document.getElementById('endDate')
-        this.#startTime = document.getElementById('startTime')
-        this.#endTime = document.getElementById('endTime')
-        this.#allDay = document.getElementById('allDay')
-        this.#evtTitle = document.getElementById('evtTitle')
-        this.#evtDesc = document.getElementById('evtDesc')
-        this.#addEvt = document.getElementById('addEvt')
-        this.#clearForm = document.getElementById('clearForm')
+        this.#startDateInput = this.#container.querySelector('.-startDate')
+        this.#endDateInput = this.#container.querySelector('.-endDate')
+        this.#startTime = this.#container.querySelector('.-startTime')
+        this.#endTime = this.#container.querySelector('.-endTime')
+        this.#allDay = this.#container.querySelector('.-allDay')
+        this.#evtTitle = this.#container.querySelector('.-evtTitle')
+        this.#evtDesc = this.#container.querySelector('.-evtDesc')
+        this.#clearForm = this.#container.querySelector('.-clearForm')
 
         this.#view = new Date()
         this.#events = JSON.parse(localStorage.getItem('agenda_events')||'[]')
         this.#selectionStart = null // Date
+
+
+        if (this.#data === undefined){
+            this.#data = {
+                size:"big"
+            }
+        }
+        let card = this.#container.getElementsByClassName('wrap')
+        if (this.#data.size == "little"){
+            card[0].classList.add('little-card')
+            let side = this.#container.getElementsByClassName('card sidebar')
+            side[0].parentNode.removeChild(side[0])
+            this.#validateBtn = this.#container.querySelector(".little")
+        }else{
+            card[0].classList.add('big-card')
+            this.#validateBtn = this.#container.querySelector(".big")
+        }
+        console.log(this.#validateBtn)
+        Array.from(this.#container.getElementsByClassName('primary')).forEach(btn =>{
+            btn.classList.add('hidden')
+        })
 
         this.#initialize()
         this.#clearAll()
@@ -158,11 +183,11 @@ class calendarModule {
 
     #highlightRange(a,b){
         // remove old highlights
-        Array.from(document.querySelectorAll('.cell .range-highlight')).forEach(n=>n.remove())
+        Array.from(this.#container.querySelectorAll('.cell .range-highlight')).forEach(n=>n.remove())
         const start = a < b ? a : b 
         const end = a < b ? b : a
         // loop over day buttons
-        document.querySelectorAll('button.daybtn').forEach(btn=>{
+        this.#container.querySelectorAll('button.daybtn').forEach(btn=>{
             const d = btn.getAttribute('data-date')
             if(!d) return
             if(d >= start && d <= end){
@@ -197,27 +222,32 @@ class calendarModule {
         })
 
         // add event
-        this.#addEvt.addEventListener('click', ()=>{
-            const s = this.#startDateInput.value 
-            const e = this.#endDateInput.value || s
-            if(!s){ 
-                alert('Choisis au moins une date de début') 
-                return 
+        this.#validateBtn.addEventListener('click', ()=>{
+            if (this.#callback){
+                const s = this.#startDateInput.value 
+                const e = this.#endDateInput.value || s
+                if(!s){ 
+                    alert('Choisis au moins une date de début') 
+                    return 
+                }
+                let ev = {
+                    id: Date.now(),
+                    title: this.#evtTitle.value.trim(),
+                    desc: this.#evtDesc.value.trim(),
+                    start: s,
+                    end: e || s,
+                    startTime: this.#allDay.checked ? '' : (this.#startTime.value||''),
+                    endTime: this.#allDay.checked ? '' : (this.#endTime.value||''),
+                    allDay: this.#allDay.checked
+                }
+                this.#callback([ev.start, ev.end])
+                this.#callback = undefined
+                this.#validateBtn.classList.add('hidden')
+                this.#validateBtn.classList.remove('visible')
             }
-            const ev = {
-                id: Date.now(),
-                title: this.#evtTitle.value.trim(),
-                desc: this.#evtDesc.value.trim(),
-                start: s,
-                end: e || s,
-                startTime: this.#allDay.checked ? '' : (this.#startTime.value||''),
-                endTime: this.#allDay.checked ? '' : (this.#endTime.value||''),
-                allDay: this.#allDay.checked
-            }
-            this.#saveEv(ev)
         })
-        this.#clearForm.addEventListener('click', this.#clearFormFunc)
-            
+        this.#clearForm.addEventListener('click', this.#clearFormFunc.bind(this))
+            //https://nominatim.openstreetmap.org/reverse?lat=48.8566&lon=2.3522&format=json
         // initial setup: set gotoDate default
         this.#gotoDate.value = this.#formatDateISO(new Date())
 
@@ -244,7 +274,7 @@ class calendarModule {
         this.#endTime.value='' 
         this.#allDay.checked=false 
         this.#selectionStart=null 
-        Array.from(document.querySelectorAll('.cell .range-highlight')).forEach(n=>n.remove()) }
+        Array.from(this.#container.querySelectorAll('.cell .range-highlight')).forEach(n=>n.remove()) }
 
 
     #clearAll(){
@@ -267,6 +297,10 @@ class calendarModule {
                 this.#saveEv(payload)
                 break
             case "authorizeCallback":
+                this.#callback = payload
+                console.log(this.#validateBtn)
+                this.#validateBtn.classList.remove('hidden')
+                this.#validateBtn.classList.add('visible')
                 break
             default:
                 console.error("Unknown message : " + msg)
@@ -275,5 +309,5 @@ class calendarModule {
     }
 }
 
-let cal = new calendarModule("123456789",undefined)
+let cal = new calendarModule("123456789",{size:"big"})
 
