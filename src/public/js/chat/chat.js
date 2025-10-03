@@ -466,14 +466,10 @@ class ChatModule {
         } else if (unreadElement) {
             unreadElement.remove()
         }
-    }
-
-    #scrollToBottom() {
+    }    #scrollToBottom() {
         const messagesContainer = this.#container.querySelector('#messages-container')
         if (messagesContainer) {
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight
-            }, 100)
+            messagesContainer.scrollTop = messagesContainer.scrollHeight
         } else {
             console.error('ChatModule: Messages container not found for scrolling')
             return
