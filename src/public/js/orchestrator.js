@@ -1,9 +1,9 @@
-function createModule(type, id, data) {
+function createModule(type, id, data, callback) {
     switch (type) {
         case "map":
-            return new MapModule(id, data)
+            return new MapModule(id, data, callback)
         case "chat":
-            return new ChatModule(id, data)
+            return new ChatModule(id, data, callback)
         default:
             throw `Invalid module type "${type}"`
     }
@@ -16,7 +16,7 @@ class Orchestrator {
         this.modules = {}
 
         for (const module of config.modules) {
-            this.modules[module.id] = createModule(module.type, module.id, module.data)
+            this.modules[module.id] = createModule(module.type, module.id, module.data, this.#callbackChoice.bind(this))
         }
 
         this.story = config.story
@@ -37,16 +37,10 @@ class Orchestrator {
     #doStoryNext() {
         const storyEvent = this.story[this.storyIndex]
 
-        const payload = storyEvent.payload
-        console.log(storyEvent.type)
         switch (storyEvent.type) {
             case "event":
-                break
             case "choice":
-                payload.callback = this.#callbackChoice.bind(this)
-                break
             case "answer":
-                payload.callback = this.#callbackAnswer.bind(this)
                 break
             case "goto":
                 this.jumpTo(storyEvent.destination)
@@ -77,6 +71,15 @@ class Orchestrator {
         }
 
         console.error(`Story event ID not found: ${storyEventId}`)
+    }
+
+    #callback({choice, answer}) {
+        if (answer) {
+            this.#callbackAnswer(answer)
+            return
+        }
+
+        this.#callbackChoice(choice ?? 0)
     }
 
     #callbackChoice(choice) {
