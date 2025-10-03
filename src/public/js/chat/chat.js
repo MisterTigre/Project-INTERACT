@@ -1,10 +1,14 @@
 class ChatModule {
+    #callback
     #container
     #discussions
     #currentDiscussion
     #contacts
+    #waitingFor
+    #discussionIdToRead
 
-    constructor(id, data) {
+    constructor(id, data, callback) {
+        this.#callback = callback
         this.#container = document.getElementById(id)
         if (!this.#container) {
             console.error(`ChatModule: Container with id '${id}' not found`)
@@ -13,6 +17,8 @@ class ChatModule {
         this.#discussions = new Map()
         this.#currentDiscussion = null
         this.#contacts = new Map()
+
+        this.#waitingFor = "nothing"
 
         this.#setupEventListeners()
     }
@@ -63,20 +69,24 @@ class ChatModule {
         switch (msg) {
             case "addDiscussion":
                 this.#addDiscussion(payload)
+                this.#callback()
                 break
             case "addContact":
                 this.#addContact(payload)
+                this.#callback()
                 break
             case "send":
                 this.#receiveMessage(payload)
                 break
             case "answer":
-                this.#enableAnswer(payload.discussionId, payload.callback)
+                this.#enableAnswer(payload.discussionId)
                 break
             case "choice":
-                this.#enableChoices(payload.discussionId, payload.choices, payload.callback)
+                this.#enableChoices(payload.discussionId, payload.choices)
                 break
             case "sendAndWait":
+                this.#waitingFor = "read"
+                this.#discussionIdToRead = payload.discussionId
                 this.#receiveMessage(payload)
                 break
             default:
@@ -252,6 +262,8 @@ class ChatModule {
                     indicator.remove()
                 }
                 resolve()
+                this.#callback()
+                this.#waitingFor = "nothing"
             }, duration)
         })
     }
@@ -298,10 +310,9 @@ class ChatModule {
         }
         const messagesContainer = this.#container.querySelector(`.messages#${message.discussionId}`)
 
-        if (message.callback && this.#currentDiscussion === message.discussionId) {
-            message.callback(0)
-        } else if (message.callback) {
-            this.#discussions.get(message.discussionId).readCallback = message.callback
+        if (this.#waitingFor === "read" && this.#currentDiscussion === message.discussionId) {
+            this.#callback()
+            this.#waitingFor = "nothing"
         }
 
         if (messagesContainer) {
@@ -328,25 +339,25 @@ class ChatModule {
         this.#updateAnswerVisibility()
     }
 
-    #enableAnswer(discussionId, callback) {
+    #enableAnswer(discussionId) {
         if (!this.#discussions.has(discussionId)) {
             console.error('ChatModule: Invalid discussion ID')
             return
         }
         this.#discussions.get(discussionId).state = "canAnswer"
-        this.#discussions.get(discussionId).callback = callback
+        this.#waitingFor = "answer"
         if (discussionId !== this.#currentDiscussion) return
         this.#updateAnswerVisibility()
     }
 
-    #enableChoices(discussionId, choices, callback) {
+    #enableChoices(discussionId, choices) {
         if (!this.#discussions.has(discussionId)) {
             console.error('ChatModule: Invalid discussion ID')
             return
         }
         this.#discussions.get(discussionId).state = "canChoose"
         this.#discussions.get(discussionId).choices = choices
-        this.#discussions.get(discussionId).callback = callback
+        this.#waitingFor = "choice"
         if (discussionId !== this.#currentDiscussion) return
         this.#updateAnswerVisibility()
     }
@@ -360,9 +371,9 @@ class ChatModule {
         this.#currentDiscussion = discussionId
         const discussion = this.#discussions.get(discussionId)
 
-        if (discussion.readCallback) {
-            discussion.readCallback(0)
-            discussion.readCallback = null
+        if (this.#waitingFor === "read" && this.#discussionIdToRead == discussionId) {
+            this.#callback()
+            this.#waitingFor = "nothing"
         }
 
         this.#container.querySelector('#discussion-selection').classList.replace('d-block', 'd-none')
@@ -477,8 +488,8 @@ class ChatModule {
             console.error('ChatModule: No discussion is currently open')
             return
         }
-        this.#discussions.get(this.#currentDiscussion).callback(choiceId)
-        this.#discussions.get(this.#currentDiscussion).callback = null
+        this.#callback({ choice: choiceId })
+        this.#waitingFor = "nothing"
 
         const choiceText = choice.text || choice
         const messageElement = this.#createMessageElement('sent', { text: choiceText })
@@ -516,8 +527,8 @@ class ChatModule {
             return
         }
 
-        this.#discussions.get(this.#currentDiscussion).callback(messageText)
-        this.#discussions.get(this.#currentDiscussion).callback = null
+        this.#callback({ answer: messageText })
+        this.#waitingFor = "nothing"
 
         const messageElement = this.#createMessageElement('sent', { text: messageText })
         if (!messageElement) {
