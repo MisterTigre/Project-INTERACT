@@ -232,7 +232,7 @@ class MapModule {
     #onMapClick(e) {
         // Use 0 in the callback if you click on the map but requested an item
         if (this.#listening_to_item_click){
-            this.#callback(0)
+            this.#callback({choice: 0})
             this.#listening_to_item_click = false
         }
         
@@ -246,7 +246,7 @@ class MapModule {
     #onItemClick(e) {
         // Use the name of the item if you click on an item and want an item
         if (this.#listening_to_item_click) {
-            this.#callback(+(e.target.options.name === this.#wanted_item))
+            this.#callback({choice: +(e.target.options.name === this.#wanted_item)})
             this.#listening_to_item_click = false
         }
         // Use mouse'coords if you click on an item and want coords
@@ -279,9 +279,9 @@ class MapModule {
                     // Use mouse'coords if you click on the map and want coords
                     if (this.#listening_to_map_click){
                         if (this.#mouse_marker){
-                            this.#callback(this.#mouse_marker.getLatLng())
+                            this.#callback({ answer: this.#mouse_marker.getLatLng() })
                         }else if (this.#mouse_circle){
-                            this.#callback(this.#mouse_circle.getLatLng())
+                            this.#callback({ answer: this.#mouse_circle.getLatLng() })
                         }
                         this.#listening_to_map_click = false
                     }
