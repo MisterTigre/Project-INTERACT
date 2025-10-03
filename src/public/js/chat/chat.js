@@ -71,7 +71,7 @@ class ChatModule {
                 this.#receiveMessage(payload)
                 break
             case "answer":
-                this.#enableAnswer(payload.discussionId)
+                this.#enableAnswer(payload.discussionId, payload.callback)
                 break
             case "choice":
                 this.#enableChoices(payload.discussionId, payload.choices, payload.callback)
@@ -194,13 +194,14 @@ class ChatModule {
         this.#updateAnswerVisibility()
     }
 
-    #enableAnswer(discussionId) {
+    #enableAnswer(discussionId, callback) {
         if (!this.#discussions.has(discussionId)) {
             console.error('ChatModule: Invalid discussion ID')
             return
         }
         this.#discussions.get(discussionId).state = "canAnswer"
-        if (this.discussionId !== this.#currentDiscussion) return
+        this.#discussions.get(discussionId).callback = callback        
+        if (discussionId !== this.#currentDiscussion) return
         this.#updateAnswerVisibility()
     }
 
@@ -376,6 +377,9 @@ class ChatModule {
             return
         }
 
+        this.#discussions.get(this.#currentDiscussion).callback(messageText)
+        this.#discussions.get(this.#currentDiscussion).callback = null
+        
         const messageElement = this.#createMessageElement('sent', { text: messageText })
         if (!messageElement) {
             console.error('ChatModule: Failed to create message element for sent message')
