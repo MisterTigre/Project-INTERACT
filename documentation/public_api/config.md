@@ -3,7 +3,9 @@
 ```json
 {
     "title": "str", // The title of the page
-    "gridSize": ["int", "int"], // The number of columns and rows in the grid
+    "gridSize": ["int", "int"], // The number of columns and rows in the grid. This is optional if both columnWidths and rowHeights are set
+    "columnWidths": ["str", ...], // The size of each column, can be any valid css size (ex: "50%", "10px", "1fr", ...)
+    "rowHeights": ["str", ...], // The size of each row, can be any valid css size (ex: "50%", "10px", "1fr", ...)
     "modules": [ ... ], // The configuration of modules (see Modules)
     "story": [ ... ] // The initial story script (see documentation/public_api/story.md)
 }
