@@ -76,6 +76,9 @@ class ChatModule {
             case "choice":
                 this.#enableChoices(payload.discussionId, payload.choices, payload.callback)
                 break
+            case "sendAndWait":
+                this.#receiveMessage(payload)
+                break
             default:
                 console.error("Invalid message :" + msg)
                 return
@@ -87,7 +90,7 @@ class ChatModule {
             console.error('ChatModule: Invalid discussion data')
             return
         }
-        this.#discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0, state: discussion.state ?? "locked", callback:null})
+        this.#discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0, state: discussion.state ?? "locked", callback: null })
 
         const discussionCard = document.createElement('div')
         discussionCard.className = 'card mb-3 shadow-sm'
@@ -170,6 +173,12 @@ class ChatModule {
         }
         const messagesContainer = this.#container.querySelector(`.messages#${message.discussionId}`)
 
+        if (message.callback && this.#currentDiscussion === message.discussionId) {
+            message.callback(0)
+        } else if (message.callback) {
+            this.#discussions.get(message.discussionId).readCallback = message.callback
+        }
+
         if (messagesContainer) {
             messagesContainer.appendChild(messageElement)
 
@@ -200,7 +209,7 @@ class ChatModule {
             return
         }
         this.#discussions.get(discussionId).state = "canAnswer"
-        this.#discussions.get(discussionId).callback = callback        
+        this.#discussions.get(discussionId).callback = callback
         if (discussionId !== this.#currentDiscussion) return
         this.#updateAnswerVisibility()
     }
@@ -213,7 +222,7 @@ class ChatModule {
         this.#discussions.get(discussionId).state = "canChoose"
         this.#discussions.get(discussionId).choices = choices
         this.#discussions.get(discussionId).callback = callback
-        if (discussionId !== this.#currentDiscussion) return        
+        if (discussionId !== this.#currentDiscussion) return
         this.#updateAnswerVisibility()
     }
 
@@ -225,6 +234,11 @@ class ChatModule {
 
         this.#currentDiscussion = discussionId
         const discussion = this.#discussions.get(discussionId)
+
+        if (discussion.readCallback) {
+            discussion.readCallback(0)
+            discussion.readCallback = null
+        }
 
         this.#container.querySelector('#discussion-selection').classList.replace('d-block', 'd-none')
         this.#container.querySelector('#chat-page').classList.replace('d-none', 'd-block')
@@ -311,7 +325,7 @@ class ChatModule {
         const choicesContainer = document.createElement('div')
         choicesContainer.id = 'choices-container'
         choicesContainer.className = 'd-flex flex-column mb-3'
-        
+
         let choiceId = 0;
         choices.forEach((choice) => {
             const choiceButton = document.createElement('button')
@@ -355,7 +369,7 @@ class ChatModule {
         }
         messagesContainer.appendChild(messageElement)
         this.#scrollToBottom()
-        
+
 
         this.#enableLocked(this.#currentDiscussion)
     }
@@ -379,7 +393,7 @@ class ChatModule {
 
         this.#discussions.get(this.#currentDiscussion).callback(messageText)
         this.#discussions.get(this.#currentDiscussion).callback = null
-        
+
         const messageElement = this.#createMessageElement('sent', { text: messageText })
         if (!messageElement) {
             console.error('ChatModule: Failed to create message element for sent message')
@@ -395,7 +409,7 @@ class ChatModule {
         this.#scrollToBottom()
         messageInput.value = ''
         this.#enableLocked(this.#currentDiscussion)
-        
+
     }
 
     #updateAnswerVisibility() {
