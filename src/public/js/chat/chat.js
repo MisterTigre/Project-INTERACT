@@ -74,7 +74,7 @@ class ChatModule {
                 this.#enableAnswer(payload.discussionId)
                 break
             case "choice":
-                this.#enableChoices(payload.discussionId, payload.choices)
+                this.#enableChoices(payload.discussionId, payload.choices, payload.callback)
                 break
             default:
                 console.error("Invalid message :" + msg)
@@ -87,7 +87,7 @@ class ChatModule {
             console.error('ChatModule: Invalid discussion data')
             return
         }
-        this.#discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0, state: discussion.state ?? "locked" })
+        this.#discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0, state: discussion.state ?? "locked", callback:null})
 
         const discussionCard = document.createElement('div')
         discussionCard.className = 'card mb-3 shadow-sm'
@@ -204,14 +204,15 @@ class ChatModule {
         this.#updateAnswerVisibility()
     }
 
-    #enableChoices(discussionId, choices) {
+    #enableChoices(discussionId, choices, callback) {
         if (!this.#discussions.has(discussionId)) {
             console.error('ChatModule: Invalid discussion ID')
             return
         }
         this.#discussions.get(discussionId).state = "canChoose"
         this.#discussions.get(discussionId).choices = choices
-        if (this.discussionId !== this.#currentDiscussion) return
+        this.#discussions.get(discussionId).callback = callback
+        if (discussionId !== this.#currentDiscussion) return        
         this.#updateAnswerVisibility()
     }
 
@@ -309,15 +310,18 @@ class ChatModule {
         const choicesContainer = document.createElement('div')
         choicesContainer.id = 'choices-container'
         choicesContainer.className = 'd-flex flex-column mb-3'
-
+        
+        let choiceId = 0;
         choices.forEach((choice) => {
             const choiceButton = document.createElement('button')
             choiceButton.className = 'btn btn-outline-primary w-100 mb-2'
             choiceButton.textContent = choice.text || choice
+            let tempId = choiceId
             choiceButton.addEventListener('click', () => {
-                this.#selectChoice(choice)
+                this.#selectChoice(choice, tempId)
             })
             choicesContainer.appendChild(choiceButton)
+            choiceId++
         })
 
         const inputGroup = cardFooter.querySelector('.input-group')
@@ -328,11 +332,13 @@ class ChatModule {
         cardFooter.insertBefore(choicesContainer, inputGroup)
     }
 
-    #selectChoice(choice) {
+    #selectChoice(choice, choiceId) {
         if (!this.#currentDiscussion) {
             console.error('ChatModule: No discussion is currently open')
             return
         }
+        this.#discussions.get(this.#currentDiscussion).callback(choiceId)
+        this.#discussions.get(this.#currentDiscussion).callback = null
 
         const choiceText = choice.text || choice
         const messageElement = this.#createMessageElement('sent', { text: choiceText })
