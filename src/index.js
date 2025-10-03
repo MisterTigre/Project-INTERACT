@@ -32,11 +32,20 @@ app.get('/', async (req, res) => {
         z++
     }
 
+    function jsonToGridCSS(config) {
+        const cols = config.columnWidths?.join(' ') || Array(config.gridSize[0]).fill('1fr').join(' ');
+        const rows = config.rowHeights?.join(' ') || Array(config.gridSize[1]).fill('1fr').join(' ');
+        return `
+            display: grid;
+            grid-template-columns: ${cols};
+            grid-template-rows: ${rows};
+        `;
+    }
+
     const html = await ejs.renderFile("src/routes/home.ejs", {
         modules: modules_html,
         title: config.title,
-        gridWidth: config.gridSize[0],
-        gridHeight: config.gridSize[1],
+        style: jsonToGridCSS(config),
         config: config
     })
 
