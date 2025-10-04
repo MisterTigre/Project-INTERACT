@@ -6,6 +6,8 @@ function create_module(type, id, data) {
             return new MapModule(id, data)
         case "chat":
             return new ChatModule(id, data)
+        case "calendar":
+            return new CalendarModule(id, data, (a) => console.log(a))
         default:
             throw `Invalid module type "${type}"`
     }

@@ -18,6 +18,16 @@
             "id": "chat1",
             "position": [3, 0],
             "size": [1, 2]
+        },
+        {
+            "type":"calendar",
+            "id":"cal1",
+            "position":[0, 1],
+            "size":[1, 2],
+            "data":{
+                "size":"little",
+                "startDay":"2025-10-03"
+            }
         }
     ],
     "story": [

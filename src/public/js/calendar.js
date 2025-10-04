@@ -1,4 +1,4 @@
-class calendarModule {
+class CalendarModule {
 
     #id
     #daysGrid
@@ -47,7 +47,7 @@ class calendarModule {
         this.#evtDesc = this.#container.querySelector('.-evtDesc')
         this.#clearForm = this.#container.querySelector('.-clearForm')
 
-        this.#view = new Date()
+        this.#view = new Date(this.#data.startDay)
         this.#events = JSON.parse(localStorage.getItem('agenda_events')||'[]')
         this.#selectionStart = null // Date
 
@@ -60,14 +60,13 @@ class calendarModule {
         let card = this.#container.getElementsByClassName('wrap')
         if (this.#data.size == "little"){
             card[0].classList.add('little-card')
-            let side = this.#container.getElementsByClassName('card sidebar')
+            let side = this.#container.getElementsByClassName('-card sidebar')
             side[0].parentNode.removeChild(side[0])
             this.#validateBtn = this.#container.querySelector(".little")
         }else{
             card[0].classList.add('big-card')
             this.#validateBtn = this.#container.querySelector(".big")
         }
-        console.log(this.#validateBtn)
         Array.from(this.#container.getElementsByClassName('primary')).forEach(btn =>{
             btn.classList.add('hidden')
         })
@@ -118,7 +117,7 @@ class calendarModule {
         }
 
         for(let day=1; day<=total; day++){
-            const date = new Date(this.#view.getFullYear(), this.#view.getMonth(), day)
+            const date = new Date(this.#view.getFullYear(), this.#view.getMonth(), day, 2)
             const iso = this.#formatDateISO(date)
             const cell = document.createElement('div') 
             cell.className='cell' 
@@ -129,7 +128,7 @@ class calendarModule {
             btn.innerHTML = `<div class="date-num">${day}</div>`
 
             // mark today
-            const today = new Date()
+            const today = new Date(this.#data.startDay)
             if(this.#formatDateISO(today) === iso){
                  btn.classList.add('today')
             }
@@ -211,6 +210,7 @@ class calendarModule {
             this.#view = new Date(this.#view.getFullYear(), this.#view.getMonth()+1, 1) 
             this.#renderMonth() 
         })
+        
         this.#gotoDate.addEventListener('change', ()=>{ 
             if(this.#gotoDate.value){ 
                 const d = new Date(this.#gotoDate.value) 
@@ -218,8 +218,8 @@ class calendarModule {
                 this.#renderMonth() 
             }
         })
-        this.#todayBtn.addEventListener('click', ()=>{ 
-            this.#view = new Date() 
+        this.#todayBtn.addEventListener('click', ()=>{
+            this.#view = new Date(this.#data.startDay)
             this.#renderMonth() 
         })
 
@@ -251,7 +251,7 @@ class calendarModule {
         this.#clearForm.addEventListener('click', this.#clearFormFunc.bind(this))
             //https://nominatim.openstreetmap.org/reverse?lat=48.8566&lon=2.3522&format=json
         // initial setup: set gotoDate default
-        this.#gotoDate.value = this.#formatDateISO(new Date())
+        this.#gotoDate.value = this.#formatDateISO(this.#view)
 
         // keyboard accessibility: navigate months with left/right
         window.addEventListener('keydown', (e)=>{
@@ -286,7 +286,6 @@ class calendarModule {
     }
 
     #saveEv(ev){
-        console.log(ev)
         this.#events.push(ev) 
         this.#saveEvents() 
         this.#renderMonth() 
@@ -311,5 +310,4 @@ class calendarModule {
     }
 }
 
-let cal = new calendarModule("123456789",{size:"little"},(a) => console.log(a))
 
