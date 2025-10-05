@@ -1,11 +1,9 @@
-function createModule(type, id, data) {
+function createModule(type, id, data, callback) {
     switch (type) {
-        case "test":
-            return new TestModule(id, data)
         case "map":
-            return new MapModule(id, data)
+            return new MapModule(id, data, callback)
         case "chat":
-            return new ChatModule(id, data)
+            return new ChatModule(id, data, callback)
         default:
             throw `Invalid module type "${type}"`
     }
@@ -18,7 +16,7 @@ class Orchestrator {
         this.modules = {}
 
         for (const module of config.modules) {
-            this.modules[module.id] = createModule(module.type, module.id, module.data)
+            this.modules[module.id] = createModule(module.type, module.id, module.data, this.#callback.bind(this))
         }
 
         this.story = config.story
@@ -39,16 +37,10 @@ class Orchestrator {
     #doStoryNext() {
         const storyEvent = this.story[this.storyIndex]
 
-        const payload = storyEvent.payload
-        console.log(storyEvent.type)
         switch (storyEvent.type) {
             case "event":
-                break
             case "choice":
-                payload.callback = this.#callbackChoice.bind(this)
-                break
             case "answer":
-                payload.callback = this.#callbackAnswer.bind(this)
                 break
             case "goto":
                 this.jumpTo(storyEvent.destination)
@@ -61,11 +53,6 @@ class Orchestrator {
         }
 
         this.modules[storyEvent.moduleId].notify(storyEvent.msg, storyEvent.payload)
-
-        if (storyEvent.type === "event") {
-            this.storyIndex++
-            this.storyNext()
-        }
     }
 
     jumpTo(storyEventId) {
@@ -79,6 +66,21 @@ class Orchestrator {
         }
 
         console.error(`Story event ID not found: ${storyEventId}`)
+    }
+
+    #callback(params) {
+        if (params === undefined) {
+            this.storyIndex++
+            this.storyNext()
+            return
+        }
+        
+        if (params.answer) {
+            this.#callbackAnswer(params.answer)
+            return
+        }
+
+        this.#callbackChoice(params.choice ?? 0)
     }
 
     #callbackChoice(choice) {
