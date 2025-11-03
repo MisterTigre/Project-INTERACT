@@ -16,14 +16,14 @@
         {
             "type": "chat",
             "id": "chat1",
-            "position": [3, 0],
-            "size": [1, 2]
+            "position": [1, 0],
+            "size": [1, 1]
         },
         {
             "type":"calendar",
             "id":"cal1",
-            "position":[0, 1],
-            "size":[1, 2],
+            "position":[1, 1],
+            "size":[1, 1],
             "data":{
                 "size":"little",
                 "startDay":"2025-10-03"
@@ -31,8 +31,9 @@
         }
     ],
     "story": [
-        {   
+        {
             "type": "event",
+            "id": "test",
             "moduleId": "chat1",
             "msg": "addContact",
             "payload": {

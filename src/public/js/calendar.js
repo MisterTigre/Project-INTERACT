@@ -242,7 +242,7 @@ class CalendarModule {
                     endTime: this.#allDay.checked ? '' : (this.#endTime.value||''),
                     allDay: this.#allDay.checked
                 }
-                this.#callback([ev.start, ev.end])
+                this.#callback({"answer":[ev.start, ev.end]})
                 this.#listeningToClick = false
                 this.#validateBtn.classList.add('hidden')
                 this.#validateBtn.classList.remove('visible')
