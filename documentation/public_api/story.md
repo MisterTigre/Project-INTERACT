@@ -162,6 +162,27 @@ Removes an item from the map
 }
 ```
 
+## Calendar
+
+### - `addPeriode`
+Adds a periode in the calendar
+```json
+{
+    "title": "str", // Title of the periode
+    "start": "str", // First day (october 1 2025 => "2025-10-01")
+    "end": "str", // Last day (october 1 2025 => "2025-10-01")
+}
+```
+
+### - `authorizeCallback`
+Waits for a period to be selected
+
+**Payload**
+There is no payload
+
+#### TODO
+
+
 ### Chat
 
 Here are the different messages supported by the Chat module.
