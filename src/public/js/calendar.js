@@ -298,7 +298,7 @@ class CalendarModule {
                 this.#saveEv(payload)
                 this.#callback()
                 break
-            case "authorizeCallback":
+            case "selectDates":
                 this.#listeningToClick = true
                 this.#validateBtn.classList.remove('hidden')
                 this.#validateBtn.classList.add('visible')

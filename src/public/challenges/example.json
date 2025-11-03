@@ -194,7 +194,7 @@
             "type": "choice",
             "id": "choice",
             "moduleId": "map1",
-            "msg": "authorizeItemClick",
+            "msg": "itemChoice",
             "payload": {
                 "wantedItem": "markerA"
             },
