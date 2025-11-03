@@ -1,9 +1,24 @@
 const express = require('express')
 const app = express()
 const port = 5000
+const parcours1Route = require('./parcours/parcours1/routes')
+
+app.use(express.json())
+
+
+app.use("/parcours1", parcours1Route)
+
+
+
+
+
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
+})
+
+app.post('/', (req,res) => {
+    res.status(200).json({state: req.body.state})
 })
 
 app.listen(port, () => {

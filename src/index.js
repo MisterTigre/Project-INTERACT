@@ -8,11 +8,17 @@ app.use(express.static('src/public/'))
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'))
 
 app.get('/', async (req, res) => {
-    const challenge = req.query.challenge ?? "example"
+    // const challenge = req.query.challenge ?? "example"
 
     // TODO: Fetch config file from Osint4Fun
 
-    config = await (await fetch(`http://localhost:3000/challenges/${challenge}.json`)).json()
+    // config = await (await fetch(`http://localhost:3000/challenges/${challenge}.json`)).json()
+
+
+    const parcours = req.query.parcours ?? "parcours1"
+    const challenge = req.query.challenge ?? ""
+    config = await (await fetch(`http://localhost:5000/${parcours}/${challenge}`)).json()
+
 
     let modules_html = ""
     let z = 0
