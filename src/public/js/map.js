@@ -305,36 +305,36 @@ class MapModule {
 
     notify(msg, payload) {
         switch (msg) {
-            case "add_custom_icon":
+            case "addCustomIcon":
                 this.#create_custom_icons([payload])
                 this.#callback()
                 break
-            case "add_marker":
+            case "addMarker":
                 this.#create_markers([payload])
                 this.#callback()
                 break
-            case "add_circle_marker":
+            case "addCircleMarker":
                 this.#create_circle_markers([payload])
                 this.#callback()
                 break
-            case "add_polygon":
+            case "addPolygon":
                 this.#create_polygons([payload])
                 this.#callback()
                 break
-            case "add_circle":
+            case "addCircle":
                 this.#create_circles([payload])
                 this.#callback()
                 break
-            case "authorize_map_click":
+            case "authorizeMapClick":
                 this.#json["mouse_pointer"] = payload.mouse_pointer
                 this.#listening_to_map_click = true
                 this.#remove_mouse_item("all")
                 break
-            case "authorize_item_click":
-                this.#wanted_item = payload.wanted_item
+            case "authorizeItemClick":
+                this.#wanted_item = payload.wantedItem
                 this.#listening_to_item_click = true
                 break
-            case "go_to":
+            case "goTo":
                 this.#map.flyTo(payload.coords, payload.zoom)
                 this.#callback()
                 break
