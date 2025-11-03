@@ -1,13 +1,9 @@
-function create_module(type, id, data) {
+function createModule(type, id, data, callback) {
     switch (type) {
-        case "test":
-            return new TestModule(id, data)
         case "map":
-            return new MapModule(id, data)
+            return new MapModule(id, data, callback)
         case "chat":
-            return new ChatModule(id, data)
-        case "calendar":
-            return new CalendarModule(id, data, (a) => console.log(a))
+            return new ChatModule(id, data, callback)
         default:
             throw `Invalid module type "${type}"`
     }
@@ -20,7 +16,7 @@ class Orchestrator {
         this.modules = {}
 
         for (const module of config.modules) {
-            this.modules[module.id] = create_module(module.type, module.id, module.data)
+            this.modules[module.id] = createModule(module.type, module.id, module.data, this.#callback.bind(this))
         }
 
         this.story = config.story
@@ -35,21 +31,16 @@ class Orchestrator {
         }
 
         storyEvent.delay ??= 0
-        setTimeout(() => this.#doStoryNext(), storyEvent.delay);
+        setTimeout(() => this.#doStoryNext(), storyEvent.delay)
     }
 
     #doStoryNext() {
         const storyEvent = this.story[this.storyIndex]
 
-        const payload = storyEvent.payload
         switch (storyEvent.type) {
             case "event":
-                break
             case "choice":
-                payload.callback = this.#callbackChoice.bind(this)
-                break
             case "answer":
-                // TODO
                 break
             case "goto":
                 this.jumpTo(storyEvent.destination)
@@ -62,11 +53,6 @@ class Orchestrator {
         }
 
         this.modules[storyEvent.moduleId].notify(storyEvent.msg, storyEvent.payload)
-
-        if (storyEvent.type === "event") {
-            this.storyIndex++
-            this.storyNext()
-        }
     }
 
     jumpTo(storyEventId) {
@@ -82,14 +68,49 @@ class Orchestrator {
         console.error(`Story event ID not found: ${storyEventId}`)
     }
 
+    #callback(params) {
+        if (params === undefined) {
+            this.storyIndex++
+            this.storyNext()
+            return
+        }
+        
+        if (params.answer) {
+            this.#callbackAnswer(params.answer)
+            return
+        }
+
+        this.#callbackChoice(params.choice ?? 0)
+    }
+
     #callbackChoice(choice) {
-        let storyEvent = this.story[this.storyIndex]
+        const storyEvent = this.story[this.storyIndex]
         if (storyEvent.choiceDestinations === undefined) {
             console.error("A story event with choices must define the attribute choiceDestinations")
             return
         }
 
         this.jumpTo(storyEvent.choiceDestinations[choice])
+    }
+
+    #callbackAnswer(answer) {
+        const storyEvent = this.story[this.storyIndex]
+        console.log(`Answer: ${answer}`)
+
+        // TODO: Fetch Osint4Fun to check answer
+
+        const result = 0
+        const nextStory = []
+
+        if (result)
+        {
+            this.storyIndex = 0
+            this.story = nextStory
+        }
+        else
+        {
+            this.jumpTo(storyEvent.jumpOnIncorrect)
+        }
     }
 }
 

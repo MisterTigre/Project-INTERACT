@@ -4,13 +4,15 @@ const ejs = require('ejs')
 const app = express()
 const port = 3000
 
-app.use(express.static('src/public/'));
-app.use('/bootstrap', express.static('node_modules/bootstrap/dist'));
+app.use(express.static('src/public/'))
+app.use('/bootstrap', express.static('node_modules/bootstrap/dist'))
 
 app.get('/', async (req, res) => {
+    const challenge = req.query.challenge ?? "example"
+
     // TODO: Fetch config file from Osint4Fun
 
-    config = await (await fetch("http://localhost:3000/challenges/example.json")).json()
+    config = await (await fetch(`http://localhost:3000/challenges/${challenge}.json`)).json()
 
     let modules_html = ""
     let z = 0
@@ -30,11 +32,20 @@ app.get('/', async (req, res) => {
         z++
     }
 
+    function jsonToGridCSS(config) {
+        const cols = config.columnWidths?.join(' ') || Array(config.gridSize[0]).fill('1fr').join(' ');
+        const rows = config.rowHeights?.join(' ') || Array(config.gridSize[1]).fill('1fr').join(' ');
+        return `
+            display: grid;
+            grid-template-columns: ${cols};
+            grid-template-rows: ${rows};
+        `;
+    }
+
     const html = await ejs.renderFile("src/routes/home.ejs", {
         modules: modules_html,
         title: config.title,
-        gridWidth: config.gridSize[0],
-        gridHeight: config.gridSize[1],
+        style: jsonToGridCSS(config),
         config: config
     })
 

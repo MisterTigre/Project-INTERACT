@@ -17,9 +17,9 @@
 <!-- Chat Page -->
 <div id="chat-page" class="page d-none h-100">
     <div class="h-100 d-flex align-items-center justify-content-center">
-        <div class="card shadow-lg w-100 h-100">
+        <div class="card shadow-lg w-100 h-100 d-flex flex-column">
             <!-- Chat Header -->
-            <div class="card-header bg-black text-white p-3">
+            <div class="card-header bg-black text-white p-3 flex-shrink-0">
                 <div class="d-flex align-items-center">
                     <button class="btn btn-outline-light btn-sm me-3" id="back-btn">
                         <i class="bi bi-arrow-left"></i> Retour
@@ -34,12 +34,12 @@
             </div>
 
             <!-- Messages Container -->
-            <div class="card-body p-0 bg-light overflow-auto flex-grow-1" id="messages-container">
+            <div class="flex-grow-1 bg-light overflow-auto position-relative" id="messages-container">
                 <!-- Messages will be dynamically added here via JavaScript -->
             </div>
 
             <!-- Message Input -->
-            <div class="card-footer bg-white p-3">
+            <div class="card-footer bg-white p-3 flex-shrink-0">
                 <div class="input-group">
                     <input type="text" class="form-control" id="message-input" placeholder="Type a message..." autocomplete="off">
                     <button class="btn btn-primary" id="send-btn">Envoyer</button>

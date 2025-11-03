@@ -1,30 +1,51 @@
 class ChatModule {
-    constructor(id, data) {
-        this.container = document.getElementById(id)
-        this.discussions = new Map()
-        this.currentDiscussion = null
-        this.contacts = new Map()
+    #callback
+    #container
+    #discussions
+    #currentDiscussion
+    #contacts
+    #waitingFor
+    #discussionIdToRead
+
+    constructor(id, data, callback) {
+        this.#callback = callback
+        this.#container = document.getElementById(id)
+        if (!this.#container) {
+            console.error(`ChatModule: Container with id '${id}' not found`)
+            return
+        }
+        this.#discussions = new Map()
+        this.#currentDiscussion = null
+        this.#contacts = new Map()
+
+        this.#waitingFor = "nothing"
 
         this.#setupEventListeners()
     }
 
     #setupEventListeners() {
-        const backBtn = this.container.querySelector('#back-btn')
-        if (backBtn) {
+        const backBtn = this.#container.querySelector('#back-btn')
+        if (!backBtn) {
+            console.error('ChatModule: Back button not found')
+        } else {
             backBtn.addEventListener('click', () => {
                 this.#showDiscussionSelection()
             })
         }
 
-        const sendBtn = this.container.querySelector('#send-btn')
-        if (sendBtn) {
+        const sendBtn = this.#container.querySelector('#send-btn')
+        if (!sendBtn) {
+            console.error('ChatModule: Send button not found')
+        } else {
             sendBtn.addEventListener('click', () => {
                 this.#sendMessage()
             })
         }
 
-        const messageInput = this.container.querySelector('#message-input')
-        if (messageInput) {
+        const messageInput = this.#container.querySelector('#message-input')
+        if (!messageInput) {
+            console.error('ChatModule: Message input not found')
+        } else {
             messageInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     this.#sendMessage()
@@ -34,11 +55,11 @@ class ChatModule {
     }
 
     #showDiscussionSelection() {
-        this.currentDiscussion = null
-        this.container.querySelector('#chat-page').classList.replace('d-block', 'd-none')
-        this.container.querySelector('#discussion-selection').classList.replace('d-none', 'd-block')
+        this.#currentDiscussion = null
+        this.#container.querySelector('#chat-page').classList.replace('d-block', 'd-none')
+        this.#container.querySelector('#discussion-selection').classList.replace('d-none', 'd-block')
 
-        const messageInput = this.container.querySelector('#message-input')
+        const messageInput = this.#container.querySelector('#message-input')
         if (messageInput) {
             messageInput.value = ''
         }
@@ -48,25 +69,38 @@ class ChatModule {
         switch (msg) {
             case "addDiscussion":
                 this.#addDiscussion(payload)
+                this.#callback()
                 break
             case "addContact":
                 this.#addContact(payload)
+                this.#callback()
                 break
-            case "receive":
+            case "send":
                 this.#receiveMessage(payload)
                 break
             case "answer":
-                this.#toggleAnswer(payload.discussion.id)
+                this.#enableAnswer(payload.discussionId)
                 break
             case "choice":
+                this.#enableChoices(payload.discussionId, payload.choices)
+                break
+            case "sendAndWait":
+                this.#waitingFor = "read"
+                this.#discussionIdToRead = payload.discussionId
+                this.#receiveMessage(payload)
                 break
             default:
+                console.error("Invalid message :" + msg)
                 return
         }
     }
 
     #addDiscussion(discussion) {
-        this.discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0, canAnswer: discussion.canAnswer ?? false })
+        if (!discussion || !discussion.id || !discussion.name || !discussion.icon) {
+            console.error('ChatModule: Invalid discussion data')
+            return
+        }
+        this.#discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0, state: discussion.state ?? "locked", callback: null })
 
         const discussionCard = document.createElement('div')
         discussionCard.className = 'card mb-3 shadow-sm'
@@ -79,15 +113,13 @@ class ChatModule {
         const row = document.createElement('div')
         row.className = 'd-flex align-items-center'
 
-        // Avatar
-        const avatarImg = document.createElement('img')
-        avatarImg.src = discussion.icon
-        avatarImg.alt = discussion.name
-        avatarImg.className = 'rounded-circle me-3'
-        avatarImg.width = 50
-        avatarImg.height = 50
+        const iconImg = document.createElement('img')
+        iconImg.src = discussion.icon
+        iconImg.alt = discussion.name
+        iconImg.className = 'rounded-circle me-3'
+        iconImg.width = 50
+        iconImg.height = 50
 
-        // discussion info
         const discussionInfo = document.createElement('div')
         discussionInfo.className = 'flex-grow-1'
 
@@ -97,13 +129,12 @@ class ChatModule {
 
         discussionInfo.appendChild(discussionNameElement)
 
-        row.appendChild(avatarImg)
+        row.appendChild(iconImg)
         row.appendChild(discussionInfo)
 
         cardBody.appendChild(row)
         discussionCard.appendChild(cardBody)
 
-        // Hover effects
         discussionCard.addEventListener('mouseenter', () => {
             discussionCard.classList.add('shadow')
         })
@@ -115,11 +146,10 @@ class ChatModule {
             this.#openChat(discussion.id)
         })
 
-        const discussionSelectionList = this.container.querySelector('.discussion-selection-list')
+        const discussionSelectionList = this.#container.querySelector('.discussion-selection-list')
         discussionSelectionList.appendChild(discussionCard)
 
-        // Create messages container
-        const messagesContainer = this.container.querySelector('#messages-container')
+        const messagesContainer = this.#container.querySelector('#messages-container')
         const discussionMessagesContainer = document.createElement('div')
         discussionMessagesContainer.className = 'messages p-3'
         discussionMessagesContainer.id = discussion.id
@@ -128,151 +158,447 @@ class ChatModule {
     }
 
     #addContact(contact) {
-        this.contacts.set(contact.id, { name: contact.name, icon: contact.icon })
+        if (!contact || !contact.id || !contact.name || !contact.icon) {
+            console.error('ChatModule: Invalid contact data')
+            return
+        }
+        this.#contacts.set(contact.id, { name: contact.name, icon: contact.icon })
+    }
+
+    #createTypingIndicator(contactId) {
+        const messageDiv = document.createElement('div')
+        messageDiv.className = 'd-flex mb-3 justify-content-start typing-indicator'
+        messageDiv.id = 'typing-indicator'
+
+        const contact = this.#contacts.get(contactId)
+        const iconImg = document.createElement('img')
+        iconImg.src = contact.icon
+        iconImg.alt = contact.name
+        iconImg.className = 'rounded-circle me-2'
+        iconImg.width = 30
+        iconImg.height = 30
+        messageDiv.appendChild(iconImg)
+
+        const messageContent = document.createElement('div')
+        messageContent.className = 'text-start'
+        messageContent.style.maxWidth = '70%'
+
+        const nameElement = document.createElement('small')
+        nameElement.className = 'text-muted fw-bold d-block mb-1'
+        nameElement.textContent = contact.name
+        messageContent.appendChild(nameElement)
+
+        const typingBox = document.createElement('div')
+        typingBox.className = 'p-2 rounded bg-white border d-flex align-items-center'
+        typingBox.style.minWidth = '60px'
+
+        const dotsContainer = document.createElement('div')
+        dotsContainer.className = 'typing-dots'
+        dotsContainer.innerHTML = '<span></span><span></span><span></span>'
+        
+        // Add CSS for animation
+        const style = document.createElement('style')
+        style.textContent = `
+            .typing-dots {
+                display: flex;
+                gap: 4px;
+            }
+            .typing-dots span {
+                width: 6px;
+                height: 6px;
+                background-color: #6c757d;
+                border-radius: 50%;
+                animation: typing 1.4s infinite;
+            }
+            .typing-dots span:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+            .typing-dots span:nth-child(3) {
+                animation-delay: 0.4s;
+            }
+            @keyframes typing {
+                0%, 60%, 100% {
+                    transform: translateY(0);
+                    opacity: 0.4;
+                }
+                30% {
+                    transform: translateY(-10px);
+                    opacity: 1;
+                }
+            }
+        `
+        if (!document.head.querySelector('style[data-typing]')) {
+            style.setAttribute('data-typing', 'true')
+            document.head.appendChild(style)
+        }
+
+        typingBox.appendChild(dotsContainer)
+        messageContent.appendChild(typingBox)
+        messageDiv.appendChild(messageContent)
+
+        return messageDiv
+    }
+
+    #showTypingIndicator(contactId, duration) {
+        if (!this.#currentDiscussion) return
+
+        const messagesContainer = this.#container.querySelector(`.messages#${this.#currentDiscussion}`)
+        if (!messagesContainer) return
+
+        // Remove any existing typing indicator
+        const existingIndicator = messagesContainer.querySelector('#typing-indicator')
+        if (existingIndicator) {
+            existingIndicator.remove()
+        }
+
+        const typingIndicator = this.#createTypingIndicator(contactId)
+        messagesContainer.appendChild(typingIndicator)
+        this.#scrollToBottom()
+
+        return new Promise(resolve => {
+            setTimeout(() => {
+                const indicator = messagesContainer.querySelector('#typing-indicator')
+                if (indicator) {
+                    indicator.remove()
+                }
+                resolve()
+                this.#callback()
+                this.#waitingFor = "nothing"
+            }, duration)
+        })
+    }
+
+    #calculateTypingDuration(content) {
+        if (!content || !content.text) return 1000
+        
+        const messageLength = content.text.length
+        // Base duration of 1 second + 50ms per character, max 5 seconds
+        const duration = Math.min(1000 + (messageLength * 50), 5000)
+        return duration
     }
 
     #receiveMessage(message) {
-        if (!this.discussions.has(message.discussion.id)) {
-            this.#addDiscussion(message.discussion)
-        }
-        if (!this.contacts.has(message.contact.id)) {
-            this.#addContact(message.contact);
+        if (
+            !message ||
+            !this.#discussions.has(message.discussionId) ||
+            !this.#contacts.has(message.contactId) ||
+            !message.content
+        ) {
+            console.error('ChatModule: Invalid message data')
+            return
         }
 
-        const messageElement = this.#createMessageElement('received', message.content, message.contact.id);
+        const typingDuration = this.#calculateTypingDuration(message.content)
+        
+        // Show typing indicator if this is the current discussion
+        if (this.#currentDiscussion === message.discussionId) {
+            this.#showTypingIndicator(message.contactId, typingDuration).then(() => {
+                this.#displayActualMessage(message)
+            })
+        } else {
+            // If not current discussion, just display the message immediately
+            this.#displayActualMessage(message)
+        }
+    }
 
-        const messagesContainer = this.container.querySelector(`.messages#${message.discussion.id}`);
+    #displayActualMessage(message) {
+        const messageElement = this.#createMessageElement('received', message.content, message.contactId)
+
+        if (!messageElement) {
+            console.error('ChatModule: Failed to create message element')
+            return
+        }
+        const messagesContainer = this.#container.querySelector(`.messages#${message.discussionId}`)
+
+        if (this.#waitingFor === "read" && this.#currentDiscussion === message.discussionId) {
+            this.#callback()
+            this.#waitingFor = "nothing"
+        }
 
         if (messagesContainer) {
-            messagesContainer.appendChild(messageElement);
+            messagesContainer.appendChild(messageElement)
 
-            if (this.currentDiscussion === message.discussion.id) {
-                this.#scrollToBottom();
+            if (this.#currentDiscussion === message.discussionId) {
+                this.#scrollToBottom()
             }
         }
 
-        if (this.currentDiscussion !== message.discussion.id) {
-            const discussion = this.discussions.get(message.discussion.id);
-            discussion.unreadCount++;
-            this.#updateDiscussionUnreadCount(message.discussion.id, discussion.unreadCount);
+        if (this.#currentDiscussion !== message.discussionId) {
+            this.#discussions.get(message.discussionId).unreadCount++
+            this.#updateDiscussionUnreadCount(message.discussionId)
         }
     }
 
-    #createMessageElement(type, content, contactId = null) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `d-flex mb-3 ${type === 'sent' ? 'justify-content-end' : 'justify-content-start'}`;
-
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-        // Message content
-        const messageContent = document.createElement('div');
-        messageContent.className = type === 'sent' ? 'text-end' : 'text-start';
-        messageContent.style.maxWidth = '70%';
-
-        if (type === 'received' && contactId) {
-            // Avatar for received messages
-            const contact = this.contacts.get(contactId);
-            const iconImg = document.createElement('img');
-            iconImg.src = contact.icon;
-            iconImg.alt = contact.name;
-            iconImg.className = 'rounded-circle me-2';
-            iconImg.width = 30;
-            iconImg.height = 30;
-            messageDiv.appendChild(iconImg);
-            const nameElement = document.createElement('small');
-            nameElement.className = 'text-muted fw-bold d-block mb-1';
-            nameElement.textContent = contact.name;
-            messageContent.appendChild(nameElement);
+    #enableLocked(discussionId) {
+        if (!this.#discussions.has(discussionId)) {
+            console.error('ChatModule: Invalid discussion ID')
+            return
         }
-
-        const messageText1 = document.createElement('div');
-        messageText1.className = `p-2 rounded ${type === 'sent' ? 'bg-primary text-white' : 'bg-white border'}`;
-        messageText1.textContent = content.text ? content.text : "Contient une image";
-
-        const timeElement = document.createElement('small');
-        timeElement.className = 'text-muted d-block mt-1';
-        timeElement.textContent = time;
-
-        messageContent.appendChild(messageText1);
-        messageContent.appendChild(timeElement);
-        messageDiv.appendChild(messageContent);
-
-        return messageDiv;
+        this.#discussions.get(discussionId).state = "locked"
+        if (discussionId !== this.#currentDiscussion) return
+        this.#updateAnswerVisibility()
     }
 
-    #sendMessage() {
-        const messageInput = this.container.querySelector('#message-input');
-        const messageText = messageInput.value.trim();
-
-        if (!messageText || !this.currentDiscussion) return
-
-        const messageElement = this.#createMessageElement('sent', {text:messageText});
-
-        const messagesContainer = this.container.querySelector(`.messages#${this.currentDiscussion}`);
-        if (messagesContainer) {
-            messagesContainer.appendChild(messageElement)
-            this.#scrollToBottom()
-            messageInput.value = ''
-            this.#toggleAnswer(this.currentDiscussion)
-            this.#updateInputGroupVisibility()
+    #enableAnswer(discussionId) {
+        if (!this.#discussions.has(discussionId)) {
+            console.error('ChatModule: Invalid discussion ID')
+            return
         }
+        this.#discussions.get(discussionId).state = "canAnswer"
+        this.#waitingFor = "answer"
+        if (discussionId !== this.#currentDiscussion) return
+        this.#updateAnswerVisibility()
+    }
+
+    #enableChoices(discussionId, choices) {
+        if (!this.#discussions.has(discussionId)) {
+            console.error('ChatModule: Invalid discussion ID')
+            return
+        }
+        this.#discussions.get(discussionId).state = "canChoose"
+        this.#discussions.get(discussionId).choices = choices
+        this.#waitingFor = "choice"
+        if (discussionId !== this.#currentDiscussion) return
+        this.#updateAnswerVisibility()
     }
 
     #openChat(discussionId) {
-        if (!this.discussions.has(discussionId)) return
+        if (!this.#discussions.has(discussionId)) {
+            console.error('ChatModule: Invalid discussion ID')
+            return
+        }
 
-        this.currentDiscussion = discussionId
-        const discussion = this.discussions.get(discussionId)
+        this.#currentDiscussion = discussionId
+        const discussion = this.#discussions.get(discussionId)
 
-        // Show/hide pages
-        this.container.querySelector('#discussion-selection').classList.replace('d-block', 'd-none')
-        this.container.querySelector('#chat-page').classList.replace('d-none', 'd-block')
+        if (this.#waitingFor === "read" && this.#discussionIdToRead == discussionId) {
+            this.#callback()
+            this.#waitingFor = "nothing"
+        }
 
-        // Update chat header
-        this.container.querySelector('#current-avatar').src = discussion.icon
-        this.container.querySelector('#current-discussion-name').textContent = discussion.name
+        this.#container.querySelector('#discussion-selection').classList.replace('d-block', 'd-none')
+        this.#container.querySelector('#chat-page').classList.replace('d-none', 'd-block')
 
-        // Show appropriate messages
-        this.container.querySelectorAll('.messages').forEach(messagesContainer => {
+        this.#container.querySelector('#current-avatar').src = discussion.icon
+        this.#container.querySelector('#current-discussion-name').textContent = discussion.name
+
+        this.#container.querySelectorAll('.messages').forEach(messagesContainer => {
             messagesContainer.style.display = 'none'
         })
 
-        const currentMessages = this.container.querySelector(`.messages#${discussionId}`)
+        const currentMessages = this.#container.querySelector(`.messages#${discussionId}`)
         if (currentMessages) {
             currentMessages.style.display = 'block'
         }
 
-        // Update input group visibility based on answer permission
-        this.#updateInputGroupVisibility()
+        this.#updateAnswerVisibility()
 
-        // Clear unread count
         discussion.unreadCount = 0
-        this.#updateDiscussionUnreadCount(discussionId, 0)
+        this.#updateDiscussionUnreadCount(discussionId)
 
         this.#scrollToBottom()
     }
 
-    #toggleAnswer(discussionId) {
-        if (!this.discussions.has(discussionId)) return
-        this.discussions.get(discussionId).canAnswer = !this.discussions.get(discussionId).canAnswer
-        this.#updateInputGroupVisibility()
+    #createMessageElement(type, content, contactId = null) {
+        if (!content) {
+            console.error('ChatModule: Message content is missing')
+            return null
+        }
+        if (type !== 'sent' && type !== 'received') {
+            console.error(`ChatModule: Invalid message type '${type}'. Must be 'sent' or 'received'`)
+            return null
+        }
+        if (type === 'received' && (!contactId || !this.#contacts.has(contactId))) {
+            console.error(`ChatModule: contactId '${contactId}' not found in contacts`)
+            return null
+        }
+        const messageDiv = document.createElement('div')
+        messageDiv.className = `d-flex mb-3 ${type === 'sent' ? 'justify-content-end' : 'justify-content-start'}`
+
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+
+        const messageContent = document.createElement('div')
+        messageContent.className = type === 'sent' ? 'text-end' : 'text-start'
+        messageContent.style.maxWidth = '70%'
+
+        if (type === 'received') {
+            const contact = this.#contacts.get(contactId)
+            const iconImg = document.createElement('img')
+            iconImg.src = contact.icon
+            iconImg.alt = contact.name
+            iconImg.className = 'rounded-circle me-2'
+            iconImg.width = 30
+            iconImg.height = 30
+            messageDiv.appendChild(iconImg)
+            const nameElement = document.createElement('small')
+            nameElement.className = 'text-muted fw-bold d-block mb-1'
+            nameElement.textContent = contact.name
+            messageContent.appendChild(nameElement)
+        }
+
+        const messageText1 = document.createElement('div')
+        messageText1.className = `p-2 rounded ${type === 'sent' ? 'bg-primary text-white' : 'bg-white border'}`
+        messageText1.textContent = content.text ? content.text : "Contient une image"
+
+        const timeElement = document.createElement('small')
+        timeElement.className = 'text-muted d-block mt-1'
+        timeElement.textContent = time
+
+        messageContent.appendChild(messageText1)
+        messageContent.appendChild(timeElement)
+        messageDiv.appendChild(messageContent)
+
+        return messageDiv
     }
 
-    #updateInputGroupVisibility() {
-        const inputGroup = this.container.querySelector('.input-group')
-        if (!inputGroup) return
-        if(!this.currentDiscussion) return
-        if (this.discussions.get(this.currentDiscussion).canAnswer) {
+    #createChoicesUI(choices) {
+        const cardFooter = this.#container.querySelector('.card-footer')
+        if (!cardFooter) {
+            console.error('ChatModule: Card footer not found')
+            return
+        }
+
+        const choicesContainer = document.createElement('div')
+        choicesContainer.id = 'choices-container'
+        choicesContainer.className = 'd-flex flex-column mb-3'
+
+        let choiceId = 0;
+        choices.forEach((choice) => {
+            const choiceButton = document.createElement('button')
+            choiceButton.className = 'btn btn-outline-primary w-100 mb-2'
+            choiceButton.textContent = choice.text || choice
+            let tempId = choiceId
+            choiceButton.addEventListener('click', () => {
+                this.#selectChoice(choice, tempId)
+            })
+            choicesContainer.appendChild(choiceButton)
+            choiceId++
+        })
+
+        const inputGroup = cardFooter.querySelector('.input-group')
+        if (!inputGroup) {
+            console.error('ChatModule: Input group not found in card footer')
+            return
+        }
+        cardFooter.insertBefore(choicesContainer, inputGroup)
+    }
+
+    #selectChoice(choice, choiceId) {
+        if (!this.#currentDiscussion) {
+            console.error('ChatModule: No discussion is currently open')
+            return
+        }
+        this.#callback({ choice: choiceId })
+        this.#waitingFor = "nothing"
+
+        const choiceText = choice.text || choice
+        const messageElement = this.#createMessageElement('sent', { text: choiceText })
+        if (!messageElement) {
+            console.error('ChatModule: Failed to create message element for choice')
+            return
+        }
+
+        const messagesContainer = this.#container.querySelector(`.messages#${this.#currentDiscussion}`)
+        if (!messagesContainer) {
+            console.error('ChatModule: Messages container not found for current discussion')
+            return
+        }
+        messagesContainer.appendChild(messageElement)
+        this.#scrollToBottom()
+
+
+        this.#enableLocked(this.#currentDiscussion)
+    }
+
+    #sendMessage() {
+        const messageInput = this.#container.querySelector('#message-input')
+        if (!messageInput) {
+            console.error('ChatModule: Message input not found')
+            return
+        }
+        const messageText = messageInput.value.trim()
+
+        if (!messageText) {
+            console.error('ChatModule: No message to send')
+            return
+        }
+        if (!this.#currentDiscussion) {
+            console.error('ChatModule: No discussion is currently open')
+            return
+        }
+
+        this.#callback({ answer: messageText })
+        this.#waitingFor = "nothing"
+
+        const messageElement = this.#createMessageElement('sent', { text: messageText })
+        if (!messageElement) {
+            console.error('ChatModule: Failed to create message element for sent message')
+            return
+        }
+
+        const messagesContainer = this.#container.querySelector(`.messages#${this.#currentDiscussion}`)
+        if (!messagesContainer) {
+            console.error('ChatModule: Messages container not found for current discussion')
+            return
+        }
+        messagesContainer.appendChild(messageElement)
+        this.#scrollToBottom()
+        messageInput.value = ''
+        this.#enableLocked(this.#currentDiscussion)
+
+    }
+
+    #updateAnswerVisibility() {
+        if (!this.#currentDiscussion) {
+            console.error('ChatModule: No discussion is currently open')
+            return
+        }
+        const cardFooter = this.#container.querySelector('.card-footer')
+        const inputGroup = this.#container.querySelector('.input-group')
+        const choicesContainer = this.#container.querySelector('#choices-container')
+
+        if (!cardFooter) {
+            console.error('ChatModule: Card footer not found')
+            return
+        }
+        if (!inputGroup) {
+            console.error('ChatModule: Input group not found in card footer')
+            return
+        }
+
+        // Hide footer by default
+        cardFooter.classList.add('d-none')
+        inputGroup.classList.add('d-none')
+        if (choicesContainer) {
+            choicesContainer.remove()
+        }
+
+        const discussion = this.#discussions.get(this.#currentDiscussion)
+        if (!discussion || !discussion.state) {
+            console.error('ChatModule: Current discussion data not found')
+            return
+        }
+        if (discussion.state === "canAnswer") {
+            cardFooter.classList.remove('d-none')
             inputGroup.classList.remove('d-none')
-        } else {
-            inputGroup.classList.add('d-none')
+        } else if (discussion.state === "canChoose" && discussion.choices) {
+            cardFooter.classList.remove('d-none')
+            this.#createChoicesUI(discussion.choices)
         }
     }
 
-    #updateDiscussionUnreadCount(discussionId, count) {
-        const discussionCard = this.container.querySelector(`#${discussionId}`)
-        if (!discussionCard) return
+    #updateDiscussionUnreadCount(discussionId) {
+        if (!this.#discussions.has(discussionId)) {
+            console.error('ChatModule: Invalid discussion ID')
+            return
+        }
+        const discussionCard = this.#container.querySelector(`#${discussionId}`)
+        if (!discussionCard) {
+            console.error('ChatModule: Discussion card not found in DOM')
+            return
+        }
 
+        const count = this.#discussions.get(discussionId).unreadCount
         let unreadElement = discussionCard.querySelector('.unread-count')
 
         if (count > 0) {
@@ -286,14 +612,13 @@ class ChatModule {
         } else if (unreadElement) {
             unreadElement.remove()
         }
-    }
-
-    #scrollToBottom() {
-        const messagesContainer = this.container.querySelector('#messages-container')
+    }    #scrollToBottom() {
+        const messagesContainer = this.#container.querySelector('#messages-container')
         if (messagesContainer) {
-            setTimeout(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight
-            }, 100)
+            messagesContainer.scrollTop = messagesContainer.scrollHeight
+        } else {
+            console.error('ChatModule: Messages container not found for scrolling')
+            return
         }
     }
 }

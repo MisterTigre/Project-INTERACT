@@ -18,13 +18,12 @@
     <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    <div id="modules" style="grid-template-columns: repeat(<%= gridWidth %>, 1fr); grid-template-rows: repeat(<%= gridHeight %>, 1fr);">
+    <div id="modules" style="<%= style %>">
         <%- modules %>
     </div>
     <script>
         var modulesConfig = <%- JSON.stringify(config) %>;
     </script>
-    <script src="js/test/test.js"></script>
     <script src="js/map.js"></script>
     <script src="js/chat/chat.js"></script>
     <script src="js/calendar.js"></script>
