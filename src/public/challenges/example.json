@@ -133,7 +133,7 @@
             "type": "event",
             "id": "addMarker",
             "moduleId": "map1",
-            "msg": "add_custom_icon",
+            "msg": "addCustomIcon",
             "payload": {
                 "name": "frightfur",
                 "iconUrl": "img/frightfur.jpg",
@@ -159,7 +159,7 @@
             "type": "event",
             "moduleId": "map1",
             "delay": 1000,
-            "msg": "add_marker",
+            "msg": "addMarker",
             "payload": {
                 
                 "latitude": 47.48049893422009,
@@ -170,7 +170,7 @@
         {
             "type": "event",
             "moduleId": "map1",
-            "msg": "go_to",
+            "msg": "goTo",
             "delay": 2000,
             "payload":{
                 "coords":[47.48049893422009, -0.5921493449039137],
@@ -194,9 +194,9 @@
             "type": "choice",
             "id": "choice",
             "moduleId": "map1",
-            "msg": "authorize_item_click",
+            "msg": "itemChoice",
             "payload": {
-                "wanted_item": "markerA"
+                "wantedItem": "markerA"
             },
             "choiceDestinations": [
                 "choiceNOK",

@@ -2,15 +2,16 @@ class MapModule {
     #id
     #json
     #popup
-    #custom_icons
+    #customIcons
     #map
     #wanted_item
-    #mouse_marker
-    #mouse_circle
+    #mouseMarker
+    #mouseCircle
     #validate_btn
     #callback
     #listening_to_item_click
     #listening_to_map_click
+    #format
 
     constructor(id, data, callback) {
 
@@ -21,7 +22,7 @@ class MapModule {
         this.#id = id
         this.#callback = callback
         this.#json = data
-        this.#custom_icons = {}
+        this.#customIcons = {}
         this.#popup
 
         this.#put_default()
@@ -32,9 +33,9 @@ class MapModule {
             this.#desactivate_movement()
         }
 
-        this.#create_custom_icons(this.#json.custom_icons)
+        this.#create_custom_icons(this.#json.customIcons)
         this.#create_markers(this.#json.markers)
-        this.#create_circle_markers(this.#json.circle_markers)
+        this.#create_circle_markers(this.#json.circleMarkers)
         this.#create_polygons(this.#json.polygons)
         this.#create_circles(this.#json.circles)
 
@@ -49,7 +50,7 @@ class MapModule {
     #create_base_map() {
         this.#map = L.map(this.#id).setView([this.#json.latitude, this.#json.longitude], this.#json.zoom)
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: this.#json.max_zoom,
+            maxZoom: this.#json.maxZoom,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(this.#map)
     }
@@ -69,7 +70,7 @@ class MapModule {
     // create custom icons
     #create_custom_icons(icons) {
         icons.forEach(ci => {
-            this.#custom_icons[ci.name] = L.icon({
+            this.#customIcons[ci.name] = L.icon({
                 iconUrl: ci.iconUrl,
                 iconSize: ci.iconSize,
                 iconAnchor: ci.iconAnchor,
@@ -83,8 +84,8 @@ class MapModule {
         markers.forEach(m => {
             var addon = {}
             if ("icon" in m) {
-                if (m.icon in this.#custom_icons) {
-                    addon['icon'] = this.#custom_icons[m.icon]
+                if (m.icon in this.#customIcons) {
+                    addon['icon'] = this.#customIcons[m.icon]
                 } else if (m.icon != "default") {
                     console.error(`The icon "${m.icon}" has not been declared`)
                 }
@@ -103,8 +104,8 @@ class MapModule {
     }
 
     // Add circle's markers to the map
-    #create_circle_markers(circle_markers) {
-        circle_markers.forEach(cm => {
+    #create_circle_markers(circleMarkers) {
+        circleMarkers.forEach(cm => {
             if ('name' in cm) {
                 cm.style['name'] = cm.name
             }
@@ -196,11 +197,11 @@ class MapModule {
             "latitude": 47.46653288719405,
             "longitude": -0.5565456868413388,
             "zoom": 12,
-            "max_zoom": 20,
+            "maxZoom": 20,
             "dragable": true,
-            "custom_icons": [],
+            "customIcons": [],
             "markers": [],
-            "circle_markers": [],
+            "circleMarkers": [],
             "polygons": [],
             "circles": []
         }
@@ -212,11 +213,11 @@ class MapModule {
     }
     
     #remove_mouse_item(type){
-        if (this.#mouse_marker !== undefined && (type === "mouse" || type === "all")){
-            this.#map.removeLayer(this.#mouse_marker)
+        if (this.#mouseMarker !== undefined && (type === "mouse" || type === "all")){
+            this.#map.removeLayer(this.#mouseMarker)
         }
-        if (this.#mouse_circle !== undefined && (type === "mouse" || type === "all")){
-            this.#map.removeLayer(this.#mouse_circle)
+        if (this.#mouseCircle !== undefined && (type === "mouse" || type === "all")){
+            this.#map.removeLayer(this.#mouseCircle)
         }
         if (this.#validate_btn !== undefined && (type === "btn" || type === "all")){
             this.#map.removeControl(this.#validate_btn)
@@ -238,7 +239,7 @@ class MapModule {
         
         // Only change the marker/circle of the mouse if a callback has been send
         if (this.#listening_to_map_click){
-            this.#add_mouse_pointer(e)   
+            this.#add_mousePointer(e)   
         }
     }
         
@@ -251,19 +252,19 @@ class MapModule {
         }
         // Use mouse'coords if you click on an item and want coords
         if (this.#listening_to_map_click) {
-            this.#add_mouse_pointer(e)
+            this.#add_mousePointer(e)
         }
     }
 
-    #add_mouse_pointer(e){
+    #add_mousePointer(e){
         var addon = {}
-        if ("mouse_icon" in this.#custom_icons){
-            addon["icon"] = this.#custom_icons["mouse_icon"]
+        if ("mouse_icon" in this.#customIcons){
+            addon["icon"] = this.#customIcons["mouse_icon"]
         }
         this.#remove_mouse_item("mouse")
         if (this.#validate_btn === undefined){
             // Création d'un contrôle personnalisé
-            this.#validate_btn = L.control({position: 'bottomright'});
+            this.#validate_btn = L.control({position: 'bottomright'})
 
             this.#validate_btn.onAdd = (map) =>{
                 var div = L.DomUtil.create('div', '')
@@ -273,68 +274,86 @@ class MapModule {
                 button.title = 'Validate'
                 button.href = '#'
 
-                L.DomEvent.disableClickPropagation(div);
+                L.DomEvent.disableClickPropagation(div)
 
                 button.onclick = (e) =>{
+                    let coords
+                    if (this.#mouseMarker){
+                        coords = this.#mouseMarker.getLatLng()
+                    }else if (this.#mouseCircle){
+                        coords = this.#mouseCircle.getLatLng()
+                    }
+
                     // Use mouse'coords if you click on the map and want coords
                     if (this.#listening_to_map_click){
-                        if (this.#mouse_marker){
-                            this.#callback({ answer: this.#mouse_marker.getLatLng() })
-                        }else if (this.#mouse_circle){
-                            this.#callback({ answer: this.#mouse_circle.getLatLng() })
-                        }
-                        this.#listening_to_map_click = false
+                        if (this.#format == "coords"){
+                            this.#callback({"anwser": coords})
+                        }else{
+                            let url = `https://nominatim.openstreetmap.org/reverse?lat=${coords.lat}&lon=${coords.lng}&format=json`
+                            fetch(url).then(async response => {
+                                let ret = (await response.json())["address"][this.#format]
+                                this.#callback({"answer" : ret})
+                            })
+
+                    } 
+                    this.#listening_to_map_click = false
                     }
                     this.#remove_mouse_item("btn")
                 }
-                return div;
+                return div
             }
             // Ajout du contrôle à la carte
             this.#validate_btn.addTo(this.#map)
         }
-        if ("mouse_marker" in this.#json.mouse_pointer && this.#json.mouse_pointer.mouse_marker){
-            this.#mouse_marker = L.marker(e.latlng, addon)
-            this.#mouse_marker.addTo(this.#map)
+        if ("mouseMarker" in this.#json.mousePointer && this.#json.mousePointer.mouseMarker){
+            this.#mouseMarker = L.marker(e.latlng, addon)
+            this.#mouseMarker.addTo(this.#map)
         }
-        if ("mouse_marker" in this.#json.mouse_pointer && this.#json.mouse_pointer.mouse_circle){
-            this.#mouse_circle = L.circle(e.latlng,this.#json.mouse_pointer.mouse_radius)
-            this.#mouse_circle.addTo(this.#map)
+        if ("mouseMarker" in this.#json.mousePointer && this.#json.mousePointer.mouseCircle){
+            this.#mouseCircle = L.circle(e.latlng,this.#json.mousePointer.mouse_radius)
+            this.#mouseCircle.addTo(this.#map)
         }
     }
 
 
     notify(msg, payload) {
         switch (msg) {
-            case "add_custom_icon":
+            case "addCustomIcon":
                 this.#create_custom_icons([payload])
                 this.#callback()
                 break
-            case "add_marker":
+            case "addMarker":
                 this.#create_markers([payload])
                 this.#callback()
                 break
-            case "add_circle_marker":
+            case "addCircleMarker":
                 this.#create_circle_markers([payload])
                 this.#callback()
                 break
-            case "add_polygon":
+            case "addPolygon":
                 this.#create_polygons([payload])
                 this.#callback()
                 break
-            case "add_circle":
+            case "addCircle":
                 this.#create_circles([payload])
                 this.#callback()
                 break
-            case "authorize_map_click":
-                this.#json["mouse_pointer"] = payload.mouse_pointer
+            case "mapAnswer":
+                this.#json["mousePointer"] = payload.mousePointer
                 this.#listening_to_map_click = true
                 this.#remove_mouse_item("all")
+                if ("format" in payload){
+                    this.#format = payload.format
+                }else {
+                    this.#format = "coords"
+                }
                 break
-            case "authorize_item_click":
-                this.#wanted_item = payload.wanted_item
+            case "itemChoice":
+                this.#wanted_item = payload.wantedItem
                 this.#listening_to_item_click = true
                 break
-            case "go_to":
+
+            case "goTo":
                 this.#map.flyTo(payload.coords, payload.zoom)
                 this.#callback()
                 break
