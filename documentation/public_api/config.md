@@ -47,9 +47,20 @@ data:
 }
 ```
 
+#### Calendar
+
+type: `calendar`
+
+data:
+```json
+{
+    "size":"little" | "big" // The size of the calendar (big has a more detailed module to add a periode)
+}
+```
 #### Chat
 
 type: `chat`
 
 data:
 There is no data.
+
