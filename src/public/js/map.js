@@ -199,6 +199,7 @@ class MapModule {
             "zoom": 12,
             "maxZoom": 20,
             "dragable": true,
+            "buttonPosition": "botomright",
             "customIcons": [],
             "markers": [],
             "circleMarkers": [],
@@ -264,7 +265,7 @@ class MapModule {
         this.#remove_mouse_item("mouse")
         if (this.#validate_btn === undefined){
             // Création d'un contrôle personnalisé
-            this.#validate_btn = L.control({position: 'bottomright'})
+            this.#validate_btn = L.control({position: this.#json.buttonPosition})
 
             this.#validate_btn.onAdd = (map) =>{
                 var div = L.DomUtil.create('div', '')
