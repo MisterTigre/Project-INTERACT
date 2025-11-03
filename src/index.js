@@ -24,7 +24,7 @@ app.get('/', async (req, res) => {
         const h = module.size[1]
 
         const module_html = await ejs.renderFile(`src/modules/${module.type}/${module.type}.ejs`)
-        modules_html += await ejs.renderFile("src/modules/module_container.ejs", {
+        modules_html += await ejs.renderFile("src/modules/moduleContainer.ejs", {
             module: module_html,
             id: module.id,
             style: `grid-column: ${x + 1} / ${x + w + 1}; grid-row: ${y + 1} / ${y + h + 1}; z-index: ${z * 100}`
