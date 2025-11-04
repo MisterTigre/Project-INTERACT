@@ -265,16 +265,32 @@
         {
             "type": "answer",
             "moduleId": "chat1",
+            "id": "first",
             "msg": "answer",
             "delay": 1000,
             "payload": {
                 "discussionId": "rexmine"
             },
-            "jumpOnIncorrect": "end"
+            "jumpOnIncorrect": "error"
         },
         {
-            "type": "end",
-            "id": "end"
+            "type": "event",
+            "moduleId": "chat1",
+            "id": "error",
+            "msg": "send",
+            "delay": 1000,
+            "payload": {
+                "discussionId": "rexmine",
+                "contactId": "rexmine",
+                "content": {
+                    "text": "T'es con?"
+                }
+            }
+        },
+        {
+            "type": "goto",
+            "destination": "first"
+            
         }
     ]
 }

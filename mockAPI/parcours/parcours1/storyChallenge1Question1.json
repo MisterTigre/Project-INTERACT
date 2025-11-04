@@ -47,12 +47,13 @@
         {
             "type": "answer",
             "moduleId": "chat1",
+            "id": "first",
             "msg": "answer",
             "delay": 1000,
             "payload": {
                 "discussionId": "frightfur"
             },
-            "jumpOnIncorrect": "end"
+            "jumpOnIncorrect": "first"
         },
         {
             "type": "end",

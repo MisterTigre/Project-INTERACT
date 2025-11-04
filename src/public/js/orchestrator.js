@@ -111,6 +111,7 @@ class Orchestrator {
             const json = await response.json()
             console.log(json)
             if (!json.success){
+                this.jumpTo(storyEvent.jumpOnIncorrect)
                 return
             }
             this.storyIndex = 0
