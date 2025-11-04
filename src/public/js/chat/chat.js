@@ -64,13 +64,10 @@ class ChatModule {
             messageInput.value = ''
         }
         
-        // Remove badge when returning to discussion selection
-        const backBtn = this.#container.querySelector('#back-btn')
-        if (backBtn) {
-            const badge = backBtn.querySelector('.position-absolute.badge')
-            if (badge) {
-                badge.remove()
-            }
+        // Hide the back button badge instead of removing it
+        const badge = this.#container.querySelector('#back-btn-badge')
+        if (badge) {
+            badge.classList.add('d-none')
         }
     }
 
@@ -175,77 +172,17 @@ class ChatModule {
     }
 
     #createTypingIndicator(contactId) {
-        const messageDiv = document.createElement('div')
-        messageDiv.className = 'd-flex mb-3 justify-content-start typing-indicator'
-        messageDiv.id = 'typing-indicator'
+        const template = this.#container.querySelector('#typing-indicator-template')
+        const indicator = template.cloneNode(true)
+        indicator.id = 'typing-indicator-active'
+        indicator.classList.remove('d-none')
 
         const contact = this.#contacts.get(contactId)
-        const iconImg = document.createElement('img')
-        iconImg.src = contact.icon
-        iconImg.alt = contact.name
-        iconImg.className = 'rounded-circle me-2'
-        iconImg.width = 30
-        iconImg.height = 30
-        messageDiv.appendChild(iconImg)
+        indicator.querySelector('.typing-avatar').src = contact.icon
+        indicator.querySelector('.typing-avatar').alt = contact.name
+        indicator.querySelector('.typing-name').textContent = contact.name
 
-        const messageContent = document.createElement('div')
-        messageContent.className = 'text-start'
-        messageContent.style.maxWidth = '70%'
-
-        const nameElement = document.createElement('small')
-        nameElement.className = 'text-muted fw-bold d-block mb-1'
-        nameElement.textContent = contact.name
-        messageContent.appendChild(nameElement)
-
-        const typingBox = document.createElement('div')
-        typingBox.className = 'p-2 rounded bg-white border d-flex align-items-center'
-        typingBox.style.minWidth = '60px'
-
-        const dotsContainer = document.createElement('div')
-        dotsContainer.className = 'typing-dots'
-        dotsContainer.innerHTML = '<span></span><span></span><span></span>'
-        
-        // Add CSS for animation
-        const style = document.createElement('style')
-        style.textContent = `
-            .typing-dots {
-                display: flex;
-                gap: 4px;
-            }
-            .typing-dots span {
-                width: 6px;
-                height: 6px;
-                background-color: #6c757d;
-                border-radius: 50%;
-                animation: typing 1.4s infinite;
-            }
-            .typing-dots span:nth-child(2) {
-                animation-delay: 0.2s;
-            }
-            .typing-dots span:nth-child(3) {
-                animation-delay: 0.4s;
-            }
-            @keyframes typing {
-                0%, 60%, 100% {
-                    transform: translateY(0);
-                    opacity: 0.4;
-                }
-                30% {
-                    transform: translateY(-10px);
-                    opacity: 1;
-                }
-            }
-        `
-        if (!document.head.querySelector('style[data-typing]')) {
-            style.setAttribute('data-typing', 'true')
-            document.head.appendChild(style)
-        }
-
-        typingBox.appendChild(dotsContainer)
-        messageContent.appendChild(typingBox)
-        messageDiv.appendChild(messageContent)
-
-        return messageDiv
+        return indicator
     }
 
     #showTypingIndicator(contactId, duration) {
@@ -254,8 +191,7 @@ class ChatModule {
         const messagesContainer = this.#container.querySelector(`.messages#${this.#currentDiscussion}`)
         if (!messagesContainer) return
 
-        // Remove any existing typing indicator
-        const existingIndicator = messagesContainer.querySelector('#typing-indicator')
+        const existingIndicator = messagesContainer.querySelector('#typing-indicator-active')
         if (existingIndicator) {
             existingIndicator.remove()
         }
@@ -266,7 +202,7 @@ class ChatModule {
 
         return new Promise(resolve => {
             setTimeout(() => {
-                const indicator = messagesContainer.querySelector('#typing-indicator')
+                const indicator = messagesContainer.querySelector('#typing-indicator-active')
                 if (indicator) {
                     indicator.remove()
                 }
@@ -279,7 +215,6 @@ class ChatModule {
         if (!content || !content.text) return 1000
         
         const messageLength = content.text.length
-        // Base duration of 1 second + 50ms per character, max 5 seconds
         const duration = Math.min(1000 + (messageLength * 50), 5000)
         return duration
     }
@@ -297,13 +232,11 @@ class ChatModule {
 
         const typingDuration = this.#calculateTypingDuration(message.content)
         
-        // Show typing indicator if this is the current discussion
         if (this.#currentDiscussion === message.discussionId) {
             this.#showTypingIndicator(message.contactId, typingDuration).then(() => {
                 this.#displayActualMessage(message)
             })
         } else {
-            // If not current discussion, simulate delay then display message
             setTimeout(() => {
                 this.#displayActualMessage(message)
             }, typingDuration)
@@ -331,17 +264,13 @@ class ChatModule {
             this.#discussions.get(message.discussionId).unreadCount++
             this.#updateDiscussionUnreadCount(message.discussionId)
         } else {
-            // Update back button badge when receiving message in current discussion
-            // (in case there are unread messages in other discussions)
             this.#updateBackButtonBadge()
         }
         
-        // Always update back button badge when there's a current discussion open
         if (this.#currentDiscussion) {
             this.#updateBackButtonBadge()
         }
 
-        // For regular "send" messages (not sendAndWait), invoke callback immediately
         if (this.#waitingFor !== "read") {
             this.#callback()
         }
@@ -409,12 +338,10 @@ class ChatModule {
         discussion.unreadCount = 0
         this.#updateDiscussionUnreadCount(discussionId)
         
-        // Update back button badge when opening a chat
         this.#updateBackButtonBadge()
 
         this.#scrollToBottom()
 
-        // If waiting for this discussion to be read, invoke callback now
         if (this.#waitingFor === "read" && this.#discussionIdToRead === discussionId) {
             this.#callback()
             this.#waitingFor = "nothing"
@@ -474,17 +401,18 @@ class ChatModule {
     }
 
     #createChoicesUI(choices) {
-        const cardFooter = this.#container.querySelector('.card-footer')
-        if (!cardFooter) {
-            console.error('ChatModule: Card footer not found')
+        const choicesContainer = this.#container.querySelector('#choices-container')
+        if (!choicesContainer) {
+            console.error('ChatModule: Choices container not found')
             return
         }
 
-        const choicesContainer = document.createElement('div')
-        choicesContainer.id = 'choices-container'
-        choicesContainer.className = 'd-flex flex-column mb-3'
+        // Clear existing choices
+        choicesContainer.innerHTML = ''
+        choicesContainer.classList.remove('d-none')
+        choicesContainer.classList.add('d-flex')
 
-        let choiceId = 0;
+        let choiceId = 0
         choices.forEach((choice) => {
             const choiceButton = document.createElement('button')
             choiceButton.className = 'btn btn-outline-primary w-100 mb-2'
@@ -496,13 +424,6 @@ class ChatModule {
             choicesContainer.appendChild(choiceButton)
             choiceId++
         })
-
-        const inputGroup = cardFooter.querySelector('.input-group')
-        if (!inputGroup) {
-            console.error('ChatModule: Input group not found in card footer')
-            return
-        }
-        cardFooter.insertBefore(choicesContainer, inputGroup)
     }
 
     #selectChoice(choice, choiceId) {
@@ -579,27 +500,23 @@ class ChatModule {
         const inputGroup = this.#container.querySelector('.input-group')
         const choicesContainer = this.#container.querySelector('#choices-container')
 
-        if (!cardFooter) {
-            console.error('ChatModule: Card footer not found')
-            return
-        }
-        if (!inputGroup) {
-            console.error('ChatModule: Input group not found in card footer')
+        if (!cardFooter || !inputGroup || !choicesContainer) {
+            console.error('ChatModule: Required footer elements not found')
             return
         }
 
-        // Hide footer by default
+        // Hide everything by default
         cardFooter.classList.add('d-none')
         inputGroup.classList.add('d-none')
-        if (choicesContainer) {
-            choicesContainer.remove()
-        }
+        choicesContainer.classList.add('d-none')
+        choicesContainer.classList.remove('d-flex')
 
         const discussion = this.#discussions.get(this.#currentDiscussion)
         if (!discussion || !discussion.state) {
             console.error('ChatModule: Current discussion data not found')
             return
         }
+        
         if (discussion.state === "canAnswer") {
             cardFooter.classList.remove('d-none')
             inputGroup.classList.remove('d-none')
@@ -637,14 +554,12 @@ class ChatModule {
     }
 
     #updateBackButtonBadge() {
-        console.log("HERE")
-        const backBtn = this.#container.querySelector('#back-btn')
-        if (!backBtn) {
-            console.error('ChatModule: Back button not found')
+        const badge = this.#container.querySelector('#back-btn-badge')
+        if (!badge) {
+            console.error('ChatModule: Back button badge not found')
             return
         }
 
-        // Calculate total unread messages from other discussions
         let totalUnread = 0
         this.#discussions.forEach((discussion, discussionId) => {
             if (discussionId !== this.#currentDiscussion) {
@@ -652,31 +567,12 @@ class ChatModule {
             }
         })
 
-        // Remove existing badge if present
-        let badge = backBtn.querySelector('.position-absolute.badge')
-        if (badge) {
-            badge.remove()
-        }
-
-        // Add badge if there are unread messages
+        const badgeCount = badge.querySelector('.badge-count')
         if (totalUnread > 0) {
-            // Make back button position relative if not already
-            if (getComputedStyle(backBtn).position === 'static') {
-                backBtn.style.position = 'relative'
-            }
-
-            badge = document.createElement('span')
-            badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger'
-            badge.style.fontSize = '0.65rem'
-            badge.textContent = totalUnread > 99 ? '99+' : totalUnread
-            
-            // Add screen reader text
-            const srText = document.createElement('span')
-            srText.className = 'visually-hidden'
-            srText.textContent = 'messages non lus'
-            badge.appendChild(srText)
-            
-            backBtn.appendChild(badge)
+            badgeCount.textContent = totalUnread > 99 ? '99+' : totalUnread
+            badge.classList.remove('d-none')
+        } else {
+            badge.classList.add('d-none')
         }
     }
 
