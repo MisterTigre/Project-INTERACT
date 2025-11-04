@@ -4,6 +4,8 @@ function createModule(type, id, data, callback) {
             return new MapModule(id, data, callback)
         case "chat":
             return new ChatModule(id, data, callback)
+        case "challengeArray":
+            return new ChallengeArray(id, data, callback)
         default:
             throw `Invalid module type "${type}"`
     }

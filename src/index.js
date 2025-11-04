@@ -7,8 +7,8 @@ const port = 3000
 app.use(express.static('src/public/'))
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'))
 
-app.get('/', async (req, res) => {
-    const challenge = req.query.challenge ?? "example"
+async function renderChallenge(req, res) {
+    const challenge = req.params.challenge ?? "example"
 
     // TODO: Fetch config file from Osint4Fun
 
@@ -23,7 +23,7 @@ app.get('/', async (req, res) => {
         const w = module.size[0]
         const h = module.size[1]
 
-        const module_html = await ejs.renderFile(`src/modules/${module.type}/${module.type}.ejs`)
+        const module_html = await ejs.renderFile(`src/modules/${module.type}/${module.type}.ejs`, { data: module.data })
         modules_html += await ejs.renderFile("src/modules/moduleContainer.ejs", {
             module: module_html,
             id: module.id,
@@ -50,7 +50,10 @@ app.get('/', async (req, res) => {
     })
 
     res.send(html)
-})
+} 
+
+app.get("/", renderChallenge)
+app.get('/:challenge', renderChallenge)
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`)
