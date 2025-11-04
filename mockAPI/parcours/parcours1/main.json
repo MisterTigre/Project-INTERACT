@@ -1,27 +1,157 @@
 {
-    "title": "Main page",
-    "gridSize": [2, 2],
-    "columnWidths": ["75%", "25%"],
-    "rowHeights": ["66%", "34%"],
-    "answerUrl": "parcours1/test/q1",
+    "title": "Challenge selection page",
+    "gridSize": [1, 1],
     "modules": [
         {
-            "type": "map",
-            "id": "map1",
+            "type": "challengeArray",
+            "id": "challengeArray",
             "position": [0, 0],
-            "size": [2, 2],
+            "size": [1, 1],
             "data": {
-                "zoom": 10,
-                "buttonPosition" : "bottomleft"
+                "challenges": [
+                    {
+                        "title": "La compagne de voyage",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "completed",
+                        "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
+                    },
+                    {
+                        "title": "La date adéquate",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "locked"
+                    },
+                    {
+                        "title": "Une inspiration bienvenue",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "available",
+                        "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
+                    },
+                                        {
+                        "title": "La compagne de voyage",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "completed",
+                        "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
+                    },
+                    {
+                        "title": "La date adéquate",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "locked"
+                    },
+                    {
+                        "title": "Une inspiration bienvenue",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "available",
+                        "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
+                    },
+                                        {
+                        "title": "La compagne de voyage",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "completed",
+                        "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
+                    },
+                    {
+                        "title": "La date adéquate",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "locked"
+                    },
+                    {
+                        "title": "Une inspiration bienvenue",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "available",
+                        "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
+                    },
+                                        {
+                        "title": "La compagne de voyage",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "completed",
+                        "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
+                    },
+                    {
+                        "title": "La date adéquate",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "locked"
+                    },
+                    {
+                        "title": "Une inspiration bienvenue",
+                        "difficulty": "difficile",
+                        "points": 7,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                            "completed": "/img/claraGreen.png",
+                            "locked": "/img/claraRed.png"
+                        },
+                        "status": "available",
+                        "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
+                    }
+                ]
             }
-        },
-        {
-            "type": "chat",
-            "id": "chat1",
-            "position": [1, 0],
-            "size": [1, 1]
         }
     ],
-    "story": [
-    ]
+    "story": []
 }

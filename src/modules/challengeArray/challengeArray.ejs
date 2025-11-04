@@ -1,7 +1,15 @@
 <div class="challenge-array-container">
     <div class="challenge-array">
         <% for (const challenge of data.challenges) { %>
-            <div class="challenge">
+            <div style='background-image: url("<%= challenge.image[challenge.status]%>")' 
+                <% if (challenge.url) { %>
+                    onclick='document.location.href="<%=challenge.url%>"'
+                    class="challenge clicable"
+                <% }else { %>
+                    class="challenge"
+                <% } %>
+                >
+
                 <% if (challenge.difficulty) { %>
                     <span class="difficulty"><%= challenge.difficulty %></span>
                 <% } %>

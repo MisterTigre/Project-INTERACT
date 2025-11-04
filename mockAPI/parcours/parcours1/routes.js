@@ -11,13 +11,9 @@ function getJsonFile(fileName){
   return data
 }
 router.use(express.json())
-router.get('/', (req, res) => {
-  let data = getJsonFile("storyChallenge1Question1.json")
-  res.status(200).json(data)
-})
 
-router.get('/challenge1', (req, res) => {
-  let data = getJsonFile("storyChallenge1.json")
+router.get('/', (req, res) => {
+  let data = getJsonFile("main.json")
   res.status(200).json(data)
 })
 
