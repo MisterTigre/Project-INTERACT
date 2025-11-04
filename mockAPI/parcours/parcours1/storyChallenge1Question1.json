@@ -1,0 +1,63 @@
+{
+    "title": "Main page",
+    "gridSize": [2, 2],
+    "columnWidths": ["75%", "25%"],
+    "rowHeights": ["66%", "34%"],
+    "answerUrl": "parcours1/test/q1",
+    "modules": [
+        {
+            "type": "map",
+            "id": "map1",
+            "position": [0, 0],
+            "size": [2, 2],
+            "data": {
+                "zoom": 10,
+                "buttonPosition" : "bottomleft"
+            }
+        },
+        {
+            "type": "chat",
+            "id": "chat1",
+            "position": [1, 0],
+            "size": [1, 1]
+        }
+    ],
+    "story": [
+        {
+            "type": "event",
+            "id": "test",
+            "moduleId": "chat1",
+            "msg": "addContact",
+            "payload": {
+                "id":"frightfur",
+                "name": "MisterTigre",
+                "icon": "img/frightfur.jpg"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addDiscussion",
+            "payload": {
+                "id": "frightfur",
+                "icon": "img/frightfur.jpg",
+                "name": "MisterTigre"
+            }
+        },
+        {
+            "type": "answer",
+            "moduleId": "chat1",
+            "id": "first",
+            "msg": "answer",
+            "delay": 1000,
+            "payload": {
+                "discussionId": "frightfur"
+            },
+            "jumpOnIncorrect": "first"
+        },
+        {
+            "type": "end",
+            "id": "end"
+        }
+    ]
+}

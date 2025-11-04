@@ -100,19 +100,43 @@ class Orchestrator {
         console.log(`Answer: ${answer}`)
 
         // TODO: Fetch Osint4Fun to check answer
-
-        const result = 0
-        const nextStory = []
-
-        if (result)
-        {
+        const url = this.config.answerUrl
+        fetch("/verify", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({"url":url, "answer":answer}),
+        }).then(async response => {
+            const json = await response.json()
+            console.log(json)
+            if (!json.success){
+                this.jumpTo(storyEvent.jumpOnIncorrect)
+                return
+            }
             this.storyIndex = 0
-            this.story = nextStory
-        }
-        else
-        {
-            this.jumpTo(storyEvent.jumpOnIncorrect)
-        }
+            this.story = json.nextQuestion.story
+            this.storyNext()
+
+        })
+
+
+
+
+
+
+        // const result = 0
+        // const nextStory = []
+        // 
+        // if (result)
+        // {
+        //     this.storyIndex = 0
+        //     this.story = nextStory
+        // }
+        // else
+        // {
+        //     this.jumpTo(storyEvent.jumpOnIncorrect)
+        // }
     }
 }
 
