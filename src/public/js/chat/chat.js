@@ -63,6 +63,15 @@ class ChatModule {
         if (messageInput) {
             messageInput.value = ''
         }
+        
+        // Remove badge when returning to discussion selection
+        const backBtn = this.#container.querySelector('#back-btn')
+        if (backBtn) {
+            const badge = backBtn.querySelector('.position-absolute.badge')
+            if (badge) {
+                badge.remove()
+            }
+        }
     }
 
     notify(msg, payload) {
@@ -321,53 +330,20 @@ class ChatModule {
         if (this.#currentDiscussion !== message.discussionId) {
             this.#discussions.get(message.discussionId).unreadCount++
             this.#updateDiscussionUnreadCount(message.discussionId)
-            // Show toast notification for non-active discussions
-            this.#showToastNotification(message.discussionId, message)
+        } else {
+            // Update back button badge when receiving message in current discussion
+            // (in case there are unread messages in other discussions)
+            this.#updateBackButtonBadge()
+        }
+        
+        // Always update back button badge when there's a current discussion open
+        if (this.#currentDiscussion) {
+            this.#updateBackButtonBadge()
         }
 
         // For regular "send" messages (not sendAndWait), invoke callback immediately
         if (this.#waitingFor !== "read") {
             this.#callback()
-        }
-    }
-
-    #showToastNotification(discussionId, message) {
-        const discussion = this.#discussions.get(discussionId)
-        const contact = this.#contacts.get(message.contactId)
-        
-        // Get the toast element from the DOM
-        const toastEl = this.#container.querySelector('#chat-notification-toast')
-        if (!toastEl) {
-            console.error('ChatModule: Toast element not found')
-            return
-        }
-
-        // Update toast content
-        const toastIcon = this.#container.querySelector('#toast-discussion-icon')
-        const toastName = this.#container.querySelector('#toast-discussion-name')
-        const toastContactName = this.#container.querySelector('#toast-contact-name')
-        const toastMessagePreview = this.#container.querySelector('#toast-message-preview')
-
-        if (toastIcon) toastIcon.src = discussion.icon
-        if (toastIcon) toastIcon.alt = discussion.name
-        if (toastName) toastName.textContent = discussion.name
-        if (toastContactName) toastContactName.textContent = contact.name
-        if (toastMessagePreview) {
-            const preview = message.content.text.substring(0, 50)
-            toastMessagePreview.textContent = preview + (message.content.text.length > 50 ? '...' : '')
-        }
-
-        // Initialize and show toast
-        const toast = new bootstrap.Toast(toastEl, { autohide: true, delay: 5000 })
-        toast.show()
-
-        // Click to open discussion
-        const toastBody = toastEl.querySelector('.toast-body')
-        if (toastBody) {
-            toastBody.onclick = () => {
-                this.#openChat(discussionId)
-                toast.hide()
-            }
         }
     }
 
@@ -432,6 +408,9 @@ class ChatModule {
 
         discussion.unreadCount = 0
         this.#updateDiscussionUnreadCount(discussionId)
+        
+        // Update back button badge when opening a chat
+        this.#updateBackButtonBadge()
 
         this.#scrollToBottom()
 
@@ -655,7 +634,53 @@ class ChatModule {
         } else if (unreadElement) {
             unreadElement.remove()
         }
-    }    #scrollToBottom() {
+    }
+
+    #updateBackButtonBadge() {
+        console.log("HERE")
+        const backBtn = this.#container.querySelector('#back-btn')
+        if (!backBtn) {
+            console.error('ChatModule: Back button not found')
+            return
+        }
+
+        // Calculate total unread messages from other discussions
+        let totalUnread = 0
+        this.#discussions.forEach((discussion, discussionId) => {
+            if (discussionId !== this.#currentDiscussion) {
+                totalUnread += discussion.unreadCount
+            }
+        })
+
+        // Remove existing badge if present
+        let badge = backBtn.querySelector('.position-absolute.badge')
+        if (badge) {
+            badge.remove()
+        }
+
+        // Add badge if there are unread messages
+        if (totalUnread > 0) {
+            // Make back button position relative if not already
+            if (getComputedStyle(backBtn).position === 'static') {
+                backBtn.style.position = 'relative'
+            }
+
+            badge = document.createElement('span')
+            badge.className = 'position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger'
+            badge.style.fontSize = '0.65rem'
+            badge.textContent = totalUnread > 99 ? '99+' : totalUnread
+            
+            // Add screen reader text
+            const srText = document.createElement('span')
+            srText.className = 'visually-hidden'
+            srText.textContent = 'messages non lus'
+            badge.appendChild(srText)
+            
+            backBtn.appendChild(badge)
+        }
+    }
+
+    #scrollToBottom() {
         const messagesContainer = this.#container.querySelector('#messages-container')
         if (messagesContainer) {
             messagesContainer.scrollTop = messagesContainer.scrollHeight
