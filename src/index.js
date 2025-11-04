@@ -4,6 +4,7 @@ const ejs = require('ejs')
 const app = express()
 const port = 3000
 
+app.use(express.json())
 app.use(express.static('src/public/'))
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'))
 
@@ -56,6 +57,20 @@ app.get('/', async (req, res) => {
     })
 
     res.send(html)
+})
+
+app.post("/verify", (req, res) => {
+    console.log(req.body)
+    fetch(`http://localhost:5000/${req.body.url}`,{
+        method: "POST",
+        headers: {
+                "Content-Type": "application/json",
+        },
+        body: JSON.stringify({"answer":req.body.answer}),
+    }).then(async ret => {
+        console.log(ret)
+        res.status(200).json(await ret.json())
+    })
 })
 
 app.listen(port, () => {

@@ -288,7 +288,7 @@ class MapModule {
                     // Use mouse'coords if you click on the map and want coords
                     if (this.#listening_to_map_click){
                         if (this.#format == "coords"){
-                            this.#callback({"anwser": coords})
+                            this.#callback({"answer": coords})
                         }else{
                             let url = `https://nominatim.openstreetmap.org/reverse?lat=${coords.lat}&lon=${coords.lng}&format=json`
                             fetch(url).then(async response => {

@@ -1,9 +1,9 @@
 const express = require('express')
 const app = express()
 const port = 5000
+app.use(express.json())
 const parcours1Route = require('./parcours/parcours1/routes')
 
-app.use(express.json())
 
 
 app.use("/parcours1", parcours1Route)
