@@ -321,11 +321,53 @@ class ChatModule {
         if (this.#currentDiscussion !== message.discussionId) {
             this.#discussions.get(message.discussionId).unreadCount++
             this.#updateDiscussionUnreadCount(message.discussionId)
+            // Show toast notification for non-active discussions
+            this.#showToastNotification(message.discussionId, message)
         }
 
         // For regular "send" messages (not sendAndWait), invoke callback immediately
         if (this.#waitingFor !== "read") {
             this.#callback()
+        }
+    }
+
+    #showToastNotification(discussionId, message) {
+        const discussion = this.#discussions.get(discussionId)
+        const contact = this.#contacts.get(message.contactId)
+        
+        // Get the toast element from the DOM
+        const toastEl = this.#container.querySelector('#chat-notification-toast')
+        if (!toastEl) {
+            console.error('ChatModule: Toast element not found')
+            return
+        }
+
+        // Update toast content
+        const toastIcon = this.#container.querySelector('#toast-discussion-icon')
+        const toastName = this.#container.querySelector('#toast-discussion-name')
+        const toastContactName = this.#container.querySelector('#toast-contact-name')
+        const toastMessagePreview = this.#container.querySelector('#toast-message-preview')
+
+        if (toastIcon) toastIcon.src = discussion.icon
+        if (toastIcon) toastIcon.alt = discussion.name
+        if (toastName) toastName.textContent = discussion.name
+        if (toastContactName) toastContactName.textContent = contact.name
+        if (toastMessagePreview) {
+            const preview = message.content.text.substring(0, 50)
+            toastMessagePreview.textContent = preview + (message.content.text.length > 50 ? '...' : '')
+        }
+
+        // Initialize and show toast
+        const toast = new bootstrap.Toast(toastEl, { autohide: true, delay: 5000 })
+        toast.show()
+
+        // Click to open discussion
+        const toastBody = toastEl.querySelector('.toast-body')
+        if (toastBody) {
+            toastBody.onclick = () => {
+                this.#openChat(discussionId)
+                toast.hide()
+            }
         }
     }
 

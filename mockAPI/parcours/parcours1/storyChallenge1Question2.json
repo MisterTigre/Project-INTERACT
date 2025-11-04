@@ -56,7 +56,7 @@
         {
             "type": "choice",
             "moduleId": "chat1",
-            "msg": "sendAndWait",
+            "msg": "send",
             "delay": 2000,
             "payload": {
                 "discussionId": "rexmine",
