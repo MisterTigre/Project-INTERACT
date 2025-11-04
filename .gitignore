@@ -1,2 +1,3 @@
 node_modules
 src/public/challenges/test.json
+mock_API/parcours/*/test*.json
