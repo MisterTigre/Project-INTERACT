@@ -4,15 +4,17 @@ const ejs = require('ejs')
 const app = express()
 const port = 3000
 
+app.use(express.json())
 app.use(express.static('src/public/'))
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'))
 
+
 async function renderChallenge(req, res) {
-    const challenge = req.params.challenge ?? "example"
 
-    // TODO: Fetch config file from Osint4Fun
+    const parcours = req.params.parcours ?? "parcours1"
+    const challenge = req.params.challenge ?? ""
+    config = await (await fetch(`http://localhost:5000/${parcours}/${challenge}`)).json()
 
-    config = await (await fetch(`http://localhost:3000/challenges/${challenge}.json`)).json()
 
     let modules_html = ""
     let z = 0
@@ -53,7 +55,22 @@ async function renderChallenge(req, res) {
 } 
 
 app.get("/", renderChallenge)
-app.get('/:challenge', renderChallenge)
+app.get("/:parcours", renderChallenge)
+app.get('/:parcours/:challenge', renderChallenge)
+
+app.post("/verify", (req, res) => {
+    console.log(req.body)
+    fetch(`http://localhost:5000/${req.body.url}`,{
+        method: "POST",
+        headers: {
+                "Content-Type": "application/json",
+        },
+        body: JSON.stringify({"answer":req.body.answer}),
+    }).then(async ret => {
+        console.log(ret)
+        res.status(200).json(await ret.json())
+    })
+})
 
 app.listen(port, () => {
     console.log(`App listening on port ${port}`)

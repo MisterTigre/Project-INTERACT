@@ -116,21 +116,21 @@ Adds a circle's form to the map.
 "circle" // Cf map.md
 ```
 
-#### - `authorize_map_click`
+#### - `mapAnswer`
 Waits a click on the map.
 
 **Payload**
 ```json
 {
-    "mouse_pointer":{
-        "mouse_marker":"bool", // if an icon spawns where you click (take the custom icon 'mouse_icon' if it exists)
-        "mouse_circle":"bool", // if a circle spawns around where you click
-        "mouse_radius":"int" // Optional if 'mouse_circle' is false, radius of the circle, meter
+    "mousePointer":{
+        "mouseMarker":"bool", // if an icon spawns where you click (take the custom icon 'mouse_icon' if it exists)
+        "mouseCircle":"bool", // if a circle spawns around where you click
+        "mouse_radius":"int" // Optional if 'mouseCircle' is false, radius of the circle, meter
     },
 }
 ```
 
-#### - `authorize_item_click`
+#### - `itemChoice`
 Waits a click on an item.
 
 **Payload**
@@ -161,6 +161,27 @@ Removes an item from the map
     "name":"str" // Name of the item ⚠️ you can't remove an item if you didn't give it a name
 }
 ```
+
+## Calendar
+
+### - `addPeriode`
+Adds a periode in the calendar
+```json
+{
+    "title": "str", // Title of the periode
+    "start": "str", // First day (october 1 2025 => "2025-10-01")
+    "end": "str", // Last day (october 1 2025 => "2025-10-01")
+}
+```
+
+### - `selectDates`
+Waits for a period to be selected
+
+**Payload**
+There is no payload
+
+#### TODO
+
 
 ### Chat
 

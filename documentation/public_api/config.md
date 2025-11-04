@@ -37,19 +37,32 @@ data:
     "latitude":"float", // Latitude of the center of the map
     "longitude":"float", // Longitude of the center of the map
     "zoom":"int", // Default zoom value
-    "max_zoom":"int", // The maxed value the user can zoom in
+    "maxZoom":"int", // The maxed value the user can zoom in
+    "buttonPosition":"str" // Optional, possible values are 'topleft', 'topright', 'bottomleft' or 'bottomright'
     "dragable":"bool", // Optional, if you want to be able to move on the map
-    "custom_icons":["custom_icon",...], // Optional, icons if you don't want to use the default one
+    "customIcons":["custom_icon",...], // Optional, icons if you don't want to use the default one
     "matkers":["marker",...], // Optional, markers to put on the map
-    "circle_markers":["circle_marker",...], // Optional, markers in form of a dot
+    "circleMarkers":["circle_marker",...], // Optional, markers in form of a dot
     "polygons":["polygon",...], // Optional, draws a polygon on the map
     "circles":["circle",...], // Optional, draws a circle on the map
 }
 ```
 
+#### Calendar
+
+type: `calendar`
+
+data:
+```json
+{
+    "size":"little" | "big", // The size of the calendar (big has a more detailed module to add a periode)
+    "startDay":"2025-10-03" // Select the base day of the calendar
+}
+```
 #### Chat
 
 type: `chat`
 
 data:
 There is no data.
+

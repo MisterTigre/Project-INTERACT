@@ -4,8 +4,10 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon src/index.js",
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "start:interact": "nodemon src/index.js",
+    "start:mock": "nodemon mockAPI/index.js",
+    "dev": "concurrently \"npm run start:interact\" \"npm run start:mock\""
   },
   "repository": {
     "type": "git",
@@ -19,6 +21,7 @@
   "homepage": "https://gitlab.com/Rexmine/projet-interact#readme",
   "dependencies": {
     "bootstrap": "^5.3.8",
+    "concurrently": "^9.2.1",
     "ejs": "^3.1.10",
     "express": "^5.1.0"
   },
@@ -26,7 +29,10 @@
     "nodemon": "^3.1.10"
   },
   "nodemonConfig": {
-    "watch": ["src"],
+    "watch": [
+      "src",
+      "mockAPI"
+    ],
     "ext": "js, ejs"
   }
 }
