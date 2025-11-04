@@ -262,8 +262,6 @@ class ChatModule {
                     indicator.remove()
                 }
                 resolve()
-                this.#callback()
-                this.#waitingFor = "nothing"
             }, duration)
         })
     }
@@ -296,8 +294,10 @@ class ChatModule {
                 this.#displayActualMessage(message)
             })
         } else {
-            // If not current discussion, just display the message immediately
-            this.#displayActualMessage(message)
+            // If not current discussion, simulate delay then display message
+            setTimeout(() => {
+                this.#displayActualMessage(message)
+            }, typingDuration)
         }
     }
 
@@ -310,11 +310,6 @@ class ChatModule {
         }
         const messagesContainer = this.#container.querySelector(`.messages#${message.discussionId}`)
 
-        if (this.#waitingFor === "read" && this.#currentDiscussion === message.discussionId) {
-            this.#callback()
-            this.#waitingFor = "nothing"
-        }
-
         if (messagesContainer) {
             messagesContainer.appendChild(messageElement)
 
@@ -326,6 +321,11 @@ class ChatModule {
         if (this.#currentDiscussion !== message.discussionId) {
             this.#discussions.get(message.discussionId).unreadCount++
             this.#updateDiscussionUnreadCount(message.discussionId)
+        }
+
+        // For regular "send" messages (not sendAndWait), invoke callback immediately
+        if (this.#waitingFor !== "read") {
+            this.#callback()
         }
     }
 
@@ -371,11 +371,6 @@ class ChatModule {
         this.#currentDiscussion = discussionId
         const discussion = this.#discussions.get(discussionId)
 
-        if (this.#waitingFor === "read" && this.#discussionIdToRead == discussionId) {
-            this.#callback()
-            this.#waitingFor = "nothing"
-        }
-
         this.#container.querySelector('#discussion-selection').classList.replace('d-block', 'd-none')
         this.#container.querySelector('#chat-page').classList.replace('d-none', 'd-block')
 
@@ -397,6 +392,12 @@ class ChatModule {
         this.#updateDiscussionUnreadCount(discussionId)
 
         this.#scrollToBottom()
+
+        // If waiting for this discussion to be read, invoke callback now
+        if (this.#waitingFor === "read" && this.#discussionIdToRead === discussionId) {
+            this.#callback()
+            this.#waitingFor = "nothing"
+        }
     }
 
     #createMessageElement(type, content, contactId = null) {
