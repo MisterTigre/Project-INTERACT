@@ -40,7 +40,7 @@
             "payload": {
                 "id":"rexmine",
                 "name": "Rémi",
-                "icon": "img/rexmine.png"
+                "icon": "/img/rexmine.png"
             }
         },
         {
@@ -50,7 +50,7 @@
             "payload": {
                 "id":"rexmine",
                 "name": "Rémi",
-                "icon": "img/rexmine.png"
+                "icon": "/img/rexmine.png"
             }
         },
         {
@@ -137,7 +137,7 @@
             "msg": "addCustomIcon",
             "payload": {
                 "name": "rexmine",
-                "iconUrl": "img/rexmine.png",
+                "iconUrl": "/img/rexmine.png",
                 "iconSize": [38, 38],
                 "iconAnchor": [19, 38],
                 "popupAnchor": [0, -38]
