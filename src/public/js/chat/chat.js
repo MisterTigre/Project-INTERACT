@@ -7,6 +7,12 @@ class ChatModule {
     #waitingFor
     #discussionIdToRead
 
+    /**
+     * Creates a new ChatModule instance.
+     * @param {string} id - The ID of the HTML container element for the chat module
+     * @param {Object} data - Initial data for the chat module (currently unused)
+     * @param {Function} callback - Callback function to be invoked on various chat events
+     */
     constructor(id, data, callback) {
         this.#callback = callback
         this.#container = document.getElementById(id)
@@ -23,6 +29,70 @@ class ChatModule {
         this.#setupEventListeners()
     }
 
+    /**
+     * Validates whether a discussion ID exists in the discussions map.
+     * @param {string} discussionId - The ID of the discussion to validate
+     * @param {string} [methodName='ChatModule'] - The name of the calling method for error logging
+     * @returns {boolean} True if the discussion ID is valid, false otherwise
+     */
+    #validateDiscussionId(discussionId, methodName = 'ChatModule') {
+        if (!this.#discussions.has(discussionId)) {
+            console.error(`${methodName}: Invalid discussion ID`)
+            return false
+        }
+        return true
+    }
+
+    /**
+     * Updates the state of a discussion and optionally merges additional data.
+     * @param {string} discussionId - The ID of the discussion to update
+     * @param {string} state - The new state for the discussion (e.g., 'locked', 'canAnswer', 'canChoose')
+     * @param {Object} [additionalData={}] - Additional data to merge into the discussion object
+     */
+    #updateDiscussionState(discussionId, state, additionalData = {}) {
+        if (!this.#validateDiscussionId(discussionId, 'updateDiscussionState')) return
+        
+        const discussion = this.#discussions.get(discussionId)
+        discussion.state = state
+        Object.assign(discussion, additionalData)
+        
+        if (discussionId === this.#currentDiscussion) {
+            this.#updateAnswerVisibility()
+        }
+    }
+
+    /**
+     * Adds a sent message to the currently open discussion.
+     * @param {string} messageText - The text content of the message to add
+     * @returns {boolean} True if the message was successfully added, false otherwise
+     */
+    #addMessageToCurrentDiscussion(messageText) {
+        if (!this.#currentDiscussion) {
+            console.error('ChatModule: No discussion is currently open')
+            return false
+        }
+
+        const messageElement = this.#createMessageElement('sent', { text: messageText })
+        if (!messageElement) {
+            console.error('ChatModule: Failed to create message element')
+            return false
+        }
+
+        const messagesContainer = this.#container.querySelector(`.messages#${this.#currentDiscussion}`)
+        if (!messagesContainer) {
+            console.error('ChatModule: Messages container not found')
+            return false
+        }
+
+        messagesContainer.appendChild(messageElement)
+        this.#scrollToBottom()
+        this.#enableLocked(this.#currentDiscussion)
+        return true
+    }
+
+    /**
+     * Sets up event listeners for the chat interface elements (back button, send button, message input).
+     */
     #setupEventListeners() {
         const backBtn = this.#container.querySelector('#back-btn')
         if (!backBtn) {
@@ -54,6 +124,10 @@ class ChatModule {
         }
     }
 
+    /**
+     * Shows the discussion selection view and hides the chat page view.
+     * Clears the current discussion and resets the message input.
+     */
     #showDiscussionSelection() {
         this.#currentDiscussion = null
         this.#container.querySelector('#chat-page').classList.replace('d-block', 'd-none')
@@ -64,13 +138,18 @@ class ChatModule {
             messageInput.value = ''
         }
         
-        // Hide the back button badge instead of removing it
         const badge = this.#container.querySelector('#back-btn-badge')
         if (badge) {
             badge.classList.add('d-none')
         }
     }
 
+    /**
+     * Public interface for receiving notifications and messages from external sources.
+     * Handles various message types to manage discussions, contacts, and messages.
+     * @param {string} msg - The type of notification ('addDiscussion', 'addContact', 'send', 'answer', 'choice', 'sendAndWait')
+     * @param {Object} payload - The data payload associated with the notification
+     */
     notify(msg, payload) {
         switch (msg) {
             case "addDiscussion":
@@ -96,11 +175,19 @@ class ChatModule {
                 this.#receiveMessage(payload)
                 break
             default:
-                console.error("Invalid message :" + msg)
+                console.error(`Invalid message: ${msg}`)
                 return
         }
     }
 
+    /**
+     * Adds a new discussion to the chat module and creates its UI elements.
+     * @param {Object} discussion - The discussion data
+     * @param {string} discussion.id - The unique identifier for the discussion
+     * @param {string} discussion.name - The display name of the discussion
+     * @param {string} discussion.icon - The URL or path to the discussion's icon
+     * @param {string} [discussion.state] - The initial state of the discussion (defaults to 'locked')
+     */
     #addDiscussion(discussion) {
         if (!discussion || !discussion.id || !discussion.name || !discussion.icon) {
             console.error('ChatModule: Invalid discussion data')
@@ -142,10 +229,10 @@ class ChatModule {
         discussionCard.appendChild(cardBody)
 
         discussionCard.addEventListener('mouseenter', () => {
-            discussionCard.classList.add('shadow')
+            discussionCard.classList.toggle('shadow', true)
         })
         discussionCard.addEventListener('mouseleave', () => {
-            discussionCard.classList.remove('shadow')
+            discussionCard.classList.toggle('shadow', false)
         })
 
         discussionCard.addEventListener('click', () => {
@@ -163,6 +250,13 @@ class ChatModule {
         messagesContainer.appendChild(discussionMessagesContainer)
     }
 
+    /**
+     * Adds a contact to the chat module's contact list.
+     * @param {Object} contact - The contact data
+     * @param {string} contact.id - The unique identifier for the contact
+     * @param {string} contact.name - The display name of the contact
+     * @param {string} contact.icon - The URL or path to the contact's icon
+     */
     #addContact(contact) {
         if (!contact || !contact.id || !contact.name || !contact.icon) {
             console.error('ChatModule: Invalid contact data')
@@ -171,6 +265,11 @@ class ChatModule {
         this.#contacts.set(contact.id, { name: contact.name, icon: contact.icon })
     }
 
+    /**
+     * Creates a typing indicator element for a specific contact.
+     * @param {string} contactId - The ID of the contact who is typing
+     * @returns {HTMLElement} The typing indicator element
+     */
     #createTypingIndicator(contactId) {
         const template = this.#container.querySelector('#typing-indicator-template')
         const indicator = template.cloneNode(true)
@@ -185,6 +284,12 @@ class ChatModule {
         return indicator
     }
 
+    /**
+     * Shows a typing indicator in the current discussion for a specified duration.
+     * @param {string} contactId - The ID of the contact who is typing
+     * @param {number} duration - The duration in milliseconds to show the typing indicator
+     * @returns {Promise<void>} A promise that resolves when the indicator is removed
+     */
     #showTypingIndicator(contactId, duration) {
         if (!this.#currentDiscussion) return
 
@@ -211,6 +316,12 @@ class ChatModule {
         })
     }
 
+    /**
+     * Calculates an appropriate typing indicator duration based on message content length.
+     * @param {Object} content - The message content object
+     * @param {string} [content.text] - The text content of the message
+     * @returns {number} The calculated duration in milliseconds (between 1000 and 5000)
+     */
     #calculateTypingDuration(content) {
         if (!content || !content.text) return 1000
         
@@ -219,6 +330,14 @@ class ChatModule {
         return duration
     }
 
+    /**
+     * Receives and processes an incoming message from a contact.
+     * Shows typing indicator before displaying the actual message.
+     * @param {Object} message - The message object
+     * @param {string} message.discussionId - The ID of the discussion the message belongs to
+     * @param {string} message.contactId - The ID of the contact sending the message
+     * @param {Object} message.content - The content of the message
+     */
     #receiveMessage(message) {
         if (
             !message ||
@@ -243,6 +362,14 @@ class ChatModule {
         }
     }
 
+    /**
+     * Displays the actual message in the discussion after the typing indicator.
+     * Updates unread counts and notifies callbacks as needed.
+     * @param {Object} message - The message object to display
+     * @param {string} message.discussionId - The ID of the discussion
+     * @param {string} message.contactId - The ID of the contact
+     * @param {Object} message.content - The message content
+     */
     #displayActualMessage(message) {
         const messageElement = this.#createMessageElement('received', message.content, message.contactId)
 
@@ -263,8 +390,6 @@ class ChatModule {
         if (this.#currentDiscussion !== message.discussionId) {
             this.#discussions.get(message.discussionId).unreadCount++
             this.#updateDiscussionUnreadCount(message.discussionId)
-        } else {
-            this.#updateBackButtonBadge()
         }
         
         if (this.#currentDiscussion) {
@@ -276,44 +401,41 @@ class ChatModule {
         }
     }
 
+    /**
+     * Sets a discussion to the 'locked' state, preventing user input.
+     * @param {string} discussionId - The ID of the discussion to lock
+     */
     #enableLocked(discussionId) {
-        if (!this.#discussions.has(discussionId)) {
-            console.error('ChatModule: Invalid discussion ID')
-            return
-        }
-        this.#discussions.get(discussionId).state = "locked"
-        if (discussionId !== this.#currentDiscussion) return
-        this.#updateAnswerVisibility()
+        this.#updateDiscussionState(discussionId, "locked")
     }
 
+    /**
+     * Enables free text answering for a discussion.
+     * Sets the waiting state and updates the discussion to allow user input.
+     * @param {string} discussionId - The ID of the discussion to enable answering for
+     */
     #enableAnswer(discussionId) {
-        if (!this.#discussions.has(discussionId)) {
-            console.error('ChatModule: Invalid discussion ID')
-            return
-        }
-        this.#discussions.get(discussionId).state = "canAnswer"
         this.#waitingFor = "answer"
-        if (discussionId !== this.#currentDiscussion) return
-        this.#updateAnswerVisibility()
+        this.#updateDiscussionState(discussionId, "canAnswer")
     }
 
+    /**
+     * Enables choice selection for a discussion, displaying predefined choice buttons.
+     * @param {string} discussionId - The ID of the discussion to enable choices for
+     * @param {Array<Object|string>} choices - Array of choice objects or strings to display
+     */
     #enableChoices(discussionId, choices) {
-        if (!this.#discussions.has(discussionId)) {
-            console.error('ChatModule: Invalid discussion ID')
-            return
-        }
-        this.#discussions.get(discussionId).state = "canChoose"
-        this.#discussions.get(discussionId).choices = choices
         this.#waitingFor = "choice"
-        if (discussionId !== this.#currentDiscussion) return
-        this.#updateAnswerVisibility()
+        this.#updateDiscussionState(discussionId, "canChoose", { choices })
     }
 
+    /**
+     * Opens a specific chat discussion in the chat view.
+     * Updates the UI to show the discussion messages and resets unread counts.
+     * @param {string} discussionId - The ID of the discussion to open
+     */
     #openChat(discussionId) {
-        if (!this.#discussions.has(discussionId)) {
-            console.error('ChatModule: Invalid discussion ID')
-            return
-        }
+        if (!this.#validateDiscussionId(discussionId, 'openChat')) return
 
         this.#currentDiscussion = discussionId
         const discussion = this.#discussions.get(discussionId)
@@ -348,6 +470,14 @@ class ChatModule {
         }
     }
 
+    /**
+     * Creates a message DOM element for display in the chat interface.
+     * @param {string} type - The message type ('sent' or 'received')
+     * @param {Object} content - The message content object
+     * @param {string} [content.text] - The text content of the message
+     * @param {string|null} [contactId=null] - The ID of the contact (required for received messages)
+     * @returns {HTMLElement|null} The created message element, or null if creation fails
+     */
     #createMessageElement(type, content, contactId = null) {
         if (!content) {
             console.error('ChatModule: Message content is missing')
@@ -385,21 +515,25 @@ class ChatModule {
             messageContent.appendChild(nameElement)
         }
 
-        const messageText1 = document.createElement('div')
-        messageText1.className = `p-2 rounded ${type === 'sent' ? 'bg-primary text-white' : 'bg-white border'}`
-        messageText1.textContent = content.text ? content.text : "Contient une image"
+        const messageText = document.createElement('div')
+        messageText.className = `p-2 rounded ${type === 'sent' ? 'bg-primary text-white' : 'bg-white border'}`
+        messageText.textContent = content.text ? content.text : "Contient une image"
 
         const timeElement = document.createElement('small')
         timeElement.className = 'text-muted d-block mt-1'
         timeElement.textContent = time
 
-        messageContent.appendChild(messageText1)
+        messageContent.appendChild(messageText)
         messageContent.appendChild(timeElement)
         messageDiv.appendChild(messageContent)
 
         return messageDiv
     }
 
+    /**
+     * Creates and displays choice buttons in the chat interface.
+     * @param {Array<Object|string>} choices - Array of choice objects with text property or plain strings
+     */
     #createChoicesUI(choices) {
         const choicesContainer = this.#container.querySelector('#choices-container')
         if (!choicesContainer) {
@@ -407,7 +541,6 @@ class ChatModule {
             return
         }
 
-        // Clear existing choices
         choicesContainer.innerHTML = ''
         choicesContainer.classList.remove('d-none')
         choicesContainer.classList.add('d-flex')
@@ -426,71 +559,42 @@ class ChatModule {
         })
     }
 
+    /**
+     * Handles the selection of a choice button by the user.
+     * Adds the choice as a message and invokes the callback with the choice ID.
+     * @param {Object|string} choice - The choice object or string that was selected
+     * @param {number} choiceId - The numeric ID/index of the selected choice
+     */
     #selectChoice(choice, choiceId) {
-        if (!this.#currentDiscussion) {
-            console.error('ChatModule: No discussion is currently open')
-            return
-        }
-        this.#callback({ choice: choiceId })
-        this.#waitingFor = "nothing"
-
         const choiceText = choice.text || choice
-        const messageElement = this.#createMessageElement('sent', { text: choiceText })
-        if (!messageElement) {
-            console.error('ChatModule: Failed to create message element for choice')
-            return
+        if (this.#addMessageToCurrentDiscussion(choiceText)) {
+            this.#callback({ choice: choiceId })
+            this.#waitingFor = "nothing"
         }
-
-        const messagesContainer = this.#container.querySelector(`.messages#${this.#currentDiscussion}`)
-        if (!messagesContainer) {
-            console.error('ChatModule: Messages container not found for current discussion')
-            return
-        }
-        messagesContainer.appendChild(messageElement)
-        this.#scrollToBottom()
-
-
-        this.#enableLocked(this.#currentDiscussion)
     }
 
+    /**
+     * Sends a text message from the user in the current discussion.
+     * Reads the message from the input field, adds it to the chat, and triggers the callback.
+     */
     #sendMessage() {
         const messageInput = this.#container.querySelector('#message-input')
-        if (!messageInput) {
-            console.error('ChatModule: Message input not found')
-            return
-        }
+        if (!messageInput) return
+        
         const messageText = messageInput.value.trim()
+        if (!messageText) return
 
-        if (!messageText) {
-            console.error('ChatModule: No message to send')
-            return
+        if (this.#addMessageToCurrentDiscussion(messageText)) {
+            this.#callback({ answer: messageText })
+            this.#waitingFor = "nothing"
+            messageInput.value = ''
         }
-        if (!this.#currentDiscussion) {
-            console.error('ChatModule: No discussion is currently open')
-            return
-        }
-
-        this.#callback({ answer: messageText })
-        this.#waitingFor = "nothing"
-
-        const messageElement = this.#createMessageElement('sent', { text: messageText })
-        if (!messageElement) {
-            console.error('ChatModule: Failed to create message element for sent message')
-            return
-        }
-
-        const messagesContainer = this.#container.querySelector(`.messages#${this.#currentDiscussion}`)
-        if (!messagesContainer) {
-            console.error('ChatModule: Messages container not found for current discussion')
-            return
-        }
-        messagesContainer.appendChild(messageElement)
-        this.#scrollToBottom()
-        messageInput.value = ''
-        this.#enableLocked(this.#currentDiscussion)
-
     }
 
+    /**
+     * Updates the visibility of answer input controls based on the current discussion's state.
+     * Shows text input for 'canAnswer' state, choice buttons for 'canChoose' state, or hides both for 'locked' state.
+     */
     #updateAnswerVisibility() {
         if (!this.#currentDiscussion) {
             console.error('ChatModule: No discussion is currently open')
@@ -505,17 +609,16 @@ class ChatModule {
             return
         }
 
-        // Hide everything by default
-        cardFooter.classList.add('d-none')
-        inputGroup.classList.add('d-none')
-        choicesContainer.classList.add('d-none')
-        choicesContainer.classList.remove('d-flex')
-
         const discussion = this.#discussions.get(this.#currentDiscussion)
         if (!discussion || !discussion.state) {
             console.error('ChatModule: Current discussion data not found')
             return
         }
+        
+        cardFooter.classList.add('d-none')
+        inputGroup.classList.add('d-none')
+        choicesContainer.classList.remove('d-flex')
+        choicesContainer.classList.add('d-none')
         
         if (discussion.state === "canAnswer") {
             cardFooter.classList.remove('d-none')
@@ -526,11 +629,12 @@ class ChatModule {
         }
     }
 
+    /**
+     * Updates the unread message count badge for a specific discussion in the discussion list.
+     * @param {string} discussionId - The ID of the discussion to update
+     */
     #updateDiscussionUnreadCount(discussionId) {
-        if (!this.#discussions.has(discussionId)) {
-            console.error('ChatModule: Invalid discussion ID')
-            return
-        }
+        if (!this.#validateDiscussionId(discussionId, 'updateDiscussionUnreadCount')) return
         const discussionCard = this.#container.querySelector(`#${discussionId}`)
         if (!discussionCard) {
             console.error('ChatModule: Discussion card not found in DOM')
@@ -553,6 +657,10 @@ class ChatModule {
         }
     }
 
+    /**
+     * Updates the badge on the back button showing the total number of unread messages
+     * in all discussions except the currently open one.
+     */
     #updateBackButtonBadge() {
         const badge = this.#container.querySelector('#back-btn-badge')
         if (!badge) {
@@ -576,6 +684,9 @@ class ChatModule {
         }
     }
 
+    /**
+     * Scrolls the messages container to the bottom to show the most recent messages.
+     */
     #scrollToBottom() {
         const messagesContainer = this.#container.querySelector('#messages-container')
         if (messagesContainer) {
