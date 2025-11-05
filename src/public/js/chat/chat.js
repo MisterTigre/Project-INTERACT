@@ -405,6 +405,10 @@ class ChatModule {
      * Calculates an appropriate typing indicator duration based on message content length.
      * @param {Object} content - The message content object
      * @param {string} [content.text] - The text content of the message
+     * @param {string} [content.image] - The image URL
+     * @param {string} [content.video] - The video URL
+     * @param {string} [content.audio] - The audio URL
+     * @param {string} [content.file] - The file URL
      * @returns {number} The calculated duration in milliseconds (between 1000 and 5000)
      */
     #calculateTypingDuration(content) {
@@ -462,6 +466,8 @@ class ChatModule {
      * @param {string} [content.image] - The URL of an image
      * @param {string} [content.file] - The URL of a file
      * @param {string} [content.fileName] - The name of the file (for file type)
+     * @param {string} [content.video] - The URL of a video
+     * @param {string} [content.audio] - The URL of an audio file
      * @param {string|null} [contactId=null] - The ID of the contact (required for received messages)
      * @returns {HTMLElement|null} The created message element, or null if creation fails
      */
@@ -516,6 +522,29 @@ class ChatModule {
                 window.open(content.image, '_blank')
             })
             messageBody.appendChild(imageElement)
+        } else if (content.video) {
+            const videoElement = document.createElement('video')
+            videoElement.src = content.video
+            videoElement.className = 'img-fluid rounded'
+            videoElement.style.maxWidth = '100%'
+            videoElement.controls = true
+            videoElement.preload = 'metadata'
+            videoElement.setAttribute('controlsList', 'nodownload')
+            messageBody.appendChild(videoElement)
+        } else if (content.audio) {
+            const audioContainer = document.createElement('div')
+            audioContainer.className = 'd-flex align-items-center'
+            audioContainer.style.minWidth = '250px'
+            
+            const audioElement = document.createElement('audio')
+            audioElement.src = content.audio
+            audioElement.className = 'w-100'
+            audioElement.controls = true
+            audioElement.preload = 'metadata'
+            audioElement.setAttribute('controlsList', 'nodownload')
+            
+            audioContainer.appendChild(audioElement)
+            messageBody.appendChild(audioContainer)
         } else if (content.file) {
             const fileContainer = document.createElement('div')
             fileContainer.className = 'd-flex align-items-center justify-content-between'

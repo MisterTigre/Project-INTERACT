@@ -53,6 +53,32 @@
                 "discussionId": "frightfur",
                 "contactId": "frightfur",
                 "content": {
+                    "video": "/video/file_example_MP4_480_1_5MG.mp4"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "delay": 0,
+            "payload": {
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
+                "content": {
+                    "audio": "https://audio-i18n.loldle.net/FR/audios/ksante_base_vo_audio/1222246931.wav"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "delay": 0,
+            "payload": {
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
+                "content": {
                     "image": "https://fr.osint4fun.eu/img/storage/1ee7f9f51ab8b9dc0d6eaf3c4a2e7c0e5f709f8eef3c3f5d47ab743a845b9896.jpg"
                 }
             }
