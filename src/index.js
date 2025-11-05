@@ -10,11 +10,7 @@ app.use('/bootstrap', express.static('node_modules/bootstrap/dist'))
 
 
 async function renderChallenge(req, res) {
-
-    const parcours = req.params.parcours ?? "parcours1"
-    const challenge = req.params.challenge ?? ""
-    config = await (await fetch(`http://localhost:5000/${parcours}/${challenge}`)).json()
-
+    config = await fetch(`http://localhost:5000/${req.params[0]}`).then(ret => ret.json())
 
     let modules_html = ""
     let z = 0
@@ -54,12 +50,9 @@ async function renderChallenge(req, res) {
     res.send(html)
 } 
 
-app.get("/", renderChallenge)
-app.get("/:parcours", renderChallenge)
-app.get('/:parcours/:challenge', renderChallenge)
+app.get(/^\/(.*)$/, renderChallenge)
 
 app.post("/verify", (req, res) => {
-    console.log(req.body)
     fetch(`http://localhost:5000/${req.body.url}`,{
         method: "POST",
         headers: {
@@ -67,7 +60,6 @@ app.post("/verify", (req, res) => {
         },
         body: JSON.stringify({"answer":req.body.answer}),
     }).then(async ret => {
-        console.log(ret)
         res.status(200).json(await ret.json())
     })
 })

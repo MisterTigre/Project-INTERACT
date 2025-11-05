@@ -3,6 +3,7 @@
     "gridSize": [2, 2],
     "columnWidths": ["75%", "25%"],
     "rowHeights": ["66%", "34%"],
+    "answerUrl": "example",
     "modules": [
         {
             "type": "map",
@@ -10,8 +11,7 @@
             "position": [0, 0],
             "size": [2, 2],
             "data": {
-                "zoom": 10,
-                "buttonPosition" : "bottomleft"
+                "zoom": 10
             }
         },
         {
@@ -23,7 +23,7 @@
         {
             "type":"calendar",
             "id":"cal1",
-            "position":[1, 0],
+            "position":[1, 1],
             "size":[1, 1],
             "data":{
                 "size":"little",
@@ -38,9 +38,9 @@
             "moduleId": "chat1",
             "msg": "addContact",
             "payload": {
-                "id":"rexmine",
-                "name": "Rémi",
-                "icon": "/img/rexmine.png"
+                "id":"frightfur",
+                "name": "MisterTigre",
+                "icon": "img/frightfur.jpg"
             }
         },
         {
@@ -48,9 +48,9 @@
             "moduleId": "chat1",
             "msg": "addDiscussion",
             "payload": {
-                "id":"rexmine",
-                "name": "Rémi",
-                "icon": "/img/rexmine.png"
+                "id": "frightfur",
+                "icon": "img/frightfur.jpg",
+                "name": "MisterTigre"
             }
         },
         {
@@ -59,8 +59,8 @@
             "msg": "sendAndWait",
             "delay": 2000,
             "payload": {
-                "discussionId": "rexmine",
-                "contactId": "rexmine",
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "Salut!"
                 }
@@ -74,8 +74,8 @@
             "msg": "send",
             "delay": 2000,
             "payload": {
-                "discussionId": "rexmine",
-                "contactId": "rexmine",
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "Comment ça va ?"
                 }
@@ -87,7 +87,7 @@
             "msg": "choice",
             "delay": 1000,
             "payload": {
-                "discussionId": "rexmine",
+                "discussionId": "frightfur",
                 "choices": [
                     "Ca va bien et toi ?",
                     "Je suis malade..."
@@ -105,8 +105,8 @@
             "msg": "send",
             "delay": 1500,
             "payload": {
-                "discussionId": "rexmine",
-                "contactId": "rexmine",
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "Moi aussi je vais bien !"
                 }
@@ -123,8 +123,8 @@
             "msg": "send",
             "delay": 2000,
             "payload": {
-                "discussionId": "rexmine",
-                "contactId": "rexmine",
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "Oh non j'espère que ca ne va pas durer..."
                 }
@@ -136,8 +136,8 @@
             "moduleId": "map1",
             "msg": "addCustomIcon",
             "payload": {
-                "name": "rexmine",
-                "iconUrl": "/img/rexmine.png",
+                "name": "frightfur",
+                "iconUrl": "img/frightfur.jpg",
                 "iconSize": [38, 38],
                 "iconAnchor": [19, 38],
                 "popupAnchor": [0, -38]
@@ -149,8 +149,8 @@
             "msg": "send",
             "delay": 2000,
             "payload": {
-                "discussionId": "rexmine",
-                "contactId": "rexmine",
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "J'ai ajouté un ping sur ta map!"
                 }
@@ -184,8 +184,8 @@
             "msg": "send",
             "delay": 4000,
             "payload": {
-                "discussionId": "rexmine",
-                "contactId": "rexmine",
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "Vas-y clique dessus"
                 }
@@ -211,8 +211,8 @@
             "msg": "send",
             "delay": 1000,
             "payload": {
-                "discussionId": "rexmine",
-                "contactId": "rexmine",
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "..."
                 }
@@ -224,8 +224,8 @@
             "msg": "send",
             "delay": 1500,
             "payload": {
-                "discussionId": "rexmine",
-                "contactId": "rexmine",
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "T'as cliqué à coté, réessaie"
                 }
@@ -242,8 +242,8 @@
             "msg": "send",
             "delay": 1000,
             "payload": {
-                "discussionId": "rexmine",
-                "contactId": "rexmine",
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "Je sais plus comment ce batiment s'appelle"
                 }
@@ -255,8 +255,8 @@
             "msg": "send",
             "delay": 1000,
             "payload": {
-                "discussionId": "rexmine",
-                "contactId": "rexmine",
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
                 "content": {
                     "text": "Tu peux m'aider ?"
                 }
@@ -265,32 +265,16 @@
         {
             "type": "answer",
             "moduleId": "chat1",
-            "id": "first",
             "msg": "answer",
             "delay": 1000,
             "payload": {
-                "discussionId": "rexmine"
+                "discussionId": "frightfur"
             },
-            "jumpOnIncorrect": "error"
+            "jumpOnIncorrect": "end"
         },
         {
-            "type": "event",
-            "moduleId": "chat1",
-            "id": "error",
-            "msg": "send",
-            "delay": 1000,
-            "payload": {
-                "discussionId": "rexmine",
-                "contactId": "rexmine",
-                "content": {
-                    "text": "T'es con?"
-                }
-            }
-        },
-        {
-            "type": "goto",
-            "destination": "first"
-            
+            "type": "end",
+            "id": "end"
         }
     ]
 }
