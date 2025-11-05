@@ -12,7 +12,7 @@
                 %><div class="page size<%=page.size%>">
                     <div class="pageTitle"><%=page.title??""%></div>
                     <div class="challengesBox">
-                    <% for (const challenge of page.challenges) { %>
+                    <% for (const challenge of (page.challenges??[])) { %>
                         <div class="wrapper" style='background-image: url("<%= challenge.image[challenge.status] ?? challenge.image.available %>")'>
                             <% let classChallenge = "challenge "
                             if (!challenge.image[challenge.status]){ 
