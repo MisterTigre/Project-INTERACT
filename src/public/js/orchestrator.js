@@ -4,6 +4,8 @@ function createModule(type, id, data, callback) {
             return new MapModule(id, data, callback)
         case "chat":
             return new ChatModule(id, data, callback)
+        case "challengeArray":
+            return new ChallengeArray(id, data, callback)
         case "calendar":
             return new CalendarModule(id, data, callback)
         default:
@@ -101,15 +103,17 @@ class Orchestrator {
 
         // TODO: Fetch Osint4Fun to check answer
         const url = this.config.answerUrl
+        if (url === undefined) {
+            console.error("Answer URL is not defined")
+        }
         fetch("/verify", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({"url":url, "answer":answer}),
+            body: JSON.stringify({"url": url, "answer":answer}),
         }).then(async response => {
             const json = await response.json()
-            console.log(json)
             if (!json.success){
                 this.jumpTo(storyEvent.jumpOnIncorrect)
                 return
