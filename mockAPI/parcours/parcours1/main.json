@@ -19,7 +19,8 @@
                             "locked": "/img/claraRed.png"
                         },
                         "status": "completed",
-                        "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
+                        "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8",
+                        "releaseDate": "Jan 5, 2030 15:37:25"
                     },
                     {
                         "title": "La date adéquate",
@@ -30,7 +31,8 @@
                             "completed": "/img/claraGreen.png",
                             "locked": "/img/claraRed.png"
                         },
-                        "status": "locked"
+                        "status": "locked",
+                        "releaseDate": "Nov 5, 2025 15:00:00"
                     },
                     {
                         "title": "Une inspiration bienvenue",

@@ -9,11 +9,13 @@
                     class="challenge"
                 <% } %>
                 >
-
                 <% if (challenge.difficulty) { %>
                     <span class="difficulty"><%= challenge.difficulty %></span>
                 <% } %>
                 <div class="title"><%= challenge.title ?? "Untitled" %></div>
+                                <% if (challenge.releaseDate) { %>
+                    <div class='releaseDate <%= data.challenges.indexOf(challenge)%>'></div>
+                <% } %>
                 <% if (challenge.points) { %>
                     <div class="points"><%= challenge.points %></div>
                 <% } %>
