@@ -6,6 +6,8 @@ function createModule(type, id, data, callback) {
             return new ChatModule(id, data, callback)
         case "challengeArray":
             return new ChallengeArray(id, data, callback)
+        case "challengeBook":
+            return new ChallengeBook(id, data, callback)
         case "calendar":
             return new CalendarModule(id, data, callback)
         default:

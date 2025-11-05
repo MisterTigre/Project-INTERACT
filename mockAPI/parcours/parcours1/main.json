@@ -29,12 +29,10 @@
                         "color": "yellow",
                         "points": 1,
                         "image":{
-                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
-                            "completed": "/img/claraGreen.png",
-                            "locked": "/img/claraRed.png"
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
                         },
                         "status": "locked",
-                        "releaseDate": "Nov 5, 2025 15:00:00"
+                        "releaseDate": "Nov 5, 2025 16:03:00"
                     },
                     {
                         "title": "Une inspiration bienvenue",

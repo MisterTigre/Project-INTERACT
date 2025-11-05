@@ -16,7 +16,6 @@ class ChallengeArray {
 
     #countDownDate() {
         var now = new Date().getTime()
-        console.log("test")
 
         for (const [index, challenge] of this.#data.challenges.entries()) {
             if (!challenge.releaseDate){
@@ -24,10 +23,14 @@ class ChallengeArray {
             }
 
             var element = document.getElementsByClassName("releaseDate " + index)[0]
-            console.log("releaseDate " + index)
 
             var releaseDate = new Date(challenge.releaseDate).getTime()
             var distance = releaseDate - now
+
+            if (distance < 0) {
+                element.innerHTML = "Recharger la page"
+                continue
+            }
 
             var days = Math.floor(distance / (1000 * 60 * 60 * 24))
             if (days >= 1){
@@ -42,10 +45,6 @@ class ChallengeArray {
 
             element.innerHTML = hours + "h "+ minutes + "m " + seconds + "s "
 
-            // If the count down is finished, write some text
-            if (distance < 0) {
-                document.getElementById("releaseDate").innerHTML = ""
-            }
         }
 
     }
