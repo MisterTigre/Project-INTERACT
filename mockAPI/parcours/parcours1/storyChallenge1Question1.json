@@ -45,6 +45,33 @@
             }
         },
         {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "delay": 2000,
+            "payload": {
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
+                "content": {
+                    "image": "https://fr.osint4fun.eu/img/storage/1ee7f9f51ab8b9dc0d6eaf3c4a2e7c0e5f709f8eef3c3f5d47ab743a845b9896.jpg"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "delay": 2000,
+            "payload": {
+                "discussionId": "frightfur",
+                "contactId": "frightfur",
+                "content": {
+                    "file": "https://morth.nic.in/sites/default/files/dd12-13_0.pdf",
+                    "fileName" : "Ce beau fichier"
+                }
+            }
+        },
+        {
             "type": "answer",
             "moduleId": "chat1",
             "id": "first",

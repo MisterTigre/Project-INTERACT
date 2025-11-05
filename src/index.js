@@ -7,6 +7,7 @@ const port = 3000
 app.use(express.json())
 app.use(express.static('src/public/'))
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'))
+app.use('/bootstrap-icons', express.static('node_modules/bootstrap-icons/font'))
 
 app.get('/', async (req, res) => {
     // const challenge = req.query.challenge ?? "example"
