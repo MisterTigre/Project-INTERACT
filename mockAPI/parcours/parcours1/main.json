@@ -10,17 +10,15 @@
             "data": {
                 "challenges": [
                     {
-                        "title": "La compagne de voyage",
+                        "title": "Notre campagne",
                         "difficulty": "easy",
                         "color": "lime",
                         "points": 1,
                         "image":{
-                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
-                            "completed": "/img/claraGreen.png",
-                            "locked": "/img/claraRed.png"
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
                         },
-                        "status": "completed",
-                        "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8",
+                        "status": "available",
+                        "url": "http://127.0.0.1:3000/parcours1/challenge1",
                         "releaseDate": "Jan 5, 2030 15:37:25"
                     },
                     {
@@ -65,9 +63,7 @@
                         "color": "gray",
                         "points": 1,
                         "image":{
-                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
-                            "completed": "/img/claraGreen.png",
-                            "locked": "/img/claraRed.png"
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
                         },
                         "status": "locked"
                     },
@@ -76,9 +72,7 @@
                         "difficulty": "easy",
                         "points": 1,
                         "image":{
-                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
-                            "completed": "/img/claraGreen.png",
-                            "locked": "/img/claraRed.png"
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
                         },
                         "status": "available",
                         "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
@@ -88,9 +82,7 @@
                         "difficulty": "easy",
                         "points": 1,
                         "image":{
-                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
-                            "completed": "/img/claraGreen.png",
-                            "locked": "/img/claraRed.png"
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
                         },
                         "status": "completed",
                         "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
@@ -100,9 +92,7 @@
                         "difficulty": "easy",
                         "points": 1,
                         "image":{
-                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
-                            "completed": "/img/claraGreen.png",
-                            "locked": "/img/claraRed.png"
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
                         },
                         "status": "locked"
                     },
@@ -111,9 +101,7 @@
                         "difficulty": "easy",
                         "points": 1,
                         "image":{
-                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
-                            "completed": "/img/claraGreen.png",
-                            "locked": "/img/claraRed.png"
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
                         },
                         "status": "available",
                         "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
@@ -123,9 +111,7 @@
                         "difficulty": "easy",
                         "points": 1,
                         "image":{
-                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
-                            "completed": "/img/claraGreen.png",
-                            "locked": "/img/claraRed.png"
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
                         },
                         "status": "completed",
                         "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"
@@ -135,9 +121,7 @@
                         "difficulty": "easy",
                         "points": 1,
                         "image":{
-                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
-                            "completed": "/img/claraGreen.png",
-                            "locked": "/img/claraRed.png"
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
                         },
                         "status": "locked"
                     },
@@ -146,9 +130,7 @@
                         "difficulty": "difficile",
                         "points": 7,
                         "image":{
-                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
-                            "completed": "/img/claraGreen.png",
-                            "locked": "/img/claraRed.png"
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
                         },
                         "status": "available",
                         "url": "https://fr.osint4fun.eu/challenge/journey-with-clara/xVXy8"

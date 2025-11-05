@@ -30,7 +30,7 @@ router.post('/:challenge/:question', (req, res) => {
 })
 
 router.get('/challenge1', (req, res) => {
-  let data = getJsonFile("storyChallenge2.json")
+  let data = getJsonFile("storyChallenge1Question1.json")
   res.status(200).json(data)
 })
 

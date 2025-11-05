@@ -36,7 +36,7 @@
     border: 1px solid rgba(0, 0, 0, 0.11);
 }
 
-.page img{
+.challengeBook .page img{
 	width: 70%;
 	object-fit: cover;
 	margin: auto;
