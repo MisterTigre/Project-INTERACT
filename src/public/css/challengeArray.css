@@ -41,12 +41,13 @@
 
 .challenge-array .challenge .difficulty {
     border-radius: 1em;
-    background-color: rgb(255, 157, 0);
     width: fit-content;
     margin-top: 20px;
     margin-left: 25px;
     padding-left: 7px;
     padding-right: 7px;
+    padding-bottom: 5px;
+    vertical-align: middle;
 
 }
 

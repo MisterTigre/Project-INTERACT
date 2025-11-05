@@ -13,7 +13,8 @@ async function renderChallenge(req, res) {
 
     const parcours = req.params.parcours ?? "parcours1"
     const challenge = req.params.challenge ?? ""
-    config = await (await fetch(`http://localhost:5000/${parcours}/${challenge}`)).json()
+    config = await fetch(`http://localhost:5000/${parcours}/${challenge}`)
+    config = await (config.json())
 
 
     let modules_html = ""

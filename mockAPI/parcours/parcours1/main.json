@@ -12,6 +12,7 @@
                     {
                         "title": "La compagne de voyage",
                         "difficulty": "easy",
+                        "color": "lime",
                         "points": 1,
                         "image":{
                             "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
@@ -24,7 +25,8 @@
                     },
                     {
                         "title": "La date adéquate",
-                        "difficulty": "easy",
+                        "difficulty": "medium",
+                        "color": "yellow",
                         "points": 1,
                         "image":{
                             "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
@@ -36,7 +38,8 @@
                     },
                     {
                         "title": "Une inspiration bienvenue",
-                        "difficulty": "easy",
+                        "difficulty": "hard",
+                        "color": "orange",
                         "points": 1,
                         "image":{
                             "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
@@ -48,11 +51,11 @@
                     },
                                         {
                         "title": "La compagne de voyage",
-                        "difficulty": "easy",
+                        "difficulty": "extreme",
+                        "color": "red",
                         "points": 1,
                         "image":{
                             "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
-                            "completed": "/img/claraGreen.png",
                             "locked": "/img/claraRed.png"
                         },
                         "status": "completed",
@@ -60,7 +63,8 @@
                     },
                     {
                         "title": "La date adéquate",
-                        "difficulty": "easy",
+                        "difficulty": "initiation",
+                        "color": "gray",
                         "points": 1,
                         "image":{
                             "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
