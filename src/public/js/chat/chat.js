@@ -449,7 +449,7 @@ class ChatModule {
             this.#updateBackButtonBadge()
         }
 
-        if (this.#waitingFor !== "read") {
+        if (this.#waitingFor !== "read" || (this.#waitingFor === "read" && this.#currentDiscussion === this.#discussionIdToRead )) {
             this.#callback()
         }
     }
@@ -654,6 +654,7 @@ class ChatModule {
             cardFooter.classList.remove('d-none')
             this.#createChoicesUI(discussion.choices)
         }
+        this.#scrollToBottom()
     }
 
     /**

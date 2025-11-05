@@ -48,7 +48,7 @@
             "type": "event",
             "moduleId": "chat1",
             "msg": "send",
-            "delay": 2000,
+            "delay": 0,
             "payload": {
                 "discussionId": "frightfur",
                 "contactId": "frightfur",
@@ -61,7 +61,7 @@
             "type": "event",
             "moduleId": "chat1",
             "msg": "send",
-            "delay": 2000,
+            "delay": 0,
             "payload": {
                 "discussionId": "frightfur",
                 "contactId": "frightfur",
