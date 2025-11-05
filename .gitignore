@@ -1,3 +1,5 @@
 node_modules
-src/public/challenges/test.json
-mock_API/parcours/*/test*.json
+
+# Ignore test challenges
+mockAPI/parcours/*/test*.json
+mockAPI/parcours/test*

@@ -1,0 +1,68 @@
+{
+    "title": "Challenge selection page",
+    "gridSize": [1, 1],
+    "modules": [
+        {
+            "type": "challengeArray",
+            "id": "challengeArray",
+            "position": [0, 0],
+            "size": [1, 1],
+            "data": {
+                "challenges": [
+                    {
+                        "title": "La compagne de voyage",
+                        "difficulty": "easy",
+                        "points": 1,
+                        "image": "",
+                        "imageCompleted": "https://www.osint4fun.eu/img/cache/vig-507.jpg",
+                        "imageLocked": "",
+                        "status": "done"
+                    },
+                    {
+                        "title": "La date adéquate",
+                        "difficulty": "easy",
+                        "points": 1
+                    },
+                    {
+                        "title": "Une inspiration bienvenue",
+                        "difficulty": "easy",
+                        "points": 1
+                    },
+                    {
+                        "title": "",
+                        "difficulty": "easy"
+                    },
+                    {
+                        "title": "",
+                        "difficulty": "easy"
+                    },
+                    {
+                        "title": "",
+                        "difficulty": "easy"
+                    },
+                    {
+                        "title": "",
+                        "difficulty": "easy"
+                    },
+                    {
+                        "title": "",
+                        "difficulty": "easy"
+                    },
+                    {
+                        "title": "",
+                        "difficulty": "easy"
+                    },
+                    {
+                        "title": "",
+                        "difficulty": "easy"
+                    },
+                    {
+                        "title": "",
+                        "difficulty": "easy"
+                    }
+                ]
+            }
+        }
+    ],
+    "story": []
+}

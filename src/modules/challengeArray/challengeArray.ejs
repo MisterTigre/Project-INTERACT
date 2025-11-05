@@ -1,0 +1,15 @@
+<div class="challenge-array-container">
+    <div class="challenge-array">
+        <% for (const challenge of data.challenges) { %>
+            <div class="challenge">
+                <% if (challenge.difficulty) { %>
+                    <span class="difficulty"><%= challenge.difficulty %></span>
+                <% } %>
+                <div class="title"><%= challenge.title ?? "Untitled" %></div>
+                <% if (challenge.points) { %>
+                    <div class="points"><%= challenge.points %></div>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+</div>

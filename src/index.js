@@ -8,18 +8,9 @@ app.use(express.json())
 app.use(express.static('src/public/'))
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'))
 
-app.get('/', async (req, res) => {
-    // const challenge = req.query.challenge ?? "example"
 
-    // TODO: Fetch config file from Osint4Fun
-
-    // config = await (await fetch(`http://localhost:3000/challenges/${challenge}.json`)).json()
-
-
-    const parcours = req.query.parcours ?? "parcours1"
-    const challenge = req.query.challenge ?? ""
-    config = await (await fetch(`http://localhost:5000/${parcours}/${challenge}`)).json()
-
+async function renderChallenge(req, res) {
+    config = await fetch(`http://localhost:5000/${req.params[0]}`).then(ret => ret.json())
 
     let modules_html = ""
     let z = 0
@@ -30,8 +21,8 @@ app.get('/', async (req, res) => {
         const w = module.size[0]
         const h = module.size[1]
 
-        const module_html = await ejs.renderFile(`src/modules/${module.type}/${module.type}.ejs`)
-        modules_html += await ejs.renderFile("src/modules/module_container.ejs", {
+        const module_html = await ejs.renderFile(`src/modules/${module.type}/${module.type}.ejs`, { data: module.data })
+        modules_html += await ejs.renderFile("src/modules/moduleContainer.ejs", {
             module: module_html,
             id: module.id,
             style: `grid-column: ${x + 1} / ${x + w + 1}; grid-row: ${y + 1} / ${y + h + 1}; z-index: ${z * 100}`
@@ -57,10 +48,11 @@ app.get('/', async (req, res) => {
     })
 
     res.send(html)
-})
+} 
+
+app.get(/^\/(.*)$/, renderChallenge)
 
 app.post("/verify", (req, res) => {
-    console.log(req.body)
     fetch(`http://localhost:5000/${req.body.url}`,{
         method: "POST",
         headers: {
@@ -68,7 +60,6 @@ app.post("/verify", (req, res) => {
         },
         body: JSON.stringify({"answer":req.body.answer}),
     }).then(async ret => {
-        console.log(ret)
         res.status(200).json(await ret.json())
     })
 })
