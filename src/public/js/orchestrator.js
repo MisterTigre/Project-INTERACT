@@ -101,7 +101,6 @@ class Orchestrator {
         const storyEvent = this.story[this.storyIndex]
         console.log(`Answer: ${answer}`)
 
-        // TODO: Fetch Osint4Fun to check answer
         const url = this.config.answerUrl
         if (url === undefined) {
             console.error("Answer URL is not defined")
@@ -118,29 +117,31 @@ class Orchestrator {
                 this.jumpTo(storyEvent.jumpOnIncorrect)
                 return
             }
+
+            // Update modules
+            const modulesToKeep = []
+            for (const module of json.nextQuestion.modules) {
+                modulesToKeep.push(module.id)
+                if (this.modules[module.id]) {
+                    // TODO: Edit module if changed
+                    console.log(`Edit module ${module.id}`)
+                } else {
+                    // TODO: Add module
+                    console.log(`Add module ${module.id}`)
+                }
+            }
+
+            for (const moduleId of Object.keys(this.modules)) {
+                if (!modulesToKeep.includes(moduleId)) {
+                    // TODO: Remove module
+                    console.log(`Remove module ${moduleId}`)
+                }
+            }
+
             this.storyIndex = 0
             this.story = json.nextQuestion.story
             this.storyNext()
-
         })
-
-
-
-
-
-
-        // const result = 0
-        // const nextStory = []
-        // 
-        // if (result)
-        // {
-        //     this.storyIndex = 0
-        //     this.story = nextStory
-        // }
-        // else
-        // {
-        //     this.jumpTo(storyEvent.jumpOnIncorrect)
-        // }
     }
 }
 

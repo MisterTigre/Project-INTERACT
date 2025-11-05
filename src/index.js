@@ -56,11 +56,33 @@ app.post("/verify", (req, res) => {
     fetch(`http://localhost:5000/${req.body.url}`,{
         method: "POST",
         headers: {
-                "Content-Type": "application/json",
+            "Content-Type": "application/json",
         },
-        body: JSON.stringify({"answer":req.body.answer}),
+        body: JSON.stringify({"answer": req.body.answer}),
     }).then(async ret => {
-        res.status(200).json(await ret.json())
+        const json = await ret.json();
+
+        if (json.success)
+        {
+            let z = 0
+            for (let module of json.nextQuestion.modules) {
+                const x = module.position[0]
+                const y = module.position[1]
+
+                const w = module.size[0]
+                const h = module.size[1]
+
+                const module_html = await ejs.renderFile(`src/modules/${module.type}/${module.type}.ejs`, { data: module.data })
+                module.html = await ejs.renderFile("src/modules/moduleContainer.ejs", {
+                    module: module_html,
+                    id: module.id,
+                    style: `grid-column: ${x + 1} / ${x + w + 1}; grid-row: ${y + 1} / ${y + h + 1}; z-index: ${z * 100}`
+                })
+                z++
+            }
+        }
+
+        res.status(200).json(json)
     })
 })
 
