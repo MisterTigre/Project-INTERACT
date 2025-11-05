@@ -3,7 +3,7 @@
     "gridSize": [2, 2],
     "columnWidths": ["75%", "25%"],
     "rowHeights": ["66%", "34%"],
-    "answerUrl": "parcours1/test/q1",
+    "answerUrl": "parcours1/challenge1/question1",
     "modules": [
         {
             "type": "map",
