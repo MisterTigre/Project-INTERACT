@@ -133,8 +133,8 @@ class Orchestrator {
 
             for (const moduleId of Object.keys(this.modules)) {
                 if (!modulesToKeep.includes(moduleId)) {
-                    // TODO: Remove module
-                    console.log(`Remove module ${moduleId}`)
+                    delete this.modules[moduleId]
+                    document.getElementById(moduleId).remove()
                 }
             }
 

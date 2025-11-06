@@ -45,9 +45,7 @@ app.post(/^\/(.*)$/, (req, res) => {
     let nextQuestion
 
     const parentPath = filePath.split("/").slice(0, -1).join("/")
-    console.log(filePath.split("/"))
     const fileName = filePath.split("/").slice(-1)[0]
-    console.log(fileName)
     const nextFileName = findNextFileName(fileName)
     const nextFilePath = path.join(parentPath, nextFileName)
 
