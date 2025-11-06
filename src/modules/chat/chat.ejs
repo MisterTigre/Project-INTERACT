@@ -21,8 +21,12 @@
             <!-- Chat Header -->
             <div class="card-header bg-black text-white p-3 flex-shrink-0">
                 <div class="d-flex align-items-center">
-                    <button class="btn btn-outline-light btn-sm me-3" id="back-btn">
+                    <button class="btn btn-outline-light btn-sm me-3" id="back-btn" style="position: relative;">
                         <i class="bi bi-arrow-left"></i> Retour
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="back-btn-badge" style="font-size: 0.65rem;">
+                            <span class="badge-count">0</span>
+                            <span class="visually-hidden">messages non lus</span>
+                        </span>
                     </button>
                     <div class="d-flex align-items-center">
                         <img id="current-avatar" src="" alt="" class="rounded-circle me-3" width="50" height="50">
@@ -36,10 +40,28 @@
             <!-- Messages Container -->
             <div class="flex-grow-1 bg-light overflow-auto position-relative" id="messages-container">
                 <!-- Messages will be dynamically added here via JavaScript -->
+                
+                <!-- Typing Indicator Template (hidden by default) -->
+                <div id="typing-indicator-template" class="d-flex mb-3 justify-content-start d-none">
+                    <img src="" alt="" class="rounded-circle me-2 typing-avatar" width="30" height="30">
+                    <div class="text-start" style="max-width: 70%;">
+                        <small class="text-muted fw-bold d-block mb-1 typing-name"></small>
+                        <div class="p-2 rounded bg-white border d-flex align-items-center" style="min-width: 60px;">
+                            <div class="typing-dots">
+                                <span></span><span></span><span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Message Input -->
             <div class="card-footer bg-white p-3 flex-shrink-0">
+                <!-- Choices Container (hidden by default) -->
+                <div id="choices-container" class="d-none flex-column mb-3">
+                    <!-- Choice buttons will be added dynamically -->
+                </div>
+                
                 <div class="input-group">
                     <input type="text" class="form-control" id="message-input" placeholder="Type a message..." autocomplete="off">
                     <button class="btn btn-primary" id="send-btn">Envoyer</button>
@@ -48,3 +70,34 @@
         </div>
     </div>
 </div>
+
+<!-- CSS for typing animation -->
+<style>
+    .typing-dots {
+        display: flex;
+        gap: 4px;
+    }
+    .typing-dots span {
+        width: 6px;
+        height: 6px;
+        background-color: #6c757d;
+        border-radius: 50%;
+        animation: typing 1.4s infinite;
+    }
+    .typing-dots span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    .typing-dots span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    @keyframes typing {
+        0%, 60%, 100% {
+            transform: translateY(0);
+            opacity: 0.4;
+        }
+        30% {
+            transform: translateY(-10px);
+            opacity: 1;
+        }
+    }
+</style>
