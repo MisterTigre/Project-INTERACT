@@ -27,6 +27,7 @@
 
 .flipbook .page {
     background: white;
+    background-size: 100% auto;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -58,6 +59,7 @@
     font-size: 1.8em;
     width: 100%;
     margin-left: 25%;
+    margin-top: 25px;
     text-align: left;
     font-weight: bold;
 }
@@ -102,19 +104,32 @@
 }
 
 /* ****************************************** */
-/* CSS for the size=4 */
+/* CSS for the size=4  and size=6*/
 
 .flipbook .size4 .challengesBox {
-    padding-top: 50px;
+    padding-top: 30px;
     display: grid;
     grid-template-columns: repeat(2, 200px); 
     grid-template-rows: repeat(2, 200px);  
     gap: 10px; 
     justify-content: center; 
     align-content: center;  
+    flex: 1;
 }
 
-.flipbook .size4 .challengesBox .wrapper {
+.flipbook .size6 .challengesBox {
+    padding-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(2, 200px); 
+    grid-template-rows: repeat(3, 120px);  
+    gap: 10px; 
+    justify-content: center; 
+    align-content: center;
+    flex: 1;  
+}
+
+.flipbook .size4 .challengesBox .wrapper,
+.flipbook .size6 .challengesBox .wrapper{
     justify-content: center; 
     align-content: center;  
     width: 200px;
@@ -125,7 +140,8 @@
     background-size: cover;
 }
 
-.flipbook .size4 .challengesBox .wrapper .challenge {
+.flipbook .size4 .challengesBox .wrapper .challenge,
+.flipbook .size6 .challengesBox .wrapper .challenge {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -142,7 +158,8 @@
 
 
 
-.flipbook .size4 .challengesBox .wrapper .challenge .difficulty {
+.flipbook .size4 .challengesBox .wrapper .challenge .difficulty,
+.flipbook .size6 .challengesBox .wrapper .challenge .difficulty {
     font-size: 0.7em;
     border-radius: 0.5em;
     width: fit-content;
@@ -157,7 +174,8 @@
 }
 
 
-.flipbook .size4 .challengesBox .wrapper .challenge .title {
+.flipbook .size4 .challengesBox .wrapper .challenge .title,
+.flipbook .size6 .challengesBox .wrapper .challenge .title {
     font-size: 1.2em;
     vertical-align: middle;
     width: 100%;
@@ -171,7 +189,8 @@
 }
 
 
-.flipbook .size4 .challengesBox .wrapper .challenge .releaseDate {
+.flipbook .size4 .challengesBox .wrapper .challenge .releaseDate,
+.flipbook .size6 .challengesBox .wrapper .challenge .releaseDate {
     font-size: 0.7em;
     vertical-align: middle;
     text-align: center;
@@ -185,7 +204,8 @@
 
 }
 
-.flipbook .size4 .challengesBox .wrapper .challenge .points {
+.flipbook .size4 .challengesBox .wrapper .challenge .points,
+.flipbook .size6 .challengesBox .wrapper .challenge .points {
     text-align: center;
     margin-bottom: 10px;
     margin-right: 4%;
@@ -212,4 +232,5 @@
 
 .page .footer {
     font-size: 0.5em;
+    margin-bottom: 25px;
 }

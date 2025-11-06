@@ -9,7 +9,10 @@
                     <% } %>
                 </div><%
             }else if (page.type == "page"){
-                %><div class="page size<%=page.size%>">
+                %><div class="page size<%=page.size%>"
+                    <% if (page.background) {%>
+                        style='background-image:url("<%=page.background%>")'
+                    <% } %> >
                     <div class="pageTitle"><%=page.title??""%></div>
                     <div class="challengesBox">
                     <% for (const challenge of (page.challenges??[])) { %>

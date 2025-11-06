@@ -117,7 +117,73 @@
                         ]
                     },
                     {
-                        "type":"page"
+                        "title":"Page de 6",
+                        "type":"page",
+                        "size":6,
+                        "background":"/img/oldPaper.jpg",
+                        "footer":"example of footer",
+                        "challenges": [
+                            {
+                                "title": "Notre campagne",
+                                "difficulty": "easy",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1",
+                                "releaseDate": "Jan 5, 2030 15:37"
+                            },
+                            {
+                                "title": "Notre campagne",
+                                "difficulty": "easy",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1",
+                                "releaseDate": "Jan 5, 2030 15:37"
+                            },
+                            {
+                                "title": "Notre campagne",
+                                "difficulty": "easy",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1",
+                                "releaseDate": "Jan 5, 2030 15:37"
+                            },
+                            {
+                                "title": "Notre campagne",
+                                "difficulty": "easy",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1",
+                                "releaseDate": "Jan 5, 2030 15:37"
+                            },
+                            {
+                                "title": "Notre campagne",
+                                "difficulty": "easy",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1",
+                                "releaseDate": "Jan 5, 2030 15:37"
+                            }
+                        ]
                     },
                     {
                         "type":"page"
