@@ -1,0 +1,86 @@
+{
+    "title": "La compagne de voyage",
+    "gridSize": [2, 1],
+    "columnWidths": ["50%", "50%"],
+    "answerUrl": "journey-with-clara/introduction/question3",
+    "modules": [
+        {
+            "type": "chat",
+            "id": "chat1",
+            "position": [1, 0],
+            "size": [1, 1]
+        }
+    ],
+    "catchup": [
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addContact",
+            "payload": {
+                "id":"clara",
+                "name": "Clara",
+                "icon": "/img/Clara.png"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addDiscussion",
+            "payload": {
+                "id": "clara",
+                "name": "Clara",
+                "icon": "/img/Clara.png"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addContact",
+            "payload": {
+                "id":"amelie",
+                "name": "Amélie",
+                "icon": "/img/Amelie.png"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addDiscussion",
+            "payload": {
+                "id": "group",
+                "name": "Clara & Amélie",
+                "icon": "/img/flower.jpeg"
+            }
+        }
+    ],
+    "story": [
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "payload": {
+                "discussionId": "group",
+                "contactId": "clara",
+                "content": {
+                    "text": "Bravo !!!"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "delay": 1500,
+            "payload": {
+                "discussionId": "group",
+                "contactId": "amelie",
+                "content": {
+                    "text": "C'est bien Angèle"
+                }
+            }
+        },
+        {
+            "type": "end"
+        }
+    ]
+}

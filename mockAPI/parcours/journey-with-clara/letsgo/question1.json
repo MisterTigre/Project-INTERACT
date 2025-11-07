@@ -1,0 +1,144 @@
+{
+    "title": "La compagne de voyage",
+    "gridSize": [2, 1],
+    "columnWidths": ["66%", "36%"],
+    "answerUrl": "journey-with-clara/lestgo/question1",
+    "modules": [
+        {
+            "type": "mapt",
+            "id": "map1",
+            "position": [0, 0],
+            "size": [1, 1]
+        },
+        {
+            "type": "chat",
+            "id": "chat1",
+            "position": [1, 0],
+            "size": [1, 1]
+        }
+    ],
+    "story": [
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addContact",
+            "payload": {
+                "id":"clara",
+                "name": "Clara",
+                "icon": "/img/Clara.png"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addContact",
+            "payload": {
+                "id":"amelie",
+                "name": "Amélie",
+                "icon": "/img/Amelie.png"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addDiscussion",
+            "payload": {
+                "id": "group",
+                "name": "Clara & Amélie",
+                "icon": "/img/flower.jpeg"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "sendAndWait",
+            "payload": {
+                "discussionId": "group",
+                "contactId": "clara",
+                "content": {
+                    "text": "Bien joué, on part bien du 13 au 20 avril 2025!!!"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "delay": 1500,
+            "payload": {
+                "discussionId": "group",
+                "contactId": "amelie",
+                "content": {
+                    "text": "On a eu l'idée en lisant un article de \"lemonde.fr\""
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "delay": 1500,
+            "payload": {
+                "discussionId": "group",
+                "contactId": "clara",
+                "content": {
+                    "text": "Oui, un article du 18 juillet 2018"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "delay": 1500,
+            "payload": {
+                "discussionId": "group",
+                "contactId": "clara",
+                "content": {
+                    "text": "Une fille nommée Axelle était partie en voyage avec une amie à elle"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "delay": 1500,
+            "payload": {
+                "discussionId": "group",
+                "contactId": "amelie",
+                "content": {
+                    "text": "Tiens, petit défi. Retrouves le nom de cette fille!"
+                }
+            }
+        },
+        {
+            "type": "answer",
+            "moduleId": "chat1",
+            "id": "friendAnswer",
+            "msg": "answer",
+            "delay": 1000,
+            "payload": {
+                "discussionId": "group"
+            },
+            "jumpOnIncorrect": "incorectName"
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "id": "incorectName",
+            "msg": "send",
+            "payload": {
+                "discussionId": "group",
+                "contactId": "clara",
+                "content": {
+                    "text": "Non, réessaye (format de réponse : Lola) "
+                }
+            }
+        },
+        {
+            "type": "goto",
+            "destination": "friendAnswer"
+        }
+    ]
+}

@@ -41,7 +41,7 @@
                                     "available": "https://www.osint4fun.eu/img/cache/vig-508.jpg"
                                 },
                                 "status": "available",
-                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1"
+                                "url": "http://127.0.0.1:3000/journey-with-clara/introduction/question2"
                             },
                             {
                                 "title": "Une inspiration bienvenue",
@@ -52,7 +52,7 @@
                                     "available": "https://www.osint4fun.eu/img/cache/vig-509.jpg"
                                 },
                                 "status": "available",
-                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1"
+                                "url": "http://127.0.0.1:3000/journey-with-clara/introduction/question3"
                             }
                         ]
                     },
