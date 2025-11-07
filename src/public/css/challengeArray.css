@@ -14,12 +14,14 @@
 }
 
 .challenge-array .wrapper {
-    width: 450px;
+    max-width: 450px;
+    height: 100%;
     aspect-ratio: 16/9;
     position: relative;
     border-radius: 8px;
     overflow: hidden;
     background-size: cover;
+    flex: 1 1 450px;
 }
 
 .completed::before {
@@ -124,4 +126,40 @@
 
 .clicable {
     cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .challenge-array .wrapper {
+        flex: 1 1 200px; 
+        max-width: 200px;
+    }
+
+    .challenge-array .wrapper .challenge .title {
+        font-size: 100%;
+        margin-top: 5%;
+
+    }
+
+    .challenge-array .wrapper .challenge .difficulty {
+        font-size: 50%;
+        border-radius: 100%;
+        margin-top: 4%;
+        margin-left: 4%;
+        padding-left: 4%;
+        padding-right: 4%;
+
+    }
+
+    .challenge-array .wrapper .challenge .releaseDate {
+        font-size: 50%;
+        margin-top: 5%;
+        margin-right: 15%;
+        margin-left: 15%;
+
+    }
+
+    .challenge-array .wrapper .challenge .points {
+        font-size: 80%;
+        margin-bottom: 5%;
+    }
 }
