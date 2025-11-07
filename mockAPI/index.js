@@ -1,5 +1,5 @@
 import express from 'express'
-import { readFileSync, existsSync, readdirSync } from 'fs'
+import { readFileSync, existsSync, readdirSync, lstatSync } from 'fs'
 import { join } from 'path'
 
 const app = express() 
@@ -25,8 +25,15 @@ function readChallenge(path){
   if (existsSync(filePath)) return readJson(filePath)
 
   // Take the first question in the folder
-  const files = readdirSync(join(__dirname, "parcours", path))
-  if (files.length > 0) return readJson(join(__dirname, "parcours", path, files[0]))
+  filePath = join(__dirname, "parcours", path)
+  if (existsSync(filePath)) {
+    if (lstatSync(filePath).isDirectory()) {
+      const files = readdirSync(filePath)
+      if (files.length > 0) return readChallenge(join(path, files[0]))
+    } else {
+      return readJson(filePath)
+    }
+  }
 
   throw new Error(`Unknowd challenge ${path}`)
 }
