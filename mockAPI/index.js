@@ -35,7 +35,7 @@ function readChallenge(path){
     }
   }
 
-  throw new Error(`Unknowd challenge ${path}`)
+  throw new Error(`Unknown challenge ${path}`)
 }
 
 function findNextFileName(filename) {

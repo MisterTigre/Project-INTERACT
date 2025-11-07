@@ -50,6 +50,8 @@ class Orchestrator {
     }
 
     storyNext() {
+        this.#closeInstructions()
+
         const storyEvent = this.story[this.storyIndex]
         if (!storyEvent) {
             // Story is over
@@ -66,7 +68,11 @@ class Orchestrator {
         switch (storyEvent.type) {
             case "event":
             case "choice":
+                break
             case "answer":
+                if (storyEvent.answerInstructions) {
+                    this.#openInstructions(storyEvent.answerInstructions)
+                }
                 break
             case "goto":
                 this.jumpTo(storyEvent.destination)
@@ -182,6 +188,22 @@ class Orchestrator {
             this.story = json.nextQuestion.story
             this.storyNext()
         })
+    }
+
+    #closeInstructions() {
+        const element = document.getElementById("answer-instructions")
+        if (element && element.classList.contains("is-open")) {
+            element.classList.remove("is-open")
+        }
+        console.log("Close")
+    }
+
+    #openInstructions(instructions) {
+        const element = document.getElementById("answer-instructions")
+        element.classList.add("is-open")
+        element.innerHTML = "<h2>Vous pouvez répondre au challenge</h2>" + instructions
+
+        console.log("Open")
     }
 }
 

@@ -65,7 +65,8 @@ The story object is an array of events and specials instructions.
     "delay": "number", // The time in miliseconds to wait before doing the action
     "msg": "str", // The message to send the module (see module messages)
     "payload": "object", // The payload of the message (see module messages)
-    "jumpOnIncorrect": "str" // The id of the event to jump to if the answer is incorrect
+    "jumpOnIncorrect": "str", // The id of the event to jump to if the answer is incorrect
+    "answerInstructions": "str", // An indication for the player on how to answer the challenge (ex: answer format, or "click on the map" ...)
 }
 ```
 
