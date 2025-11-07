@@ -25,7 +25,7 @@ class Orchestrator {
             this.addModule(module)
         }
 
-        this.story = config.story
+        this.story = (config.catchup ?? []).concat(config.story)
         this.storyIndex = 0
     }
 
