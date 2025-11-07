@@ -199,7 +199,7 @@ class MapModule {
             "zoom": 12,
             "maxZoom": 20,
             "dragable": true,
-            "buttonPosition": "botomright",
+            "buttonPosition": "bottomright",
             "customIcons": [],
             "markers": [],
             "circleMarkers": [],
@@ -257,6 +257,45 @@ class MapModule {
         }
     }
 
+    #validateClicked(e){
+        let coords
+        if (this.#mouseMarker){
+            coords = this.#mouseMarker.getLatLng()
+        }else if (this.#mouseCircle){
+            coords = this.#mouseCircle.getLatLng()
+        }
+
+        // Use mouse'coords if you click on the map and want coords
+        if (this.#listening_to_map_click){
+            if (this.#format == "coords"){
+                this.#callback({"answer": coords})
+            }else{
+                let url = `https://nominatim.openstreetmap.org/reverse?lat=${coords.lat}&lon=${coords.lng}&format=json`
+                fetch(url).then(async response => {
+                    let ret = (await response.json()).address[this.#format]
+                    this.#callback({answer : ret})
+                })
+
+        } 
+        this.#listening_to_map_click = false
+        }
+        this.#remove_mouse_item("btn")
+    }
+
+    #addValidateButton(map) {
+        var div = L.DomUtil.create('div', '')
+                
+        let button = L.DomUtil.create('a', 'validate-btn', div)
+        button.innerHTML = 'Validate'
+        button.title = 'Validate'
+        button.href = '#'
+
+        L.DomEvent.disableClickPropagation(div)
+
+        button.onclick = this.#validateClicked.bind(this)
+        return div
+    }
+
     #add_mousePointer(e){
         var addon = {}
         if ("mouse_icon" in this.#customIcons){
@@ -267,42 +306,7 @@ class MapModule {
             // Création d'un contrôle personnalisé
             this.#validate_btn = L.control({position: this.#json.buttonPosition})
 
-            this.#validate_btn.onAdd = (map) =>{
-                var div = L.DomUtil.create('div', '')
-                
-                let button = L.DomUtil.create('a', 'validate-btn', div)
-                button.innerHTML = 'Validate'
-                button.title = 'Validate'
-                button.href = '#'
-
-                L.DomEvent.disableClickPropagation(div)
-
-                button.onclick = (e) =>{
-                    let coords
-                    if (this.#mouseMarker){
-                        coords = this.#mouseMarker.getLatLng()
-                    }else if (this.#mouseCircle){
-                        coords = this.#mouseCircle.getLatLng()
-                    }
-
-                    // Use mouse'coords if you click on the map and want coords
-                    if (this.#listening_to_map_click){
-                        if (this.#format == "coords"){
-                            this.#callback({"answer": coords})
-                        }else{
-                            let url = `https://nominatim.openstreetmap.org/reverse?lat=${coords.lat}&lon=${coords.lng}&format=json`
-                            fetch(url).then(async response => {
-                                let ret = (await response.json())["address"][this.#format]
-                                this.#callback({"answer" : ret})
-                            })
-
-                    } 
-                    this.#listening_to_map_click = false
-                    }
-                    this.#remove_mouse_item("btn")
-                }
-                return div
-            }
+            this.#validate_btn.onAdd = this.#addValidateButton.bind(this)
             // Ajout du contrôle à la carte
             this.#validate_btn.addTo(this.#map)
         }
@@ -343,7 +347,7 @@ class MapModule {
                 this.#json["mousePointer"] = payload.mousePointer
                 this.#listening_to_map_click = true
                 this.#remove_mouse_item("all")
-                if ("format" in payload){
+                if (payload.format){
                     this.#format = payload.format
                 }else {
                     this.#format = "coords"
