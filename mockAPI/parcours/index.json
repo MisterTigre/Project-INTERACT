@@ -1,0 +1,38 @@
+{
+    "title": "Challenge selection page",
+    "gridSize": [1, 1],
+    "modules": [
+        {
+            "type": "challengeArray",
+            "id": "challengeArray",
+            "position": [0, 0],
+            "size": [1, 1],
+            "data": {
+                "challenges": [
+                    {
+                        "title": "Parcours 1",
+                        "difficulty": "facile",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
+                        },
+                        "status": "available",
+                        "url": "http://127.0.0.1:3000/parcours1"
+                    },
+                    {
+                        "title": "Tests",
+                        "difficulty": "medium",
+                        "color": "yellow",
+                        "points": 1,
+                        "image":{
+                            "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
+                        },
+                        "status": "available",
+                        "url": "http://127.0.0.1:3000/test"
+                    }
+                ]
+            }
+        }
+    ],
+    "story": []
+}
