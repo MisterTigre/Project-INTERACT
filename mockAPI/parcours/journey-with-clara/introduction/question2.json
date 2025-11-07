@@ -1,0 +1,157 @@
+{
+    "title": "La compagne de voyage",
+    "gridSize": [2, 1],
+    "columnWidths": ["50%", "50%"],
+    "answerUrl": "journey-with-clara/introduction/question2",
+    "modules": [
+        {
+            "type": "calendar",
+            "id": "calendar1",
+            "position": [0, 0],
+            "size": [1, 1],
+            "data":{
+                "size": "little",
+                "startDay": "2025-04-15"
+            }
+        },
+        {
+            "type": "chat",
+            "id": "chat1",
+            "position": [1, 0],
+            "size": [1, 1]
+        }
+    ],
+    "catchup": [
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addContact",
+            "payload": {
+                "id":"clara",
+                "name": "Clara",
+                "icon": "/img/Clara.png"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addDiscussion",
+            "payload": {
+                "id": "clara",
+                "name": "Clara",
+                "icon": "/img/Clara.png"
+            }
+        }
+    ],
+    "story": [
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addContact",
+            "payload": {
+                "id": "amelie",
+                "name": "Amélie",
+                "icon": "/img/Amelie.png"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addDiscussion",
+            "payload": {
+                "id": "group",
+                "name": "Clara & Amélie",
+                "icon": "/img/flower.jpeg"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "sendAndWait",
+            "payload": {
+                "discussionId": "group",
+                "contactId": "clara",
+                "content": {
+                    "text": "J'ai fais un groupe avec Amélie, cela sera mieux"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "delay": 2000,
+            "payload": {
+                "discussionId": "group",
+                "contactId": "clara",
+                "content": {
+                    "text": "Je pars avec elle pendant les vacances de printemps 2025, du dimanche au dimanche"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "payload": {
+                "discussionId": "group",
+                "contactId": "amelie",
+                "content": {
+                    "text": "Salut tous les deux!"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "payload": {
+                "discussionId": "group",
+                "contactId": "clara",
+                "content": {
+                    "text": "Essaye de deviner nos dates!"
+                }
+            }
+        },
+        {
+            "type": "answer",
+            "moduleId": "calendar1",
+            "id": "dateAnswer",
+            "msg": "selectDates",
+            "delay": 1000,
+            "payload": {
+                "discussionId": "clara"
+            },
+            "jumpOnIncorrect": "incorectDate"
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "id": "incorectDate",
+            "msg": "send",
+            "payload": {
+                "discussionId": "group",
+                "contactId": "amelie",
+                "content": {
+                    "text": "Non!"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "payload": {
+                "discussionId": "group",
+                "contactId": "amelie",
+                "content": {
+                    "text": "Réessaye"
+                }
+            }
+        },
+        {
+            "type": "goto",
+            "destination": "dateAnswer"
+        }
+    ]
+}

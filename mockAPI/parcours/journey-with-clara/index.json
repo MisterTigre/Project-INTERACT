@@ -1,0 +1,169 @@
+{
+    "title": "Challenge selection page",
+    "gridSize": [1, 1],
+    "modules": [
+        {
+            "type": "challengeBook",
+            "id": "challengeBook",
+            "position": [0, 0],
+            "size": [1, 1],
+            "data": {
+                "pages" : [
+                    {
+                        "type":"cover",
+                        "image":"/img/livre-recto.jpg"
+                    },
+                    {
+                        "type":"cover"
+                    },
+                    {
+                        "title":"Introduction",
+                        "type":"page",
+                        "size":4,
+                        "challenges": [
+                            {
+                                "title": "La compagne de voyage",
+                                "difficulty": "facile",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-507.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/journey-with-clara/introduction/question1"
+                            },
+                            {
+                                "title": "La date adéquate",
+                                "difficulty": "facile",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-508.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1"
+                            },
+                            {
+                                "title": "Une inspiration bienvenue",
+                                "difficulty": "facile",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-509.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1"
+                            }
+                        ]
+                    },
+                    {
+                        "title":"Let's go !",
+                        "type":"page",
+                        "size":2,
+                        "challenges": [
+                            {
+                                "title": "Une destination sympa",
+                                "difficulty": "facile",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-511.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1"
+                            },
+                            {
+                                "title": "Une ville mais laquelle?",
+                                "difficulty": "facile",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-512.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1"
+                            }
+                        ]
+                    },
+                    {
+                        "title":"Sur place",
+                        "type":"page",
+                        "size":4,
+                        "challenges": [
+                            {
+                                "title": "Le logement",
+                                "difficulty": "facile",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-513.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1"
+                            },
+                            {
+                                "title": "Quelques activités",
+                                "difficulty": "facile",
+                                "color": "lime",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-514.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1"
+                            },
+                            {
+                                "title": "Overpass Turbo",
+                                "difficulty": "information",
+                                "points": 0,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-517.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1"
+                            }
+                        ]
+                    },
+                    {
+                        "title":"Bonus",
+                        "type":"page",
+                        "size":4,
+                        "challenges": [
+                            {
+                                "title": "Des souvenirs",
+                                "difficulty": "moyen",
+                                "color": "yellow",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-515.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1"
+                            },
+                            {
+                                "title": "Des bancs, encore des bancs",
+                                "difficulty": "moyen",
+                                "color": "yellow",
+                                "points": 1,
+                                "image":{
+                                    "available": "https://www.osint4fun.eu/img/cache/vig-516.jpg"
+                                },
+                                "status": "available",
+                                "url": "http://127.0.0.1:3000/parcours1/challenge1/question1"
+                            }
+                        ]
+                    },
+                    {
+                        "type":"cover"
+                    },
+                    {
+                        "type":"cover",
+                        "image":"/img/livre-verso.jpg"
+                    }
+                ]
+            }
+                   
+        }
+    ],
+    "story": []
+}

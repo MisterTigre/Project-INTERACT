@@ -51,7 +51,7 @@ The story object is an array of events and specials instructions.
     "delay": "number",
     "msg": "str", // The message to send the module (see module messages)
     "payload": "object", // The payload of the message (see module messages)
-    "choicesDestinations": ["str", ...] // A list of story event ids. The id of the event to jump to depending on the choice result
+    "choiceDestinations": ["str", ...] // A list of story event ids. The id of the event to jump to depending on the choice result
 }
 ```
 

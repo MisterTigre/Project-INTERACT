@@ -1,0 +1,156 @@
+{
+    "title": "La compagne de voyage",
+    "gridSize": [2, 1],
+    "columnWidths": ["50%", "50%"],
+    "answerUrl": "journey-with-clara/introduction/question1",
+    "modules": [
+        {
+            "type": "chat",
+            "id": "chat1",
+            "position": [1, 0],
+            "size": [1, 1]
+        }
+    ],
+    "story": [
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addContact",
+            "payload": {
+                "id":"clara",
+                "name": "Clara",
+                "icon": "/img/Clara.png"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "addDiscussion",
+            "payload": {
+                "id": "clara",
+                "name": "Clara",
+                "icon": "/img/Clara.png"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "payload": {
+                "discussionId": "clara",
+                "contactId": "clara",
+                "content": {
+                    "text": "Salut, comment vas-tu ?"
+                }
+            }
+        },
+        {
+            "type": "choice",
+            "moduleId": "chat1",
+            "msg": "choice",
+            "payload": {
+                "discussionId": "clara", 
+                "choices":[
+                    "Bien",
+                    "Moyen, je suis malade!"
+                ] 
+            },
+            "choiceDestinations": [
+                "etatBien",
+                "etatMoyen"
+            ]
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "id": "etatMoyen",
+            "msg": "send",
+            "payload": {
+                "discussionId": "clara",
+                "contactId": "clara",
+                "content": {
+                    "text": "Oh non, j'espère que tu iras mieux bientôt"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "id": "etatBien",
+            "msg": "send",
+            "payload": {
+                "discussionId": "clara",
+                "contactId": "clara",
+                "content": {
+                    "text": "Bref, je pars bientôt en voyage avec la déléguée de ma classe"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "payload": {
+                "discussionId": "clara",
+                "contactId": "clara",
+                "content": {
+                    "text": "Je t'envoie le fichier récapitulant les quatre classes, avec un·e délégué·e par classe"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "delay": 4000,
+            "payload": {
+                "discussionId": "clara",
+                "contactId": "clara",
+                "content": {
+                    "file": "https://fr.osint4fun.eu/assets/a-924932b20d4669c12b7737b5.ods",
+                    "fileName" : "Archive Polytech"
+                }
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "msg": "send",
+            "payload": {
+                "discussionId": "clara",
+                "contactId": "clara",
+                "content": {
+                    "text": "À ton avis, qui m'accompagne ?"
+                }
+            }
+        },
+        {
+            "type": "answer",
+            "moduleId": "chat1",
+            "id": "friendAnswer",
+            "msg": "answer",
+            "delay": 1000,
+            "payload": {
+                "discussionId": "clara"
+            },
+            "jumpOnIncorrect": "incorectName"
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
+            "id": "incorectName",
+            "msg": "send",
+            "payload": {
+                "discussionId": "clara",
+                "contactId": "clara",
+                "content": {
+                    "text": "Non, réessaye (format de réponse : Ariana Grande) "
+                }
+            }
+        },
+        {
+            "type": "goto",
+            "destination": "friendAnswer"
+        }
+    ]
+}
