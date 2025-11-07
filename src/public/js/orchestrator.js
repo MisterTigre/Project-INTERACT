@@ -50,7 +50,14 @@ class Orchestrator {
     }
 
     storyNext() {
+        console.log("========================================================")
         const storyEvent = this.story[this.storyIndex]
+        if (["event", "choice", "answer"].includes(storyEvent.type)) {
+            console.log(storyEvent.type + ": " + storyEvent.msg, storyEvent)
+        } else {
+            console.log(storyEvent.type)
+        }
+        
         if (!storyEvent) {
             // Story is over
             return
@@ -95,6 +102,7 @@ class Orchestrator {
     }
 
     #callback(params) {
+        console.log("Callback", params)
         if (params === undefined) {
             this.storyIndex++
             this.storyNext()
