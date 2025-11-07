@@ -12,6 +12,8 @@ function createModule(type, id, data, callback) {
             return new ChallengeBook(id, data, callback)
         case "calendar":
             return new CalendarModule(id, data, callback)
+        case "imageDisplay":
+            return new ImageDisplayModule(id, data, callback)
         default:
             throw `Invalid module type "${type}"`
     }
