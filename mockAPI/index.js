@@ -6,7 +6,6 @@ const app = express()
 const port = 5000
 
 const __dirname = import.meta.dirname;
-  console.log(__dirname)
 
 app.use(express.json())
 
@@ -44,13 +43,13 @@ function findNextFileName(filename) {
 }
 
 app.get(/^\/(.*)$/, (req, res) => {
-  const filePath = req.params[0] === "" ? "example" : req.params[0]
+  const filePath = req.params[0]
   const json = readChallenge(filePath)
   res.status(200).json(json)
 })
 
 app.post(/^\/(.*)$/, (req, res) => {
-  const filePath = req.params[0] === "" ? "example" : req.params[0]
+  const filePath = req.params[0]
   const answer = req.body.answer
   const answers = readJson(join(__dirname, "answers.json"))
 

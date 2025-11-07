@@ -10,9 +10,8 @@ app.use(express.static('src/public/'))
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'))
 app.use('/bootstrap-icons', express.static('node_modules/bootstrap-icons/font'))
 
-
 async function renderChallenge(req, res) {
-    const config = await fetch(`http://localhost:5000/${req.params[0]}`).then(ret => ret.json())
+    let config = await fetch(`http://localhost:5000/${req.params[0]}`).then(ret => ret.json())
 
     config = checkSupport(req.headers["user-agent"] ?? "", config)
 
