@@ -25,6 +25,16 @@
         {
             "type": "event",
             "moduleId": "chat1",
+            "msg": "addDiscussion",
+            "payload": {
+                "id": "clara",
+                "name": "Clara",
+                "icon": "/img/Clara.png"
+            }
+        },
+        {
+            "type": "event",
+            "moduleId": "chat1",
             "msg": "addContact",
             "payload": {
                 "id":"amelie",
@@ -102,7 +112,7 @@
             "delay": 1500,
             "payload": {
                 "discussionId": "group",
-                "contactId": "ameli",
+                "contactId": "amelie",
                 "content": {
                     "text": "Tiens, petit défi. Retrouves le nom de cette fille!"
                 }
@@ -125,7 +135,7 @@
             "id": "incorectName",
             "msg": "send",
             "payload": {
-                "discussionId": "clara",
+                "discussionId": "group",
                 "contactId": "clara",
                 "content": {
                     "text": "Non, réessaye (format de réponse : Lola) "
