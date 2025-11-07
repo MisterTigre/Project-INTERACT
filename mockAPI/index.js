@@ -1,11 +1,13 @@
 const express = require('express')
 const fs = require('fs')
 const path = require('path')
+const cors = require('cors')
 
 const app = express()
 const port = 5000
 
 app.use(express.json())
+app.use(cors())
 
 function readJson(filePath){
   filePath = path.join(__dirname, filePath)
@@ -58,6 +60,19 @@ app.post(/^\/(.*)$/, (req, res) => {
   }
 
   return res.status(200).json({"success": false})
+})
+
+app.post('/chatbot/:botId', (req, res) => {
+  const botId = req.params.botId
+  const { context, history, discussionId, contactId } = req.body
+  
+  console.log(`Chatbot ${botId} received request:`)
+  console.log('Context:', context)
+  console.log('Discussion ID:', discussionId)
+  console.log('Contact ID:', contactId)
+  console.log('History length:', history?.length || 0)
+  
+  res.status(200).json('This is ok')
 })
 
 app.listen(port, () => {

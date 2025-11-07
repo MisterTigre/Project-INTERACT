@@ -36,6 +36,7 @@ class ChatModule {
      * @param {Object} payload - The data payload associated with the notification
      */
     notify(msg, payload) {
+        console.log(msg)
         switch (msg) {
             case "addDiscussion":
                 this.#addDiscussion(payload)
@@ -58,6 +59,10 @@ class ChatModule {
                 this.#waitingFor = "read"
                 this.#discussionIdToRead = payload.discussionId
                 this.#receiveMessage(payload)
+                break
+            case "toggleChatbot":
+                this.#toggleChatbot(payload.discussionId, payload.contactId, payload.url, payload.context)
+                this.#callback()
                 break
             default:
                 console.error(`Invalid message: ${msg}`)
@@ -82,7 +87,15 @@ class ChatModule {
             console.error("ChatModule: Discussion already exists")
             return
         }
-        this.#discussions.set(discussion.id, { name: discussion.name, icon: discussion.icon, unreadCount: 0, state: discussion.state ?? "locked", callback: null })
+        this.#discussions.set(discussion.id, { 
+            name: discussion.name, 
+            icon: discussion.icon, 
+            unreadCount: 0, 
+            state: discussion.state ?? "locked", 
+            callback: null,
+            messages: [],
+            contactConfigs: new Map()
+        })
 
         const discussionCard = document.createElement('div')
         discussionCard.className = 'card mb-3 shadow-sm'
@@ -187,6 +200,34 @@ class ChatModule {
     }
 
     /**
+     * Toggles chatbot functionality for a specific contact within a discussion.
+     * @param {string} discussionId - The ID of the discussion
+     * @param {string} contactId - The ID of the contact to toggle
+     * @param {string} url - The API endpoint URL for the chatbot
+     * @param {string} [context=""] - Default context for the chatbot
+     */
+    #toggleChatbot(discussionId, contactId, url, context = "") {
+        if (!this.#validateDiscussionId(discussionId, 'toggleChatbot')) return
+        if (!this.#contacts.has(contactId)) {
+            console.error('ChatModule: Invalid contact ID for chatbot')
+            return
+        }
+
+        const discussion = this.#discussions.get(discussionId)
+        
+        if (!discussion.contactConfigs.has(contactId)) {
+            discussion.contactConfigs.set(contactId, {
+                isChatbot: true,
+                url: url,
+                context: context
+            })
+        } else {
+            const config = discussion.contactConfigs.get(contactId)
+            config.isChatbot = !config.isChatbot
+        }
+    }
+
+    /**
      * Enables free text answering for a discussion.
      * Sets the waiting state and updates the discussion to allow user input.
      * @param {string} discussionId - The ID of the discussion to enable answering for
@@ -240,6 +281,14 @@ class ChatModule {
         messagesContainer.appendChild(messageElement)
         this.#scrollToBottom()
         this.#enableLocked(this.#currentDiscussion)
+
+        const discussion = this.#discussions.get(this.#currentDiscussion)
+        discussion.messages.push({
+            type: 'sent',
+            content: { text: messageText },
+            timestamp: new Date().toISOString()
+        })
+        
         return true
     }
 
@@ -273,6 +322,8 @@ class ChatModule {
             this.#waitingFor = "nothing"
             messageInput.value = ''
         }
+        
+        this.#triggerChatbots(this.#currentDiscussion)
     }
 
     /**
@@ -456,6 +507,14 @@ class ChatModule {
         if (this.#waitingFor !== "read" || (this.#waitingFor === "read" && this.#currentDiscussion === this.#discussionIdToRead )) {
             this.#callback()
         }
+
+        const discussion = this.#discussions.get(message.discussionId)
+        discussion.messages.push({
+            type: 'received',
+            contactId: message.contactId,
+            content: message.content,
+            timestamp: new Date().toISOString()
+        })
     }
 
     /**
@@ -769,6 +828,72 @@ class ChatModule {
         } else {
             console.error('ChatModule: Messages container not found for scrolling')
             return
+        }
+    }
+
+    /**
+     * Triggers all active chatbots in a discussion to respond to the latest message.
+     * @param {string} discussionId - The ID of the discussion
+     */
+    #triggerChatbots(discussionId) {
+        if (!this.#validateDiscussionId(discussionId, 'triggerChatbots')) return
+        
+        const discussion = this.#discussions.get(discussionId)
+        
+        discussion.contactConfigs.forEach((config, contactId) => {
+            if (config.isChatbot) {
+                this.#sendToChatbot(discussionId, contactId, config.url, config.context)
+            }
+        })
+    }
+
+    /**
+     * Sends the conversation history to a specific chatbot and processes the response.
+     * @param {string} discussionId - The ID of the discussion
+     * @param {string} contactId - The ID of the chatbot contact
+     * @param {string} url - The chatbot API endpoint
+     * @param {string} context - The default context for the chatbot
+     */
+    async #sendToChatbot(discussionId, contactId, url, context) {
+        if (!this.#validateDiscussionId(discussionId, 'sendToChatbot')) return
+        
+        const discussion = this.#discussions.get(discussionId)
+        
+        try {
+            const history = discussion.messages.map(msg => ({
+                role: msg.type === 'sent' ? 'user' : 'assistant',
+                contactId: msg.contactId || null,
+                content: msg.content.text || '[media]',
+                timestamp: msg.timestamp
+            }))
+            
+            const payload = {
+                context: context,
+                history: history,
+                discussionId: discussionId,
+                contactId: contactId
+            }
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            
+            if (!response.ok) {
+                throw new Error(`Chatbot API error: ${response.status}`)
+            }
+            
+            const data = await response.json()
+            
+            this.#receiveMessage({
+                discussionId: discussionId,
+                contactId: contactId,
+                content: {text: data}
+            })
+            
+        } catch (error) {
+            console.error(`ChatModule: Chatbot ${contactId} request failed`, error)
         }
     }
 }
