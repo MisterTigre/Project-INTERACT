@@ -1,3 +1,5 @@
+import { jsonToGridCSS } from "./utils.js"
+
 function createModule(type, id, data, callback) {
     switch (type) {
         case "map":
@@ -22,11 +24,27 @@ class Orchestrator {
         this.modules = {}
 
         for (const module of config.modules) {
-            this.modules[module.id] = createModule(module.type, module.id, module.data, this.#callback.bind(this))
+            this.addModule(module)
         }
 
-        this.story = config.story
+        this.story = (config.catchup ?? []).concat(config.story)
         this.storyIndex = 0
+    }
+
+    addModule(module) {
+        // Create html element if it doesn't exist yet
+        let container = document.getElementById(module.id)
+        if (!container) {
+            const modulesContainer = document.getElementById("modules")
+            modulesContainer.insertAdjacentHTML("beforeend", module.html);
+        }
+        
+        this.modules[module.id] = createModule(module.type, module.id, module.data, this.#callback.bind(this))
+    }
+
+    removeModule(moduleId) {
+        delete this.modules[moduleId]
+        document.getElementById(moduleId).remove()
     }
 
     storyNext() {
@@ -103,7 +121,6 @@ class Orchestrator {
         const storyEvent = this.story[this.storyIndex]
         console.log(`Answer: ${answer}`)
 
-        // TODO: Fetch Osint4Fun to check answer
         const url = this.config.answerUrl
         if (url === undefined) {
             console.error("Answer URL is not defined")
@@ -120,29 +137,49 @@ class Orchestrator {
                 this.jumpTo(storyEvent.jumpOnIncorrect)
                 return
             }
+
+            const moduleContainer = document.getElementById("modules")
+            moduleContainer.style = jsonToGridCSS(json.nextQuestion)
+
+            // Update modules
+            let z = 0;
+            const modulesToKeep = []
+            for (const module of json.nextQuestion.modules) {
+                let moduleElement
+                modulesToKeep.push(module.id)
+                if (this.modules[module.id]) {
+                    // Edit module position and size
+                    const x = module.position[0]
+                    const y = module.position[1]
+
+                    const w = module.size[0]
+                    const h = module.size[1]
+
+                    moduleElement = document.getElementById(module.id)
+                    moduleElement.style.gridColumn = `${x + 1} / ${x + w + 1}`
+                    moduleElement.style.gridRow = `${y + 1} / ${y + h + 1}`
+
+                } else {
+                    this.addModule(module)
+                    moduleElement = document.getElementById(module.id)
+                }
+
+                // Edit z-index
+                moduleElement.style.zIndex = z * 100
+                z++
+            }
+
+            for (const moduleId of Object.keys(this.modules)) {
+                if (!modulesToKeep.includes(moduleId)) {
+                    // Remove module
+                    this.removeModule(moduleId)
+                }
+            }
+
             this.storyIndex = 0
             this.story = json.nextQuestion.story
             this.storyNext()
-
         })
-
-
-
-
-
-
-        // const result = 0
-        // const nextStory = []
-        // 
-        // if (result)
-        // {
-        //     this.storyIndex = 0
-        //     this.story = nextStory
-        // }
-        // else
-        // {
-        //     this.jumpTo(storyEvent.jumpOnIncorrect)
-        // }
     }
 }
 

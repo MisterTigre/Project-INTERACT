@@ -7,7 +7,8 @@
     "columnWidths": ["str", ...], // The size of each column, can be any valid css size (ex: "50%", "10px", "1fr", ...)
     "rowHeights": ["str", ...], // The size of each row, can be any valid css size (ex: "50%", "10px", "1fr", ...)
     "modules": [ ... ], // The configuration of modules (see Modules)
-    "story": [ ... ] // The initial story script (see documentation/public_api/story.md)
+    "story": [ ... ], // The initial story script (see documentation/public_api/story.md)
+    "catchup": [ ... ] // Optional, Actions to catchup when reopening the challenge to this question (see documentation/public_api/story.md)
 }
 ```
 
@@ -55,7 +56,7 @@ type: `calendar`
 data:
 ```json
 {
-    "size":"little" | "big", // The size of the calendar (big has a more detailed module to add a periode)
+    "size":"little" | "big", // Optional, The size of the calendar (big has a more detailed module to add a periode), defaults to big
     "startDay":"2025-10-03" // Select the base day of the calendar
 }
 ```
