@@ -136,11 +136,11 @@ class Orchestrator {
                 return
             }
 
-            // TODO: Update grid size
             const moduleContainer = document.getElementById("modules")
             moduleContainer.style = jsonToGridCSS(json.nextQuestion)
 
             // Update modules
+            let z = 0;
             const modulesToKeep = []
             for (const module of json.nextQuestion.modules) {
                 modulesToKeep.push(module.id)
@@ -148,13 +148,18 @@ class Orchestrator {
                     // TODO: Edit module if changed (and z-index)
                     console.log(`Edit module ${module.id}`)
                 } else {
-                    console.log(`Add module ${module.id}`)
                     this.addModule(module)
                 }
+
+                // Edit z-index
+                const moduleElement = document.getElementById(module.id)
+                moduleElement.style.zIndex = z * 100
+                z++
             }
 
             for (const moduleId of Object.keys(this.modules)) {
                 if (!modulesToKeep.includes(moduleId)) {
+                    // Remove module
                     this.removeModule(moduleId)
                 }
             }
