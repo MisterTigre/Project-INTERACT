@@ -1,24 +1,35 @@
 import express from 'express'
-import { readFileSync, existsSync } from 'fs'
+import { readFileSync, existsSync, readdirSync } from 'fs'
 import { join } from 'path'
 
 const app = express() 
 const port = 5000
 
 const __dirname = import.meta.dirname;
+  console.log(__dirname)
 
 app.use(express.json())
 
 function readJson(filePath){
-  filePath = join(__dirname, filePath)
   const raw = readFileSync(filePath)
   const data = JSON.parse(raw)
   return data
 }
 
-function readChallenge(filePath){
-  filePath = join("parcours", filePath + ".json")
-  return readJson(filePath)
+function readChallenge(path){
+  // Search for a question with this name
+  let filePath = join(__dirname, "parcours", path + ".json")
+  if (existsSync(filePath)) return readJson(filePath)
+
+  // Search for a index.json file in the folder
+  filePath = join(__dirname, "parcours", path, "index.json")
+  if (existsSync(filePath)) return readJson(filePath)
+
+  // Take the first question in the folder
+  const files = readdirSync(join(__dirname, "parcours", path))
+  if (files.length > 0) return readJson(join(__dirname, "parcours", path, files[0]))
+
+  throw new Error(`Unknowd challenge ${path}`)
 }
 
 function findNextFileName(filename) {
@@ -41,7 +52,7 @@ app.get(/^\/(.*)$/, (req, res) => {
 app.post(/^\/(.*)$/, (req, res) => {
   const filePath = req.params[0] === "" ? "example" : req.params[0]
   const answer = req.body.answer
-  const answers = readJson("answers.json")
+  const answers = readJson(join(__dirname, "answers.json"))
 
   if (answers[filePath] == answer) {
     let nextQuestion
