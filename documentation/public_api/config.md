@@ -59,6 +59,41 @@ data:
     "startDay":"2025-10-03" // Select the base day of the calendar
 }
 ```
+
+### ChallengeArray
+
+type: `challengeArray`
+
+data:
+```json
+{
+    "challenges" : ["challenge", ... ], // See challenge.md
+}
+```
+
+
+### ChallengeBook
+
+type: `challengeBook`
+
+data:
+```json
+{
+    "pages": [
+        {
+            "title": "str", // Title of the page
+            "type": "str", // Type of the page ("page" => normal page, "hard" => hard cover)
+            "size": "int", // Number of challenge max on the page (Available: 2, 4 or 6)
+            "footer":"str", // Optional, text in the footer of the page
+            "challenges": ["challenge", ... ] // See challenge.md
+        }
+    ]
+}
+```
+
+
+
+
 #### Chat
 
 type: `chat`
