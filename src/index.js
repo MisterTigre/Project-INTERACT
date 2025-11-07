@@ -8,10 +8,13 @@ const port = 3000
 app.use(express.json())
 app.use(express.static('src/public/'))
 app.use('/bootstrap', express.static('node_modules/bootstrap/dist'))
+app.use('/bootstrap-icons', express.static('node_modules/bootstrap-icons/font'))
 
 
 async function renderChallenge(req, res) {
     const config = await fetch(`http://localhost:5000/${req.params[0]}`).then(ret => ret.json())
+
+    config = checkSupport(req.headers["user-agent"] ?? "", config)
 
     let modules_html = ""
     let z = 0
@@ -40,6 +43,25 @@ async function renderChallenge(req, res) {
 
     res.send(html)
 } 
+
+function checkSupport(userAgent, data){
+  const isMobile = /mobile|android|iphone|ipad|phone/i.test(userAgent)
+  if (!isMobile) {return data}
+  for (const module of data.modules){
+    if (module.type == "challengeBook"){
+        module.type = "challengeArray"
+        module.data.challenges = []
+        for (const page of module.data.pages){
+            if (page.challenges){
+                module.data.challenges = [...module.data.challenges, ...page.challenges]
+            }
+        }
+        delete module.data.pages
+    }
+  }
+  return data
+}
+
 
 app.get(/^\/(.*)$/, renderChallenge)
 
