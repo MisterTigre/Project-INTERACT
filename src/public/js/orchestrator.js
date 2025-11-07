@@ -1,3 +1,5 @@
+import { jsonToGridCSS } from "./utils.js"
+
 function createModule(type, id, data, callback) {
     switch (type) {
         case "map":
@@ -20,11 +22,27 @@ class Orchestrator {
         this.modules = {}
 
         for (const module of config.modules) {
-            this.modules[module.id] = createModule(module.type, module.id, module.data, this.#callback.bind(this))
+            this.addModule(module)
         }
 
         this.story = config.story
         this.storyIndex = 0
+    }
+
+    addModule(module) {
+        // Create html element if it doesn't exist yet
+        let container = document.getElementById(module.id)
+        if (!container) {
+            const modulesContainer = document.getElementById("modules")
+            modulesContainer.insertAdjacentHTML("beforeend", module.html);
+        }
+        
+        this.modules[module.id] = createModule(module.type, module.id, module.data, this.#callback.bind(this))
+    }
+
+    removeModule(moduleId) {
+        delete this.modules[moduleId]
+        document.getElementById(moduleId).remove()
     }
 
     storyNext() {
@@ -118,23 +136,26 @@ class Orchestrator {
                 return
             }
 
+            // TODO: Update grid size
+            const moduleContainer = document.getElementById("modules")
+            moduleContainer.style = jsonToGridCSS(json.nextQuestion)
+
             // Update modules
             const modulesToKeep = []
             for (const module of json.nextQuestion.modules) {
                 modulesToKeep.push(module.id)
                 if (this.modules[module.id]) {
-                    // TODO: Edit module if changed
+                    // TODO: Edit module if changed (and z-index)
                     console.log(`Edit module ${module.id}`)
                 } else {
-                    // TODO: Add module
                     console.log(`Add module ${module.id}`)
+                    this.addModule(module)
                 }
             }
 
             for (const moduleId of Object.keys(this.modules)) {
                 if (!modulesToKeep.includes(moduleId)) {
-                    delete this.modules[moduleId]
-                    document.getElementById(moduleId).remove()
+                    this.removeModule(moduleId)
                 }
             }
 
