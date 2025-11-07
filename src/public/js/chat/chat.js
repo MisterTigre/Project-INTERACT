@@ -36,7 +36,6 @@ class ChatModule {
      * @param {Object} payload - The data payload associated with the notification
      */
     notify(msg, payload) {
-        console.log(msg)
         switch (msg) {
             case "addDiscussion":
                 this.#addDiscussion(payload)
@@ -83,15 +82,15 @@ class ChatModule {
             console.error('ChatModule: Invalid discussion data')
             return
         }
-        if (this.#discussions.has(discussion.id)){
+        if (this.#discussions.has(discussion.id)) {
             console.error("ChatModule: Discussion already exists")
             return
         }
-        this.#discussions.set(discussion.id, { 
-            name: discussion.name, 
-            icon: discussion.icon, 
-            unreadCount: 0, 
-            state: discussion.state ?? "locked", 
+        this.#discussions.set(discussion.id, {
+            name: discussion.name,
+            icon: discussion.icon,
+            unreadCount: 0,
+            state: discussion.state ?? "locked",
             callback: null,
             messages: [],
             contactConfigs: new Map()
@@ -187,15 +186,13 @@ class ChatModule {
         }
 
         const typingDuration = this.#calculateTypingDuration(message.content)
-        
+
         if (this.#currentDiscussion === message.discussionId) {
             this.#showTypingIndicator(message.contactId, typingDuration).then(() => {
                 this.#displayActualMessage(message)
             })
         } else {
-            setTimeout(() => {
-                this.#displayActualMessage(message)
-            }, typingDuration)
+            this.#displayActualMessage(message)
         }
     }
 
@@ -214,16 +211,23 @@ class ChatModule {
         }
 
         const discussion = this.#discussions.get(discussionId)
-        
+
         if (!discussion.contactConfigs.has(contactId)) {
             discussion.contactConfigs.set(contactId, {
                 isChatbot: true,
                 url: url,
                 context: context
             })
+            this.#updateDiscussionState(discussionId, "canAnswer")
         } else {
             const config = discussion.contactConfigs.get(contactId)
             config.isChatbot = !config.isChatbot
+
+            if (config.isChatbot) {
+                this.#updateDiscussionState(discussionId, "canAnswer")
+            } else {
+                this.#updateDiscussionState(discussionId, "locked")
+            }
         }
     }
 
@@ -288,7 +292,7 @@ class ChatModule {
             content: { text: messageText },
             timestamp: new Date().toISOString()
         })
-        
+
         return true
     }
 
@@ -313,16 +317,17 @@ class ChatModule {
     #sendMessage() {
         const messageInput = this.#container.querySelector('#message-input')
         if (!messageInput) return
-        
+
         const messageText = messageInput.value.trim()
         if (!messageText) return
 
-        if (this.#addMessageToCurrentDiscussion(messageText)) {
+        if (this.#addMessageToCurrentDiscussion(messageText) && this.#waitingFor === "answer") {
             this.#callback({ answer: messageText })
             this.#waitingFor = "nothing"
-            messageInput.value = ''
         }
-        
+        messageInput.value = ''
+
+        this.#enableLocked(this.#currentDiscussion)
         this.#triggerChatbots(this.#currentDiscussion)
     }
 
@@ -339,7 +344,7 @@ class ChatModule {
         if (messageInput) {
             messageInput.value = ''
         }
-        
+
         const badge = this.#container.querySelector('#back-btn-badge')
         if (badge) {
             badge.classList.add('d-none')
@@ -376,7 +381,7 @@ class ChatModule {
 
         discussion.unreadCount = 0
         this.#updateDiscussionUnreadCount(discussionId)
-        
+
         this.#updateBackButtonBadge()
 
         this.#scrollToBottom()
@@ -464,7 +469,7 @@ class ChatModule {
      */
     #calculateTypingDuration(content) {
         if (!content || !content.text) return 1000
-        
+
         const messageLength = content.text.length
         const duration = Math.min(1000 + (messageLength * 50), 5000)
         return duration
@@ -499,12 +504,12 @@ class ChatModule {
             this.#discussions.get(message.discussionId).unreadCount++
             this.#updateDiscussionUnreadCount(message.discussionId)
         }
-        
+
         if (this.#currentDiscussion) {
             this.#updateBackButtonBadge()
         }
 
-        if (this.#waitingFor !== "read" || (this.#waitingFor === "read" && this.#currentDiscussion === this.#discussionIdToRead )) {
+        if (this.#waitingFor !== "read" || (this.#waitingFor === "read" && this.#currentDiscussion === this.#discussionIdToRead)) {
             this.#callback()
         }
 
@@ -594,14 +599,14 @@ class ChatModule {
             const audioContainer = document.createElement('div')
             audioContainer.className = 'd-flex align-items-center'
             audioContainer.style.minWidth = '250px'
-            
+
             const audioElement = document.createElement('audio')
             audioElement.src = content.audio
             audioElement.className = 'w-100'
             audioElement.controls = true
             audioElement.preload = 'metadata'
             audioElement.setAttribute('controlsList', 'nodownload')
-            
+
             audioContainer.appendChild(audioElement)
             messageBody.appendChild(audioContainer)
         } else if (content.file) {
@@ -610,7 +615,7 @@ class ChatModule {
 
             const fileName = document.createElement('div')
             fileName.textContent = content.fileName || 'Fichier'
-            
+
             const downloadBtn = document.createElement('a')
             downloadBtn.href = content.file
             downloadBtn.download = content.fileName || ''
@@ -624,7 +629,7 @@ class ChatModule {
             downloadBtn.innerHTML = '<i class="bi bi-download"></i>'
             downloadBtn.target = '_blank'
             downloadBtn.title = 'Télécharger'
-            
+
             fileContainer.appendChild(fileName)
             fileContainer.appendChild(downloadBtn)
             messageBody.appendChild(fileContainer)
@@ -729,12 +734,12 @@ class ChatModule {
             console.error('ChatModule: Current discussion data not found')
             return
         }
-        
+
         cardFooter.classList.add('d-none')
         inputGroup.classList.add('d-none')
         choicesContainer.classList.remove('d-flex')
         choicesContainer.classList.add('d-none')
-        
+
         if (discussion.state === "canAnswer") {
             cardFooter.classList.remove('d-none')
             inputGroup.classList.remove('d-none')
@@ -753,11 +758,11 @@ class ChatModule {
      */
     #updateDiscussionState(discussionId, state, additionalData = {}) {
         if (!this.#validateDiscussionId(discussionId, 'updateDiscussionState')) return
-        
+
         const discussion = this.#discussions.get(discussionId)
         discussion.state = state
         Object.assign(discussion, additionalData)
-        
+
         if (discussionId === this.#currentDiscussion) {
             this.#updateAnswerVisibility()
         }
@@ -837,9 +842,9 @@ class ChatModule {
      */
     #triggerChatbots(discussionId) {
         if (!this.#validateDiscussionId(discussionId, 'triggerChatbots')) return
-        
+
         const discussion = this.#discussions.get(discussionId)
-        
+
         discussion.contactConfigs.forEach((config, contactId) => {
             if (config.isChatbot) {
                 this.#sendToChatbot(discussionId, contactId, config.url, config.context)
@@ -856,9 +861,9 @@ class ChatModule {
      */
     async #sendToChatbot(discussionId, contactId, url, context) {
         if (!this.#validateDiscussionId(discussionId, 'sendToChatbot')) return
-        
+
         const discussion = this.#discussions.get(discussionId)
-        
+
         try {
             const history = discussion.messages.map(msg => ({
                 role: msg.type === 'sent' ? 'user' : 'assistant',
@@ -866,34 +871,35 @@ class ChatModule {
                 content: msg.content.text || '[media]',
                 timestamp: msg.timestamp
             }))
-            
+
             const payload = {
                 context: context,
                 history: history,
                 discussionId: discussionId,
                 contactId: contactId
             }
-            
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             })
-            
+
             if (!response.ok) {
                 throw new Error(`Chatbot API error: ${response.status}`)
             }
-            
+
             const data = await response.json()
-            
+
             this.#receiveMessage({
                 discussionId: discussionId,
                 contactId: contactId,
-                content: {text: data}
-            })
-            
+                content: { text: data }
+            }).then(this.#updateDiscussionState(discussionId, "canAnswer"))
+
         } catch (error) {
             console.error(`ChatModule: Chatbot ${contactId} request failed`, error)
+            this.#updateDiscussionState(discussionId, "canAnswer")
         }
     }
 }

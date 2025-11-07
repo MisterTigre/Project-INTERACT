@@ -38,6 +38,19 @@ app.get(/^\/(.*)$/, (req, res) => {
   res.status(200).json(json)
 })
 
+app.post('/chatbot/:botId', (req, res) => {
+  const botId = req.params.botId
+  const { context, history, discussionId, contactId } = req.body
+  
+  console.log(`Chatbot ${botId} received request:`)
+  console.log('Context:', context)
+  console.log('Discussion ID:', discussionId)
+  console.log('Contact ID:', contactId)
+  console.log('History length:', history?.length || 0)
+  
+  res.status(200).json('This is ok')
+})
+
 app.post(/^\/(.*)$/, (req, res) => {
   const filePath = req.params[0] === "" ? "example" : req.params[0]
   const answer = req.body.answer
@@ -60,19 +73,6 @@ app.post(/^\/(.*)$/, (req, res) => {
   }
 
   return res.status(200).json({"success": false})
-})
-
-app.post('/chatbot/:botId', (req, res) => {
-  const botId = req.params.botId
-  const { context, history, discussionId, contactId } = req.body
-  
-  console.log(`Chatbot ${botId} received request:`)
-  console.log('Context:', context)
-  console.log('Discussion ID:', discussionId)
-  console.log('Contact ID:', contactId)
-  console.log('History length:', history?.length || 0)
-  
-  res.status(200).json('This is ok')
 })
 
 app.listen(port, () => {
