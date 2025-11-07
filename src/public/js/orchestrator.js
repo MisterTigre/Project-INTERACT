@@ -107,7 +107,7 @@ class Orchestrator {
             return
         }
         
-        if (Object.keys().includes("answer")) {
+        if (Object.keys(params).includes("answer")) {
             this.#callbackAnswer(params.answer)
             return
         }
