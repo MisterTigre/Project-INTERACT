@@ -54,12 +54,10 @@ async function renderChallenge(req, res) {
 } 
 
 function checkSupport(userAgent, data){
-  console.log("---------------------------------------")
   const isMobile = /mobile|android|iphone|ipad|phone/i.test(userAgent)
   if (!isMobile) {return data}
   for (const module of data.modules){
     if (module.type == "challengeBook"){
-        console.log("Book detected")
         module.type = "challengeArray"
         module.data.challenges = []
         for (const page of module.data.pages){
@@ -70,7 +68,6 @@ function checkSupport(userAgent, data){
         delete module.data.pages
     }
   }
-  console.log(data.modules[0].data)
   return data
 }
 
