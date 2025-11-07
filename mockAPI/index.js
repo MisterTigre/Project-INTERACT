@@ -1,21 +1,23 @@
-const express = require('express')
-const fs = require('fs')
-const path = require('path')
+import express from 'express'
+import { readFileSync, existsSync } from 'fs'
+import { join } from 'path'
 
-const app = express()
+const app = express() 
 const port = 5000
+
+const __dirname = import.meta.dirname;
 
 app.use(express.json())
 
 function readJson(filePath){
-  filePath = path.join(__dirname, filePath)
-  const raw = fs.readFileSync(filePath)
+  filePath = join(__dirname, filePath)
+  const raw = readFileSync(filePath)
   const data = JSON.parse(raw)
   return data
 }
 
 function readChallenge(filePath){
-  filePath = path.join("parcours", filePath + ".json")
+  filePath = join("parcours", filePath + ".json")
   return readJson(filePath)
 }
 
@@ -45,13 +47,11 @@ app.post(/^\/(.*)$/, (req, res) => {
     let nextQuestion
 
     const parentPath = filePath.split("/").slice(0, -1).join("/")
-    console.log(filePath.split("/"))
     const fileName = filePath.split("/").slice(-1)[0]
-    console.log(fileName)
     const nextFileName = findNextFileName(fileName)
-    const nextFilePath = path.join(parentPath, nextFileName)
+    const nextFilePath = join(parentPath, nextFileName)
 
-    if (fs.existsSync(path.join(__dirname, "parcours", nextFilePath + ".json"))) {
+    if (existsSync(join(__dirname, "parcours", nextFilePath + ".json"))) {
       nextQuestion = readChallenge(nextFilePath)
     }
     return res.status(200).json({"success": true, nextQuestion})
