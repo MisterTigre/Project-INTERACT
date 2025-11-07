@@ -143,16 +143,26 @@ class Orchestrator {
             let z = 0;
             const modulesToKeep = []
             for (const module of json.nextQuestion.modules) {
+                let moduleElement
                 modulesToKeep.push(module.id)
                 if (this.modules[module.id]) {
-                    // TODO: Edit module if changed (and z-index)
-                    console.log(`Edit module ${module.id}`)
+                    // Edit module position and size
+                    const x = module.position[0]
+                    const y = module.position[1]
+
+                    const w = module.size[0]
+                    const h = module.size[1]
+
+                    moduleElement = document.getElementById(module.id)
+                    moduleElement.style.gridColumn = `${x + 1} / ${x + w + 1}`
+                    moduleElement.style.gridRow = `${y + 1} / ${y + h + 1}`
+
                 } else {
                     this.addModule(module)
+                    moduleElement = document.getElementById(module.id)
                 }
 
                 // Edit z-index
-                const moduleElement = document.getElementById(module.id)
                 moduleElement.style.zIndex = z * 100
                 z++
             }
