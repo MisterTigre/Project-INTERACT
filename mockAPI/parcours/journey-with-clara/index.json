@@ -11,10 +11,11 @@
                 "pages" : [
                     {
                         "type":"cover",
-                        "image":"/img/livre-recto.jpg"
+                        "image":"/img/carnet-recto.png"
                     },
                     {
-                        "type":"cover"
+                        "type":"cover",
+                        "image":"/img/carnet-interieur.png"
                     },
                     {
                         "title":"Introduction",
@@ -154,11 +155,12 @@
                         ]
                     },
                     {
-                        "type":"cover"
+                        "type":"cover",
+                        "image":"/img/carnet-interieur.png"
                     },
                     {
                         "type":"cover",
-                        "image":"/img/livre-verso.jpg"
+                        "image":"/img/carnet-verso.png"
                     }
                 ]
             }
