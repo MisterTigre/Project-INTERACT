@@ -34,7 +34,7 @@ html, body {
 
     width: min(92%, 720px);
     max-width: calc(100% - 48px);
-    text-align: left;
+    text-align: center;
 
     /* hidden by default */
     opacity: 0;
@@ -47,4 +47,23 @@ html, body {
     opacity: 1;
     pointer-events: auto;
     transform: translate(-50%, 0);
+}
+
+#answer-instructions.move-bottom {
+    /* move to bottom */
+    top: auto;
+    bottom: 24px;
+    transform: translate(-50%, 8px);
+}
+
+@media (max-width: 520px) {
+    #answer-instructions {
+        top: 12px;
+        padding: 0.6rem 0.75rem;
+        border-radius: 6px;
+        width: calc(100% - 24px);
+    }
+    #answer-instructions.move-bottom {
+        bottom: 12px;
+    }
 }
