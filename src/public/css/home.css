@@ -18,3 +18,52 @@ html, body {
     display: grid;
     gap: 0px;
 }
+
+#answer-instructions {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translate(-50%, -8px);
+    z-index: 1001;
+
+    background: #ffffff;
+    color: #111;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+
+    width: min(92%, 720px);
+    max-width: calc(100% - 48px);
+    text-align: center;
+
+    /* hidden by default */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+}
+
+/* Visible state */
+#answer-instructions.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0);
+}
+
+#answer-instructions.move-bottom {
+    /* move to bottom */
+    top: auto;
+    bottom: 24px;
+    transform: translate(-50%, 8px);
+}
+
+@media (max-width: 520px) {
+    #answer-instructions {
+        top: 12px;
+        padding: 0.6rem 0.75rem;
+        border-radius: 6px;
+        width: calc(100% - 24px);
+    }
+    #answer-instructions.move-bottom {
+        bottom: 12px;
+    }
+}
